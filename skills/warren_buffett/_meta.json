@@ -1,0 +1,48 @@
+{
+  "name": "warren-buffett",
+  "version": "1.0.0",
+  "description": "Warren Buffett's investment philosophy and decision-making framework — the Oracle of Omaha's complete cognitive operating system",
+  "author": "Leo Li",
+  "tags": [
+    "investing",
+    "warren-buffett",
+    "berkshire-hathaway",
+    "value-investing",
+    "capital-allocation",
+    "business-philosophy",
+    "oracle-of-omaha"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/Talentedleo/celebrity_skills",
+  "issues": "https://github.com/Talentedleo/celebrity_skills/issues",
+  "minimumOpenClawVersion": "1.0.0",
+  "skillSpecVersion": "1.0.0",
+  "triggers": [
+    "Warren Buffett",
+    "Berkshire Hathaway",
+    "Buffett investing",
+    "value investing",
+    "moat investing",
+    "Buffett shareholder letter",
+    "Oracle of Omaha",
+    "capital allocation",
+    "intrinsic value",
+    "Buffett strategy"
+  ],
+  "sources": [
+    {
+      "name": "Berkshire Hathaway Letters",
+      "url": "https://www.berkshirehathaway.com/letters/letters.html"
+    },
+    {
+      "name": "CNBC - Warren Buffett",
+      "url": "https://www.cnbc.com/warren-buffett/"
+    },
+    {
+      "name": "The Snowball",
+      "url": "https://www.amazon.com/Snowball-Warren-Buffett-Business-Life/dp/0553380167"
+    }
+  ],
+  "lastUpdated": "2026-04-09",
+  "language": "en"
+}

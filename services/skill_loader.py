@@ -15,52 +15,22 @@ class SkillLoader:
         Initialize SkillLoader.
         
         Args:
-            skills_path: Optional explicit path. If not provided, searches in order:
-                1. CELEBRITY_SKILLS_PATH env var
-                2. ../celebrity_skills from project root
-                3. ../../celebrity_skills (sibling in sandbox/)
-                4. ~/Desktop/sandbox/celebrity_skills
+            skills_path: Optional explicit path. Defaults to local skills/ directory.
         """
-        self.skills_path = Path(skills_path or self._find_skills_path())
+        if skills_path:
+            self.skills_path = Path(skills_path)
+        else:
+            # Default: local skills/ directory in project
+            self.skills_path = Path(__file__).parent.parent / "skills"
+        
         self._validate_path()
-    
-    def _find_skills_path(self) -> str:
-        """Find the celebrity_skills directory using multiple strategies"""
-        # Strategy 1: Environment variable (highest priority)
-        env_path = os.environ.get('CELEBRITY_SKILLS_PATH')
-        if env_path and Path(env_path).exists():
-            return env_path
-        
-        # Strategy 2: Sibling directory at project root
-        # Path: financial_analyst/celebrity_skills/
-        project_root = Path(__file__).parent.parent
-        relative_path = project_root / "celebrity_skills"
-        if relative_path.exists():
-            return str(relative_path)
-        
-        # Strategy 3: Sibling in parent sandbox directory
-        # Path: sandbox/celebrity_skills/ (sibling to financial_analyst/)
-        sibling_path = Path(__file__).parent.parent.parent / "celebrity_skills"
-        if sibling_path.exists():
-            return str(sibling_path)
-        
-        # Strategy 4: Home directory sandbox
-        home_path = Path.home() / "Desktop/sandbox/celebrity_skills"
-        if home_path.exists():
-            return str(home_path)
-        
-        raise FileNotFoundError(
-            f"celebrity_skills directory not found. "
-            f"Set CELEBRITY_SKILLS_PATH environment variable or "
-            f"place celebrity_skills directory next to this project."
-        )
     
     def _validate_path(self) -> None:
         """Validate that skills path exists"""
         if not self.skills_path.exists():
             raise FileNotFoundError(
                 f"Skills path does not exist: {self.skills_path}\n"
-                f"Set CELEBRITY_SKILLS_PATH environment variable."
+                f"Ensure celebrity skills are copied to the skills/ directory."
             )
     
     def get_available_skills(self) -> List[str]:
