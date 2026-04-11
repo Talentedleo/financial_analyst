@@ -1,12 +1,27 @@
-# LiteLLM Configuration (Optional - for advanced use cases)
-# Note: Google ADK can call MiniMax directly via LiteLlm without LiteLLM proxy
+# Financial Analyst Configuration
+# Note: Google ADK calls MiniMax directly via LiteLlm
 
-model_list:
-  - model_name: minimax/MiniMax-M2.1
-    litellm_params:
-      model: minimax/MiniMax-M2.1
-      api_key: os.environ/MINIMAX_API_KEY
-      api_base: https://api.minimax.io/v1
+model:
+  name: MiniMax-M2.7-highspeed
+  api_base: https://api.minimax.io/v1
 
-general_settings:
-  master_key: sk-1234
+# API Keys (set via environment variables or .env file)
+# MINIMAX_API_KEY
+# FINNHUB_API_KEY
+
+# Session settings
+session:
+  # In production, use Redis for session storage
+  storage: memory  # memory | redis
+
+# CORS settings (for production)
+cors:
+  allow_origins:
+    - "*"  # Configure appropriately
+  allow_credentials: true
+
+# Security (for production)
+security:
+  # API key authentication (implement in middleware for production)
+  enabled: false
+  master_key: sk-1234  # Change this in production

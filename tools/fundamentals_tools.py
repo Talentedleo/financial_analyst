@@ -44,8 +44,6 @@ def get_company_financials(symbol: str) -> Dict[str, Any]:
     Returns:
         Basic financial data
     """
-    import finnhub
-    
     data_service = get_data_service()
     client = data_service.client
     
@@ -125,5 +123,25 @@ get_company_peers_tool = FunctionTool(
     function=get_company_peers
 )
 
+get_company_financials_tool = FunctionTool(
+    name="get_company_financials",
+    description="Get basic financial metrics for a company including revenue, earnings, P/E ratio",
+    parameters={
+        "type": "object",
+        "properties": {
+            "symbol": {
+                "type": "string",
+                "description": "Stock symbol (e.g., 'AAPL', 'GOOGL')"
+            }
+        },
+        "required": ["symbol"]
+    },
+    function=get_company_financials
+)
+
 # Export all tools
-fundamentals_tools = [get_company_profile_tool, get_company_peers_tool]
+fundamentals_tools = [
+    get_company_profile_tool,
+    get_company_peers_tool,
+    get_company_financials_tool
+]

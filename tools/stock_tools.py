@@ -4,7 +4,6 @@ Stock Tools - Finnhub stock data tools for ADK
 
 import os
 from typing import Dict, List, Any
-from google.adk.tools import Tool
 from google.adk.tools import FunctionTool
 
 from services.data_service import get_data_service

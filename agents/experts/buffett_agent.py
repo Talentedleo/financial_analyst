@@ -3,7 +3,6 @@ Warren Buffett Expert Agent
 """
 
 import os
-from typing import List
 from google.adk.agents import Agent
 from google.adk.models.lite_llm import LiteLlm
 
