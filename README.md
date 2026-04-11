@@ -352,3 +352,22 @@ financial_analyst/
 ├── requirements.txt
 └── main.py
 ```
+
+---
+
+## Development Plan
+
+See [PLAN.md](./PLAN.md) for detailed development tasks and execution order.
+
+### Quick Phase Summary
+
+| Phase | Tasks | Description |
+|-------|-------|-------------|
+| Phase 1 | 0-8 | ✅ Infrastructure (completed) |
+| Phase 2 | 9-16 | Agent Implementation |
+| Phase 3 | 17-23 | Celebrity Skill Integration |
+| Phase 4 | 24-27 | Plan Agent (Root Coordinator) |
+| Phase 5 | 28-32 | FastAPI Endpoints |
+| Phase 6 | 33-40 | Testing & Polish |
+
+**Total: 41 tasks across 6 phases**
