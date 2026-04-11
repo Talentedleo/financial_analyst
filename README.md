@@ -10,9 +10,19 @@
 
 ---
 
-## Overview
+## Official Examples Studied
 
-The Financial Analyst AI Agent System is an intelligent, multi-expert autonomous platform for professional-grade stock analysis using Google ADK with MiniMax models.
+### Google ADK Official Repository
+**Repo:** https://github.com/google/adk-python
+
+### Key Official Examples
+
+| Example | Path | Purpose |
+|---------|------|---------|
+| Simple Agent | `adk-python/samples/agents/` | Basic agent with tools |
+| Financial Advisor | `adk-samples/python/agents/financial-advisor/` | Domain-specific agent |
+| Parallel Task | `adk-samples/python/agents/parallel_task_decomposition_execution/` | Multi-agent coordination |
+| Hierarchical Workflow | `adk-samples/python/agents/hierarchical-workflow-automation/` | Complex multi-agent system |
 
 ---
 
@@ -21,20 +31,18 @@ The Financial Analyst AI Agent System is an intelligent, multi-expert autonomous
 ```
 User Input
     ↓
-Google ADK Agent
+Google ADK (Plan Agent)
     ↓
-LiteLlm (from google.adk.models.lite_llm)
+LiteLlm (google.adk.models.lite_llm)
     ↓
-MiniMax API (api.minimax.io)
+MiniMax-M2.1 API
     ↓
 FastAPI → JSON Response
 ```
 
-**Note:** Google ADK uses `google.adk.models.lite_llm.LiteLlm` to connect to MiniMax via OpenAI-compatible API.
-
 ---
 
-## Quick Start
+## Quick Start (Official Pattern)
 
 ### 1. Install Dependencies
 
@@ -42,23 +50,16 @@ FastAPI → JSON Response
 pip install google-adk litellm fastapi uvicorn pydantic
 ```
 
-### 2. Configure Environment
-
-```bash
-export MINIMAX_API_KEY="your-minimax-api-key"
-```
-
-### 3. Create Agent with MiniMax
+### 2. Create Agent (Official ADK Pattern)
 
 ```python
-import os
 from google.adk.agents import Agent
 from google.adk.models.lite_llm import LiteLlm
+from google.adk.tools import Tool
 from google.adk.sessions import InMemorySessionService
 from google.adk.runners import Runner
-from google.genai import types
 
-# Create LiteLlm model (connects to MiniMax)
+# Create LLM model (MiniMax via LiteLlm)
 model = LiteLlm(
     model="minimax/MiniMax-M2.1",
     api_key=os.environ["MINIMAX_API_KEY"],
@@ -66,11 +67,11 @@ model = LiteLlm(
 )
 
 # Create Agent
-agent = Agent(
-    name="plan_agent",
+root_agent = Agent(
+    name="financial_advisor",
     model=model,
-    instruction="You are a financial analysis coordinator...",
-    description="Analyzes user questions and routes to sub-agents"
+    description="Financial analysis agent",
+    instruction="You are a helpful financial assistant.",
 )
 
 # Create session service
@@ -78,101 +79,126 @@ session_service = InMemorySessionService()
 
 # Create runner
 runner = Runner(
-    agent=agent,
+    agent=root_agent,
     app_name="financial_analyst",
     session_service=session_service
 )
 ```
 
-### 4. Run Agent
+### 3. Run Agent (Official Pattern)
 
 ```python
 import asyncio
+from google.genai import types
 
-async def run_agent(query: str):
-    content = types.Content(role="user", parts=[types.Part(text=query)])
+async def main():
+    # Create user message
+    content = types.Content(
+        role="user",
+        parts=[types.Part(text="Should I invest in Apple?")]
+    )
     
-    async for event in runner.run_async(
+    # Run agent
+    async for event in runner.run(
         user_id="user_1",
         session_id="session_001",
         new_message=content
     ):
         if event.is_final_response():
-            return event.content.parts[0].text
-    
-asyncio.run(run_agent("Should I invest in Tesla?"))
+            print(event.content.parts[0].text)
+
+asyncio.run(main())
 ```
 
 ---
 
-## ADK + LiteLLM + MiniMax Integration
+## Multi-Agent Patterns (from Official Examples)
 
-### The Key Connection
-
-Google ADK provides native `LiteLlm` support:
+### Pattern 1: Sequential Sub-Agents
 
 ```python
-from google.adk.models.lite_llm import LiteLlm
-```
+from google.adk.agents import Agent
+from google.adk.agents.sequential_agent import SequentialAgent
 
-This allows ADK to call **any OpenAI-compatible API** including MiniMax.
+# Create sub-agents
+research_agent = Agent(name="research", model=model, ...)
+analysis_agent = Agent(name="analysis", model=model, ...)
 
-### Create Model
-
-```python
-model = LiteLlm(
-    model="minimax/MiniMax-M2.1",  # Model name
-    api_key=os.environ["MINIMAX_API_KEY"],
-    api_base="https://api.minimax.io/v1"  # MiniMax API endpoint
+# Create sequential agent
+sequential_agent = SequentialAgent(
+    name="financial_analysis_pipeline",
+    model=model,
+    description="Pipeline for financial analysis",
+    sub_agents=[research_agent, analysis_agent]
 )
 ```
 
-### MiniMax Models Supported
+### Pattern 2: Parallel Execution
 
-| Model | Description | Input | Output |
-|-------|-------------|-------|--------|
-| minimax/MiniMax-M2.1 | High performance | $0.3/1M | $1.2/1M |
-| minimax/MiniMax-M2.1-lightning | Fast, ~100 tps | $0.3/1M | $2.4/1M |
-| minimax/MiniMax-M2Agent | Agentic, advanced reasoning | $0.3/1M | $1.2/1M |
+```python
+from google.adk.agents.parallel_agent import ParallelAgent
+
+# Create parallel agents
+buffett_agent = Agent(name="buffett", model=model, ...)
+wood_agent = Agent(name="wood", model=model, ...)
+
+parallel_agent = ParallelAgent(
+    name="multi_perspective_analysis",
+    model=model,
+    sub_agents=[buffett_agent, wood_agent]
+)
+```
+
+### Pattern 3: Tool Integration
+
+```python
+from google.adk.tools import Tool
+
+def search_web(query: str) -> str:
+    """Search the web for financial information"""
+    # Implementation
+    return results
+
+web_search_tool = Tool(
+    name="web_search",
+    description="Search for financial news and data",
+    method=search_web
+)
+
+agent = Agent(
+    name="financial_advisor",
+    model=model,
+    tools=[web_search_tool]
+)
+```
 
 ---
 
-## Multi-Agent Architecture
+## Our Implementation Plan
+
+### Phase 1: Core Agents
 
 ```
 Plan Agent (Root)
     ↓
-├── Web Search Agent → Search financial data
+├── Web Search Agent → Financial data search
 └── Financial Master Agent
-    ├── Buffett Skill
-    ├── Cathie Wood Skill
-    └── Greg Abel Skill
+    ├── Buffett Analysis
+    ├── Cathie Wood Analysis
+    └── Greg Abel Analysis
 ```
 
-### Plan Agent
+### Phase 2: Tools
 
-```python
-plan_agent = Agent(
-    name="plan_agent",
-    model=model,
-    instruction="""You are a financial analysis coordinator.
-    Analyze user questions and route to appropriate sub-agents.""",
-    description="Coordinates analysis requests"
-)
-```
+- Web search tool
+- Stock data tool
+- News tool
 
-### Financial Master Agent
+### Phase 3: Integration
 
-```python
-financial_master = Agent(
-    name="financial_master",
-    model=model,
-    instruction="""You are a financial expert using celebrity investment frameworks.
-    Use Buffett, Cathie Wood, and Greg Abel perspectives.""",
-    description="Provides expert financial analysis",
-    sub_agents=[buffett_agent, wood_agent, abel_agent]
-)
-```
+- Celebrity Skills loaded as context
+- Multi-perspective analysis
+- FastAPI endpoints
 
 ---
 
@@ -184,40 +210,21 @@ financial_analyst/
 │   ├── __init__.py
 │   ├── plan_agent.py        # Root coordinator
 │   ├── web_search_agent.py # Search sub-agent
-│   └── financial_master.py  # Expert sub-agent
-├── skills/
+│   └── financial_master.py # Expert sub-agent
+├── skills/                  # Celebrity Skills
 │   ├── buffett/
 │   ├── cathie_wood/
 │   └── greg_abel/
+├── tools/
+│   └── search_tool.py      # Custom tools
 ├── api/
-│   └── main.py              # FastAPI endpoints
+│   └── main.py             # FastAPI
 ├── models/
 │   └── schemas.py
+├── services/
+│   └── llm_service.py      # LLM service
 ├── requirements.txt
 └── main.py
-```
-
----
-
-## API Endpoints
-
-### POST /analyze
-
-```json
-Request:
-{
-  "question": "Should I invest in Tesla?",
-  "style": "buffett" | "wood" | "abel" | "all"
-}
-```
-
-### POST /search
-
-```json
-Request:
-{
-  "query": "Tesla Q1 2026 earnings"
-}
 ```
 
 ---
@@ -236,8 +243,8 @@ This project uses [Celebrity Skills](https://github.com/Talentedleo/celebrity_sk
 
 ## References
 
-- [Google ADK](https://adk.dev/)
-- [ADK Documentation](https://google.github.io/adk-docs/)
+- [Google ADK GitHub](https://github.com/google/adk-python)
+- [ADK Samples](https://github.com/google/adk-samples)
 - [LiteLLM](https://docs.litellm.ai/)
 - [MiniMax API](https://www.minimax.io/)
 
