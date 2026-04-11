@@ -17,8 +17,9 @@ class SkillLoader:
         Args:
             skills_path: Optional explicit path. If not provided, searches in order:
                 1. CELEBRITY_SKILLS_PATH env var
-                2. Project root (../celebrity_skills from project root)
-                3. ~/Desktop/sandbox/celebrity_skills
+                2. ../celebrity_skills from project root
+                3. ../../celebrity_skills (sibling in sandbox/)
+                4. ~/Desktop/sandbox/celebrity_skills
         """
         self.skills_path = Path(skills_path or self._find_skills_path())
         self._validate_path()
@@ -30,26 +31,23 @@ class SkillLoader:
         if env_path and Path(env_path).exists():
             return env_path
         
-        # Strategy 2: Relative to project root (development)
-        # Project structure: src/financial_analyst/services/../ -> src/celebrity_skills
+        # Strategy 2: Sibling directory at project root
+        # Path: financial_analyst/celebrity_skills/
         project_root = Path(__file__).parent.parent
         relative_path = project_root / "celebrity_skills"
         if relative_path.exists():
             return str(relative_path)
         
-        # Also try sibling directory (in case services/ is nested differently)
+        # Strategy 3: Sibling in parent sandbox directory
+        # Path: sandbox/celebrity_skills/ (sibling to financial_analyst/)
         sibling_path = Path(__file__).parent.parent.parent / "celebrity_skills"
         if sibling_path.exists():
             return str(sibling_path)
         
-        # Strategy 3: Home directory sandbox
+        # Strategy 4: Home directory sandbox
         home_path = Path.home() / "Desktop/sandbox/celebrity_skills"
         if home_path.exists():
             return str(home_path)
-        
-        # Strategy 4: Environment variable fallback (even if doesn't exist, try it)
-        if env_path:
-            return env_path
         
         raise FileNotFoundError(
             f"celebrity_skills directory not found. "
@@ -124,12 +122,7 @@ class SkillLoader:
         return skills
     
     def get_skill_context(self, skill_name: str) -> str:
-        """
-        Get skill content formatted for agent instruction.
-        
-        Returns:
-            Skill content as string for system prompt
-        """
+        """Get skill content formatted for agent instruction."""
         skill = self.load_skill(skill_name)
         
         context_parts = [f"# {skill_name.upper()} SKILL\n"]
