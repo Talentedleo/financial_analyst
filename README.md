@@ -1,8 +1,12 @@
 # Financial Analyst AI Agent System
 
-> Multi-agent system using Google ADK for professional-grade stock analysis
+> Multi-agent system using Google ADK + LiteLLM + MiniMax for professional-grade stock analysis
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://www.python.org/)
+[![Google ADK](https://img.shields.io/badge/Google%20ADK-Latest-green.svg)](https://adk.dev/)
+[![LiteLLM](https://img.shields.io/badge/LiteLLM-Proxy-orange.svg)](https://docs.litellm.ai/)
+[![MiniMax](https://img.shields.io/badge/MiniMax-M2.1-red.svg)](https://www.minimax.io/)
 
 ---
 
@@ -12,64 +16,201 @@ The Financial Analyst AI Agent System is an intelligent, multi-expert autonomous
 
 ---
 
-## System Architecture
+## Architecture
 
 ```
 User Input
     ↓
-Plan Agent (Coordinator)
+Plan Agent (Google ADK)
     ↓
-├── Web Search Agent ─→ Search financial news, data, analysis
+├── Web Search Agent ─→ Search financial news, data
 └── Financial Master Agent
     ├── Warren Buffett Skill
     ├── Cathie Wood Skill
     └── Greg Abel Skill
+    ↓
+LiteLLM Proxy (MiniMax-M2.1)
     ↓
 FastAPI → JSON Response
 ```
 
 ---
 
-## Agents
+## Tech Stack
 
-### 1. Plan Agent (Root Agent)
-
-**Role:** Analyzes user question, decides which agents to call
-
-**Capabilities:**
-- Parse user intent (investment advice, stock analysis, philosophy question)
-- Route to appropriate sub-agents
-- Synthesize final response
-
----
-
-### 2. Web Search Agent
-
-**Role:** Search real-time financial information
-
-**Capabilities:**
-- Search stocks, financial news
-- Get current prices
-- Find analyst reports
+| Component | Technology |
+|-----------|------------|
+| Agent Framework | Google ADK |
+| LLM Provider | MiniMax (via LiteLLM) |
+| Model | MiniMax-M2.1 |
+| API | FastAPI |
+| Skills | Celebrity Skills (Markdown) |
 
 ---
 
-### 3. Financial Master Agent (Multi-Skill Agent)
+## Quick Start
 
-**Role:** Provide expert-level financial analysis using celebrity skills
+### Prerequisites
 
-**Skills Loaded:**
-- `warren_buffett_skill` - Value investing, moat analysis
-- `cathie_wood_skill` - Disruptive innovation, growth investing
-- `greg_abel_skill` - Operational excellence, Berkshire perspective
+- Python 3.10+
+- MiniMax API Key
+- LiteLLM Proxy
+
+### 1. Install Dependencies
+
+```bash
+pip install google-adk litellm fastapi uvicorn pydantic
+```
+
+### 2. Configure LiteLLM Proxy with MiniMax
+
+Create `config.yaml`:
+
+```yaml
+model_list:
+  - model_name: minimax/MiniMax-M2.1
+    litellm_params:
+      model: minimax/MiniMax-M2.1
+      api_key: os.environ/MINIMAX_API_KEY
+      api_base: https://api.minimax.io/v1
+
+litellm_settings:
+  drop_params: true
+  set_verbose: true
+```
+
+Start the proxy:
+
+```bash
+litellm --config config.yaml --port 4000
+```
+
+### 3. Set Environment Variables
+
+```bash
+export MINIMAX_API_KEY="your-minimax-api-key"
+export ADK_LITEllM_BASE_URL="http://localhost:4000"
+```
+
+### 4. Run the API
+
+```bash
+uvicorn api.main:app --reload --port 8000
+```
 
 ---
 
-## API Endpoints (FastAPI)
+## MiniMax Models via LiteLLM
+
+LiteLLM provides unified access to MiniMax models through OpenAI/Anthropic-compatible APIs.
+
+### Supported Models
+
+| Model | Description | Input Cost | Output Cost |
+|-------|-------------|------------|-------------|
+| MiniMax-M2.1 | Powerful multi-language, enhanced programming | $0.3/1M tokens | $1.2/1M tokens |
+| MiniMax-M2.1-lightning | Faster, ~100 tps | $0.3/1M tokens | $2.4/1M tokens |
+| MiniMax-M2Agent | Agentic, advanced reasoning | $0.3/1M tokens | $1.2/1M tokens |
+
+### Basic Usage with LiteLLM SDK
+
+```python
+import litellm
+
+# Set environment variables
+os.environ["MINIMAX_API_KEY"] = "your-minimax-api-key"
+os.environ["MINIMAX_API_BASE"] = "https://api.minimax.io/v1"
+
+# Simple completion
+response = litellm.completion(
+    model="minimax/MiniMax-M2.1",
+    messages=[
+        {"role": "system", "content": "You are a helpful assistant."},
+        {"role": "user", "content": "Hello, how are you?"}
+    ]
+)
+print(response.choices[0].message.content)
+```
+
+### With Tool Calling
+
+```python
+import litellm
+
+tools = [
+    {
+        "type": "function",
+        "function": {
+            "name": "get_weather",
+            "description": "Get current weather",
+            "parameters": {
+                "type": "object",
+                "properties": {"location": {"type": "string"}},
+                "required": ["location"]
+            }
+        }
+    }
+]
+
+response = litellm.completion(
+    model="minimax/MiniMax-M2.1",
+    messages=[{"role": "user", "content": "What's the weather in SF?"}],
+    tools=tools
+)
+```
+
+### With Reasoning Split
+
+```python
+response = litellm.completion(
+    model="minimax/MiniMax-M2.1",
+    messages=[{"role": "user", "content": "Solve: 2+2=?"}],
+    extra_body={"reasoning_split": True}
+)
+
+# Access thinking and response separately
+if hasattr(response.choices[0].message, 'reasoning_details'):
+    print(f"Thinking: {response.choices[0].message.reasoning_details}")
+print(f"Response: {response.choices[0].message.content}")
+```
+
+---
+
+## Google ADK Agent Structure
+
+### Agent Definition
+
+```python
+from google.adk.agents import Agent
+from google.adk.tools import Tool
+
+# Define your agent
+root_agent = Agent(
+    name="plan_agent",
+    model="minimax/MiniMax-M2.1",  # Via LiteLLM
+    description="Analyzes user questions and routes to sub-agents",
+    instruction="You are a financial analysis coordinator...",
+    tools=[web_search_tool, financial_master_tool]
+)
+```
+
+### Tool Definition
+
+```python
+from google.adk.tools import Tool
+
+web_search_tool = Tool(
+    name="web_search",
+    description="Search for financial news and data",
+    handler=web_search_handler  # Your custom handler
+)
+```
+
+---
+
+## API Endpoints
 
 ### POST /analyze
-
-Analyze a stock or investment question
 
 ```json
 Request:
@@ -87,8 +228,6 @@ Response:
 ```
 
 ### POST /search
-
-Real-time web search
 
 ```json
 Request:
@@ -118,81 +257,29 @@ financial_analyst/
 │   ├── web_search_agent.py    # Search agent
 │   └── financial_master.py    # Expert agent with skills
 ├── skills/
-│   ├── __init__.py
 │   ├── buffett/
-│   │   └── SKILL.md
 │   ├── cathie_wood/
-│   │   └── SKILL.md
 │   └── greg_abel/
-│       └── SKILL.md
 ├── api/
 │   └── main.py                # FastAPI endpoints
 ├── models/
 │   └── schemas.py             # Pydantic models
 ├── services/
-│   └── adk_service.py         # ADK initialization
-├── tests/
+│   └── adk_service.py         # ADK + LiteLLM setup
+├── config.yaml                 # LiteLLM Proxy config
 ├── requirements.txt
-└── main.py                    # Entry point
-```
-
----
-
-## Tech Stack
-
-| Component | Technology |
-|-----------|------------|
-| Agent Framework | Google ADK |
-| LLM | Gemini (via ADK) |
-| API | FastAPI |
-| Skills | Celebrity Skills (Markdown) |
-| Deployment | Docker (optional) |
-
----
-
-## Getting Started
-
-### Prerequisites
-
-- Python 3.10+
-- Google ADK
-- Gemini API key
-
-### Installation
-
-```bash
-# Clone the repository
-git clone https://github.com/Talentedleo/financial_analyst.git
-cd financial_analyst
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Set up environment variables
-export GEMINI_API_KEY="your-api-key"
-```
-
-### Run the API
-
-```bash
-uvicorn api.main:app --reload --port 8000
-```
-
-### Run Tests
-
-```bash
-pytest tests/
+└── main.py
 ```
 
 ---
 
 ## Development Phases
 
-### Phase 1: Core Setup
+### Phase 1: Core Setup ✅
+- [x] System architecture defined
 - [ ] Initialize ADK project
-- [ ] Create base agents
+- [ ] Configure LiteLLM + MiniMax
 - [ ] Setup FastAPI skeleton
-- [ ] Connect agents to API
 
 ### Phase 2: Skills Integration
 - [ ] Load Buffett skill
@@ -215,13 +302,21 @@ pytest tests/
 
 ## Celebrity Skills
 
-This project uses the [Celebrity Skills](https://github.com/Talentedleo/celebrity_skills) framework:
+This project uses [Celebrity Skills](https://github.com/Talentedleo/celebrity_skills):
 
 | Skill | Description |
 |-------|-------------|
 | Warren Buffett | Value investing, moat analysis, long-term thinking |
 | Cathie Wood | Disruptive innovation, growth investing, Big Ideas |
 | Greg Abel | Operational excellence, Berkshire culture, capital allocation |
+
+---
+
+## References
+
+- [Google ADK](https://adk.dev/)
+- [LiteLLM Documentation](https://docs.litellm.ai/)
+- [MiniMax API](https://www.minimax.io/)
 
 ---
 
