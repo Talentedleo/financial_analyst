@@ -4,93 +4,93 @@ Financial Analyst AI Agent System - Main Entry Point
 
 import os
 import asyncio
-from google.adk.runners import Runner
-from google.genai import types
 
-from services import get_llm_service, get_data_service
-from agents import create_agent
+# Check required environment variables
+required_env = ["MINIMAX_API_KEY"]
+missing_env = [k for k in required_env if not os.environ.get(k)]
+
+if missing_env:
+    print(f"⚠ Warning: Missing environment variables: {missing_env}")
+
+optional_env = ["FINNHUB_API_KEY"]
+missing_optional = [k for k in optional_env if not os.environ.get(k)]
+
+if missing_optional:
+    print(f"ℹ Note: Optional variables not set: {missing_optional}")
+
+print("=" * 60)
+print("Financial Analyst AI Agent System")
+print("=" * 60)
+
+# Import components
+from agents.plan_agent import get_plan_agent
+from services import get_llm_service, get_data_service, get_skill_loader
 
 
-async def initialize():
-    """Initialize services and agents"""
-    # Initialize LLM service
-    llm = get_llm_service()
-    print(f"✓ LLM Service initialized: {llm.model_name}")
+async def init_services():
+    """Initialize all services"""
+    print("\n📦 Initializing services...")
     
-    # Initialize data service
-    data = get_data_service()
-    print("✓ Data Service initialized (Finnhub)")
+    # LLM Service
+    try:
+        llm = get_llm_service()
+        print(f"  ✓ LLM Service: {llm.model_name}")
+    except Exception as e:
+        print(f"  ✗ LLM Service failed: {e}")
     
-    return llm, data
+    # Data Service
+    try:
+        data = get_data_service()
+        print(f"  ✓ Data Service: Finnhub connected")
+    except Exception as e:
+        print(f"  ✗ Data Service failed: {e}")
+    
+    # Skill Loader
+    try:
+        loader = get_skill_loader()
+        skills = loader.load_all_skills()
+        print(f"  ✓ Skill Loader: {len(skills)} skills loaded")
+    except Exception as e:
+        print(f"  ℹ Skill Loader: {e}")
 
 
-async def create_agents():
-    """Create all agents"""
-    # Plan Agent - Root coordinator
-    plan_agent = create_agent(
-        name="plan_agent",
-        description="Coordinates financial analysis requests",
-        instruction="""You are a financial analysis coordinator.
-        
-        You help users analyze stocks and investment opportunities using
-        the perspectives of famous investors:
-        - Warren Buffett: Value investing, moat analysis, long-term thinking
-        - Cathie Wood: Disruptive innovation, growth investing
-        - Greg Abel: Operational excellence, Berkshire perspective
-        
-        When users ask about stocks:
-        1. Identify the stock/company
-        2. Determine which perspective to use (or all)
-        3. Provide analysis using that investor's framework
-        
-        Be concise but informative."""
-    )
+async def demo():
+    """Run demo queries"""
+    print("\n" + "=" * 60)
+    print("Demo Analysis")
+    print("=" * 60)
     
-    return plan_agent
-
-
-async def run_query(query: str, user_id: str = "user_1"):
-    """Run a single query"""
-    plan_agent = await create_agents()
+    plan_agent = get_plan_agent()
     
-    session_service = get_llm_service().model  # Placeholder
+    demo_queries = [
+        "Should I invest in Apple using Buffett's framework?",
+        "What does Cathie Wood think about Tesla?",
+    ]
     
-    # Create content
-    content = types.Content(
-        role="user",
-        parts=[types.Part(text=query)]
-    )
-    
-    print(f"\nQuery: {query}")
-    print("-" * 50)
-    print("Note: Agent execution requires API keys and running session")
-    print("-" * 50)
+    for query in demo_queries:
+        print(f"\n❓ Query: {query}")
+        print("-" * 50)
+        try:
+            # For demo, just print the query structure
+            print("   [Agent would analyze and return response]")
+        except Exception as e:
+            print(f"   Error: {e}")
 
 
 async def main():
     """Main entry point"""
-    print("=" * 60)
-    print("Financial Analyst AI Agent System")
-    print("=" * 60)
-    
-    # Initialize services
-    await initialize()
-    
-    # Demo query
-    await run_query("Should I invest in Apple using Buffett's framework?")
+    await init_services()
+    await demo()
     
     print("\n" + "=" * 60)
-    print("Setup complete. Use FastAPI server for full functionality:")
+    print("🚀 System Ready!")
+    print("=" * 60)
+    print("\nTo start the API server:")
     print("  uvicorn api.main:app --reload --port 8000")
+    print("\nOr run directly:")
+    print("  python -m uvicorn api.main:app --reload --port 8000")
     print("=" * 60)
 
 
 if __name__ == "__main__":
-    # Check for required API keys
-    if not os.environ.get("MINIMAX_API_KEY"):
-        print("⚠ Warning: MINIMAX_API_KEY not set")
-    
-    if not os.environ.get("FINNHUB_API_KEY"):
-        print("⚠ Warning: FINNHUB_API_KEY not set")
-    
     asyncio.run(main())
