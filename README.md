@@ -1,6 +1,6 @@
 # Financial Analyst AI Agent System
 
-> Multi-agent system using Google ADK + LiteLLM + MiniMax for professional-grade stock analysis
+> Multi-agent system using Google ADK + LiteLLM (proxy to MiniMax) for professional-grade stock analysis
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://www.python.org/)
@@ -21,30 +21,48 @@ The Financial Analyst AI Agent System is an intelligent, multi-expert autonomous
 ```
 User Input
     ↓
-Plan Agent (Google ADK)
+Google ADK (Plan Agent)
     ↓
-├── Web Search Agent ─→ Search financial news, data
-└── Financial Master Agent
-    ├── Warren Buffett Skill
-    ├── Cathie Wood Skill
-    └── Greg Abel Skill
+LiteLLM Proxy (Unified API)
     ↓
-LiteLLM Proxy (MiniMax-M2.1)
+MiniMax-M2.1 Model
     ↓
 FastAPI → JSON Response
 ```
+
+**Note:** Google ADK does NOT support MiniMax directly. All LLM calls must go through **LiteLLM Proxy**, which provides OpenAI-compatible endpoints to connect to MiniMax.
 
 ---
 
 ## Tech Stack
 
-| Component | Technology |
-|-----------|------------|
-| Agent Framework | Google ADK |
-| LLM Provider | MiniMax (via LiteLLM) |
-| Model | MiniMax-M2.1 |
-| API | FastAPI |
-| Skills | Celebrity Skills (Markdown) |
+| Component | Technology | Purpose |
+|-----------|------------|---------|
+| Agent Framework | Google ADK | Multi-agent orchestration |
+| LLM Proxy | LiteLLM | Unified API gateway |
+| LLM Provider | MiniMax | Language model (MiniMax-M2.1) |
+| API | FastAPI | REST endpoints |
+
+---
+
+## Why LiteLLM?
+
+Google ADK only supports these LLM providers natively:
+- Gemini (Google)
+- Claude (Anthropic)
+- OpenAI
+
+**MiniMax is NOT directly supported.** Therefore, we use **LiteLLM Proxy** to bridge Google ADK → OpenAI-compatible API → MiniMax.
+
+### The Call Flow
+
+```
+Google ADK
+    ↓ (OpenAI-compatible format)
+LiteLLM Proxy (localhost:4000)
+    ↓ (translates to MiniMax API)
+MiniMax API (api.minimax.io)
+```
 
 ---
 
@@ -54,7 +72,7 @@ FastAPI → JSON Response
 
 - Python 3.10+
 - MiniMax API Key
-- LiteLLM Proxy
+- LiteLLM Proxy running
 
 ### 1. Install Dependencies
 
@@ -62,7 +80,7 @@ FastAPI → JSON Response
 pip install google-adk litellm fastapi uvicorn pydantic
 ```
 
-### 2. Configure LiteLLM Proxy with MiniMax
+### 2. Configure LiteLLM Proxy
 
 Create `config.yaml`:
 
@@ -74,25 +92,25 @@ model_list:
       api_key: os.environ/MINIMAX_API_KEY
       api_base: https://api.minimax.io/v1
 
-litellm_settings:
-  drop_params: true
-  set_verbose: true
+general_settings:
+  master_key: sk-1234
 ```
 
-Start the proxy:
-
-```bash
-litellm --config config.yaml --port 4000
-```
-
-### 3. Set Environment Variables
+### 3. Start LiteLLM Proxy
 
 ```bash
 export MINIMAX_API_KEY="your-minimax-api-key"
-export ADK_LITEllM_BASE_URL="http://localhost:4000"
+litellm --config config.yaml --port 4000
 ```
 
-### 4. Run the API
+### 4. Set Environment Variables for Google ADK
+
+```bash
+export LITEllM_API_KEY="sk-1234"  # LiteLLM proxy key
+export LITEllM_BASE_URL="http://localhost:4000"
+```
+
+### 5. Run the API
 
 ```bash
 uvicorn api.main:app --reload --port 8000
@@ -102,51 +120,50 @@ uvicorn api.main:app --reload --port 8000
 
 ## MiniMax Models via LiteLLM
 
-LiteLLM provides unified access to MiniMax models through OpenAI/Anthropic-compatible APIs.
-
 ### Supported Models
 
-| Model | Description | Input Cost | Output Cost |
-|-------|-------------|------------|-------------|
-| MiniMax-M2.1 | Powerful multi-language, enhanced programming | $0.3/1M tokens | $1.2/1M tokens |
-| MiniMax-M2.1-lightning | Faster, ~100 tps | $0.3/1M tokens | $2.4/1M tokens |
-| MiniMax-M2Agent | Agentic, advanced reasoning | $0.3/1M tokens | $1.2/1M tokens |
+| Model | Description | Input | Output |
+|-------|-------------|-------|--------|
+| MiniMax-M2.1 | High performance, multi-language | $0.3/1M | $1.2/1M |
+| MiniMax-M2.1-lightning | Fast, ~100 tps | $0.3/1M | $2.4/1M |
+| MiniMax-M2Agent | Agentic, advanced reasoning | $0.3/1M | $1.2/1M |
 
-### Basic Usage with LiteLLM SDK
+### LiteLLM SDK Usage
 
 ```python
 import litellm
 
-# Set environment variables
-os.environ["MINIMAX_API_KEY"] = "your-minimax-api-key"
-os.environ["MINIMAX_API_BASE"] = "https://api.minimax.io/v1"
+# Point to LiteLLM proxy
+os.environ["LITEllM_API_KEY"] = "sk-1234"
+os.environ["LITEllM_BASE_URL"] = "http://localhost:4000"
 
-# Simple completion
+# Use MiniMax through LiteLLM
 response = litellm.completion(
     model="minimax/MiniMax-M2.1",
     messages=[
         {"role": "system", "content": "You are a helpful assistant."},
-        {"role": "user", "content": "Hello, how are you?"}
-    ]
+        {"role": "user", "content": "Hello!"}
+    ],
+    api_key=os.environ["LITEllM_API_KEY"],
+    base_url=os.environ["LITEllM_BASE_URL"]
 )
-print(response.choices[0].message.content)
 ```
 
 ### With Tool Calling
 
 ```python
-import litellm
-
 tools = [
     {
         "type": "function",
         "function": {
-            "name": "get_weather",
-            "description": "Get current weather",
+            "name": "search_stocks",
+            "description": "Search for stock information",
             "parameters": {
                 "type": "object",
-                "properties": {"location": {"type": "string"}},
-                "required": ["location"]
+                "properties": {
+                    "symbol": {"type": "string"},
+                    "market": {"type": "string"}
+                }
             }
         }
     }
@@ -154,55 +171,27 @@ tools = [
 
 response = litellm.completion(
     model="minimax/MiniMax-M2.1",
-    messages=[{"role": "user", "content": "What's the weather in SF?"}],
+    messages=[{"role": "user", "content": "What's the P/E ratio of Apple?"}],
     tools=tools
 )
-```
-
-### With Reasoning Split
-
-```python
-response = litellm.completion(
-    model="minimax/MiniMax-M2.1",
-    messages=[{"role": "user", "content": "Solve: 2+2=?"}],
-    extra_body={"reasoning_split": True}
-)
-
-# Access thinking and response separately
-if hasattr(response.choices[0].message, 'reasoning_details'):
-    print(f"Thinking: {response.choices[0].message.reasoning_details}")
-print(f"Response: {response.choices[0].message.content}")
 ```
 
 ---
 
 ## Google ADK Agent Structure
 
-### Agent Definition
+### Agent with LiteLLM
 
 ```python
 from google.adk.agents import Agent
-from google.adk.tools import Tool
 
-# Define your agent
-root_agent = Agent(
+# Google ADK → LiteLLM Proxy → MiniMax
+agent = Agent(
     name="plan_agent",
-    model="minimax/MiniMax-M2.1",  # Via LiteLLM
-    description="Analyzes user questions and routes to sub-agents",
+    model="minimax/MiniMax-M2.1",  # ADK sees this as OpenAI-compatible
+    description="Financial analysis coordinator",
     instruction="You are a financial analysis coordinator...",
-    tools=[web_search_tool, financial_master_tool]
-)
-```
-
-### Tool Definition
-
-```python
-from google.adk.tools import Tool
-
-web_search_tool = Tool(
-    name="web_search",
-    description="Search for financial news and data",
-    handler=web_search_handler  # Your custom handler
+    # ADK will route through LiteLLM proxy
 )
 ```
 
@@ -241,10 +230,6 @@ Response:
 }
 ```
 
-### GET /health
-
-System health check
-
 ---
 
 ## Project Structure
@@ -252,51 +237,21 @@ System health check
 ```
 financial_analyst/
 ├── agents/
-│   ├── __init__.py
-│   ├── plan_agent.py          # Root coordinator
-│   ├── web_search_agent.py    # Search agent
-│   └── financial_master.py    # Expert agent with skills
-├── skills/
+│   ├── plan_agent.py          # Root coordinator (Google ADK)
+│   ├── web_search_agent.py   # Search agent
+│   └── financial_master.py    # Expert agent
+├── skills/                    # Celebrity Skills
 │   ├── buffett/
 │   ├── cathie_wood/
 │   └── greg_abel/
 ├── api/
-│   └── main.py                # FastAPI endpoints
-├── models/
-│   └── schemas.py             # Pydantic models
+│   └── main.py               # FastAPI endpoints
 ├── services/
-│   └── adk_service.py         # ADK + LiteLLM setup
-├── config.yaml                 # LiteLLM Proxy config
+│   └── llm_service.py        # LiteLLM + MiniMax service
+├── config.yaml                # LiteLLM Proxy config
 ├── requirements.txt
 └── main.py
 ```
-
----
-
-## Development Phases
-
-### Phase 1: Core Setup ✅
-- [x] System architecture defined
-- [ ] Initialize ADK project
-- [ ] Configure LiteLLM + MiniMax
-- [ ] Setup FastAPI skeleton
-
-### Phase 2: Skills Integration
-- [ ] Load Buffett skill
-- [ ] Load Cathie Wood skill
-- [ ] Load Greg Abel skill
-- [ ] Test skill-based responses
-
-### Phase 3: Web Search
-- [ ] Implement web search agent
-- [ ] Integrate real-time data
-- [ ] Connect to analysis pipeline
-
-### Phase 4: Polish
-- [ ] Error handling
-- [ ] Response formatting
-- [ ] Testing
-- [ ] Documentation
 
 ---
 
@@ -306,9 +261,9 @@ This project uses [Celebrity Skills](https://github.com/Talentedleo/celebrity_sk
 
 | Skill | Description |
 |-------|-------------|
-| Warren Buffett | Value investing, moat analysis, long-term thinking |
-| Cathie Wood | Disruptive innovation, growth investing, Big Ideas |
-| Greg Abel | Operational excellence, Berkshire culture, capital allocation |
+| Warren Buffett | Value investing, moat analysis |
+| Cathie Wood | Disruptive innovation, growth investing |
+| Greg Abel | Operational excellence, Berkshire perspective |
 
 ---
 
@@ -325,13 +280,5 @@ This project uses [Celebrity Skills](https://github.com/Talentedleo/celebrity_sk
 MIT License
 
 Copyright (c) 2026 [Leo Li](https://github.com/Talentedleo)
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
----
 
 MIT License © [Leo Li](https://github.com/Talentedleo)
