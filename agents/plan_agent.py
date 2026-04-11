@@ -1,9 +1,13 @@
 """
 Plan Agent - Root coordinator for financial analysis
+
+Handles arbitrary user questions about stocks and investments.
+Automatically identifies the stock/company and routes to appropriate expert agents.
 """
 
 import os
-from typing import Optional, Literal
+import re
+from typing import Optional, List, Dict, Any
 from google.adk.agents import Agent
 from google.adk.models.lite_llm import LiteLlm
 from google.adk.runners import Runner
@@ -18,19 +22,25 @@ from agents.experts import (
 
 class PlanAgent:
     """
-    Root coordinator agent that routes user requests to appropriate expert agents.
+    Root coordinator agent.
     
-    Detects user intent and style preference, then delegates to:
-    - buffett_agent: Value investing, moat analysis
-    - cathie_wood_agent: Disruptive innovation, growth
-    - greg_abel_agent: Operational excellence, Berkshire perspective
+    Handles arbitrary user questions like:
+    - "Should I invest in Apple?"
+    - "What do you think about Tesla?"
+    - "Analyze Bitcoin"
+    - "Is Nvidia overvalued?"
+    
+    Automatically:
+    1. Identifies stock/company from question
+    2. Gets real-time data (if symbol found)
+    3. Applies requested expert perspective(s)
     """
     
     def __init__(self):
         self._agent: Optional[Agent] = None
         self._runner: Optional[Runner] = None
         self._session_service: Optional[InMemorySessionService] = None
-        self._expert_agents = {}
+        self._expert_agents: Dict[str, Agent] = {}
     
     def _create_model(self) -> LiteLlm:
         """Create LLM model"""
@@ -45,68 +55,82 @@ class PlanAgent:
         """Get or create plan agent"""
         if self._agent is None:
             # Create expert agents
-            buffett = create_buffett_agent()
-            cathie_wood = create_cathie_wood_agent()
-            greg_abel = create_greg_abel_agent()
-            
             self._expert_agents = {
-                "buffett": buffett,
-                "cathie_wood": cathie_wood,
-                "greg_abel": greg_abel
+                "buffett": create_buffett_agent(),
+                "cathie_wood": create_cathie_wood_agent(),
+                "greg_abel": create_greg_abel_agent()
             }
             
             instruction = """You are a financial analysis coordinator.
 
-Your job is to understand user requests and provide multi-perspective analysis using three expert investors:
+You help users analyze stocks and investments by applying expert perspectives.
 
-## Three Expert Perspectives
+## Your Job
 
-### 1. Warren Buffett (buffett_agent)
+When a user asks a question like:
+- "Should I invest in Apple?"
+- "What do you think about Tesla?"
+- "Analyze Bitcoin"
+- "Is Nvidia overvalued?"
+
+You should:
+1. **Identify the stock/company** from their question
+2. **Get relevant data** using your tools
+3. **Apply expert perspective(s)** based on their request
+
+## Available Expert Perspectives
+
+### Warren Buffett (buffett)
 - Value investing, moat analysis
-- Quote: "Be fearful when others are greedy"
-- Focus: Stable businesses, long-term holding
+- Key question: "Would I own this forever?"
+- Look for: Stable businesses, pricing power, honest management
 
-### 2. Cathie Wood (cathie_wood_agent)
+### Cathie Wood (cathie_wood)  
 - Disruptive innovation, high-growth
-- Quote: "We're being punished for being early and right"
-- Focus: Transformative technologies, 5-year horizon
+- Key question: "Will this transform an industry?"
+- Look for: Technology platforms, 5-year compounding
 
-### 3. Greg Abel (greg_abel_agent)
+### Greg Abel (abel)
 - Operational excellence, Berkshire perspective
-- Quote: "It will not change"
-- Focus: Culture, management, long-term thinking
+- Key question: "Would Buffett be comfortable with this?"
+- Look for: Culture, management, long-term thinking
 
-## How to Route Requests
+## Style Preference
 
-**User says:** "Should I invest in Tesla?"
-- Detect: Stock analysis request
-- Determine style: If not specified, use ALL three perspectives
-- Route to appropriate expert(s)
-
-**Style preferences:**
-- "buffett" → Use Warren Buffett perspective only
-- "wood" → Use Cathie Wood perspective only  
+User may specify:
+- "buffett" → Use Buffett perspective only
+- "wood" → Use Cathie Wood perspective only
 - "abel" → Use Greg Abel perspective only
-- "all" or unspecified → Use ALL three perspectives
+- "all" or nothing → Use ALL perspectives
 
-## Response Format
+## How to Respond
 
-Always structure your response with:
-1. Quick summary (2-3 sentences)
-2. Buffett perspective (if requested)
-3. Cathie Wood perspective (if requested)
-4. Greg Abel perspective (if requested)
-5. Conclusion
+Structure your response:
 
-Be concise but informative. Use the expert agents' tools to get current data.
-"""
+1. **Quick Summary** - 2-3 sentences on the stock
+2. **Stock Identification** - Confirm what you identified
+3. **Perspective Analysis** (based on style):
+   - Buffett: Moat, intrinsic value, management
+   - Wood: Innovation, TAM, 5-year thesis
+   - Abel: Operations, culture, long-term viability
+4. **Key Risks**
+5. **Conclusion**
+
+## Important
+
+- Always try to get current stock data
+- Be specific with numbers when available
+- Match the expert's communication style
+- Be honest about limitations
+
+Use tools to get real data before analyzing!"""
             
             self._agent = Agent(
                 name="plan_agent",
                 model=self._create_model(),
-                description="Financial analysis coordinator",
+                description="Financial analysis coordinator - handles arbitrary stock questions",
                 instruction=instruction,
-                sub_agents=[buffett, cathie_wood, greg_abel]
+                sub_agents=list(self._expert_agents.values())
             )
         
         return self._agent
@@ -124,13 +148,18 @@ Be concise but informative. Use the expert agents' tools to get current data.
     
     @property
     def session_service(self) -> InMemorySessionService:
-        """Get or create session service"""
+        """Get session service"""
         if self._session_service is None:
             self._session_service = InMemorySessionService()
         return self._session_service
     
-    async def run(self, query: str, user_id: str = "user_1", session_id: str = "session_001"):
-        """Run the agent with user query"""
+    async def run(
+        self,
+        query: str,
+        user_id: str = "user_1",
+        session_id: str = "session_001"
+    ) -> str:
+        """Run analysis with user question"""
         from google.genai import types
         
         content = types.Content(
@@ -149,17 +178,17 @@ Be concise but informative. Use the expert agents' tools to get current data.
         
         return response_text
     
-    def get_expert_agent(self, style: str) -> Optional[Agent]:
-        """Get specific expert agent by style"""
+    def get_expert(self, style: str) -> Optional[Agent]:
+        """Get specific expert agent"""
         return self._expert_agents.get(style)
 
 
-# Singleton instance
+# Singleton
 _plan_agent: Optional[PlanAgent] = None
 
 
 def get_plan_agent() -> PlanAgent:
-    """Get or create global plan agent"""
+    """Get global plan agent instance"""
     global _plan_agent
     if _plan_agent is None:
         _plan_agent = PlanAgent()

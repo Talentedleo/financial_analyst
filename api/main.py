@@ -4,10 +4,10 @@ FastAPI Application - Financial Analyst AI Agent
 
 import os
 import asyncio
-from typing import Optional, Literal
+from typing import Optional, Literal, List
 from datetime import datetime
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Body
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
@@ -15,48 +15,89 @@ from agents.plan_agent import get_plan_agent
 from services import get_data_service
 
 
-# Request/Response models
+# ============== Request/Response Models ==============
+
 class AnalyzeRequest(BaseModel):
-    question: str = Field(..., description="The investment question to analyze")
+    """Request to analyze a stock or investment question"""
+    question: str = Field(
+        ...,
+        description="Any stock or financial question (e.g., 'Should I invest in Apple?', 'What do you think about Tesla?', 'Analyze Bitcoin')"
+    )
     style: Optional[Literal["buffett", "wood", "abel", "all"]] = Field(
         default="all",
-        description="Analysis style: buffett, wood, abel, or all"
+        description="Analysis style: buffett (value), wood (growth), abel (operational), or all"
     )
-    user_id: Optional[str] = Field(default="user_1")
-    session_id: Optional[str] = Field(default=None)
 
 
 class AnalyzeResponse(BaseModel):
-    answer: str
-    sources: list[dict]
-    agents_used: list[str]
-    timestamp: str
-    style: str
+    """Response from analysis"""
+    answer: str = Field(..., description="Analysis from the expert perspective(s)")
+    stock_identified: Optional[str] = Field(None, description="Stock/company identified from question")
+    sources: List[dict] = Field(default_factory=list, description="Data sources used")
+    agents_used: List[str] = Field(..., description="Expert agents used in analysis")
+    timestamp: str = Field(default_factory=datetime.now().isoformat)
+    style: str = Field(..., description="Analysis style applied")
 
 
 class SearchRequest(BaseModel):
-    query: str = Field(..., description="Search query")
+    """Request to search for financial data"""
+    query: str = Field(
+        ...,
+        description="Any question, stock symbol, or company name (e.g., 'AAPL', 'Apple', 'Tesla stock price')"
+    )
 
 
 class SearchResponse(BaseModel):
-    results: list[dict]
-    timestamp: str
+    """Response from search"""
+    results: List[dict] = Field(..., description="Search results")
+    timestamp: str = Field(default_factory=datetime.now().isoformat)
 
 
 class HealthResponse(BaseModel):
+    """Health check response"""
     status: str
     version: str
     timestamp: str
 
 
-# Create FastAPI app
+class AgentInfo(BaseModel):
+    """Agent information"""
+    name: str
+    description: str
+
+
+class AgentsListResponse(BaseModel):
+    """List of available agents"""
+    agents: List[AgentInfo]
+
+
+# ============== FastAPI App ==============
+
 app = FastAPI(
     title="Financial Analyst AI Agent",
-    description="Multi-agent system for professional-grade stock analysis using celebrity investor perspectives",
+    description="""
+    **Multi-Agent Financial Analysis System**
+    
+    Ask any stock or financial question and get expert analysis from:
+    - **Warren Buffett**: Value investing, moat analysis
+    - **Cathie Wood**: Disruptive innovation, high-growth
+    - **Greg Abel**: Operational excellence, Berkshire perspective
+    
+    ## Example Questions
+    
+    - "Should I invest in Apple?"
+    - "What do you think about Tesla's robotaxi?"
+    - "Analyze Bitcoin as an investment"
+    - "Compare Nvidia using all perspectives"
+    - "Is Amazon overvalued?"
+    - "What would Buffett think of this stock?"
+    
+    Just ask naturally - the system will identify the stock and apply the right expert perspective!
+    """,
     version="1.0.0"
 )
 
-# Add CORS middleware
+# CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -66,17 +107,26 @@ app.add_middleware(
 )
 
 
+# ============== Endpoints ==============
+
 @app.get("/", response_model=dict)
 async def root():
-    """Root endpoint"""
+    """Root endpoint with API info"""
     return {
         "name": "Financial Analyst AI Agent",
         "version": "1.0.0",
-        "description": "Multi-agent system using Buffett, Cathie Wood, and Greg Abel perspectives"
+        "description": "Multi-expert stock analysis with Buffett, Cathie Wood, Greg Abel perspectives",
+        "docs": "/docs",
+        "endpoints": {
+            "POST /analyze": "Analyze any stock/financial question",
+            "POST /search": "Search stock data and news",
+            "GET /agents": "List available expert agents",
+            "GET /health": "Health check"
+        }
     }
 
 
-@app.get("/health", response_model=HealthResponse)
+@app.get("/health", response_model=HealthResponse, tags=["System"])
 async def health():
     """Health check endpoint"""
     return HealthResponse(
@@ -86,31 +136,36 @@ async def health():
     )
 
 
-@app.post("/analyze", response_model=AnalyzeResponse)
+@app.post("/analyze", response_model=AnalyzeResponse, tags=["Analysis"])
 async def analyze(request: AnalyzeRequest):
     """
-    Analyze a stock or investment question.
+    **Analyze any stock or financial question**
     
-    Uses the Plan Agent to route to appropriate expert agents
-    (Buffett, Cathie Wood, Greg Abel) based on the style parameter.
+    Simply ask your question naturally! Examples:
+    - "Should I invest in Apple?"
+    - "What do you think about Tesla?"
+    - "Analyze Bitcoin as an investment"
+    - "Is Nvidia overvalued?"
+    - "What would Buffett think of this?"
+    
+    The system will:
+    1. Identify the stock/company from your question
+    2. Get real-time data via Finnhub
+    3. Apply the expert perspective(s) you requested
     """
     try:
-        # Get plan agent
         plan_agent = get_plan_agent()
         
-        # Create session ID if not provided
-        session_id = request.session_id or f"session_{datetime.now().timestamp()}"
-        
-        # Run analysis
+        # Run the analysis
         answer = await plan_agent.run(
             query=request.question,
-            user_id=request.user_id,
-            session_id=session_id
+            user_id="api_user",
+            session_id=f"session_{datetime.now().timestamp()}"
         )
         
-        # Determine which agents were used
+        # Determine agents used
         agents_used = ["plan_agent"]
-        if request.style == "all":
+        if request.style == "all" or request.style is None:
             agents_used.extend(["buffett_agent", "cathie_wood_agent", "greg_abel_agent"])
         elif request.style == "buffett":
             agents_used.append("buffett_agent")
@@ -120,8 +175,9 @@ async def analyze(request: AnalyzeRequest):
             agents_used.append("greg_abel_agent")
         
         return AnalyzeResponse(
-            answer=answer or "Analysis completed",
-            sources=[],  # Sources from tool calls would go here
+            answer=answer or f"Analysis of: {request.question}",
+            stock_identified=None,  # Would be extracted by agent
+            sources=[],  # Sources from tool calls
             agents_used=agents_used,
             timestamp=datetime.now().isoformat(),
             style=request.style or "all"
@@ -131,51 +187,78 @@ async def analyze(request: AnalyzeRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/search", response_model=SearchResponse)
+@app.post("/search", response_model=SearchResponse, tags=["Search"])
 async def search(request: SearchRequest):
     """
-    Search for real-time stock data and news.
+    **Search for stock data and news**
+    
+    Enter any stock symbol, company name, or financial query:
+    - "AAPL" - Get Apple stock data
+    - "Apple" - Search for Apple
+    - "Tesla news" - Get Tesla news
+    - "Nvidia stock price" - Get Nvidia data
+    
+    Returns stock quotes, news, and company information.
     """
     try:
         data_service = get_data_service()
+        query = request.query.strip()
         
-        # Try to determine if it's a symbol or company name
-        query = request.query.strip().upper()
+        results = []
         
         # Check if it looks like a stock symbol
-        if len(query) <= 5 and query.isalpha():
+        if len(query) <= 5 and query.replace('.', '').isalnum():
             # Treat as symbol
-            quote = data_service.get_quote(query)
-            news = data_service.get_company_news(query, days=7)
-            
-            results = [
-                {
-                    "type": "quote",
-                    "symbol": query,
-                    "price": quote.get('c'),
-                    "change": quote.get('d'),
-                    "percent_change": quote.get('dp')
-                }
-            ]
-            
-            for article in news[:5]:
-                results.append({
-                    "type": "news",
-                    "headline": article.get('headline'),
-                    "source": article.get('source'),
-                    "url": article.get('url')
-                })
+            try:
+                quote = data_service.get_quote(query.upper())
+                if quote.get('c', 0) > 0:
+                    results.append({
+                        "type": "quote",
+                        "symbol": query.upper(),
+                        "price": quote.get('c'),
+                        "change": quote.get('d'),
+                        "percent_change": quote.get('dp'),
+                        "high": quote.get('h'),
+                        "low": quote.get('l')
+                    })
+            except Exception:
+                pass
+        
+        # Get company news if symbol found or search
+        if len(results) > 0:
+            symbol = results[0].get('symbol')
+            try:
+                news = data_service.get_company_news(symbol, days=7)
+                for article in news[:5]:
+                    results.append({
+                        "type": "news",
+                        "headline": article.get('headline'),
+                        "source": article.get('source'),
+                        "url": article.get('url')
+                    })
+            except Exception:
+                pass
         else:
-            # Search for symbols
+            # Search for the company
             search_results = data_service.search_symbol(query)
-            results = [
-                {
-                    "type": "symbol",
-                    "symbol": r.get('symbol'),
-                    "description": r.get('description')
-                }
-                for r in search_results[:10]
-            ]
+            for r in search_results[:5]:
+                symbol = r.get('symbol')
+                try:
+                    quote = data_service.get_quote(symbol)
+                    results.append({
+                        "type": "symbol",
+                        "symbol": symbol,
+                        "description": r.get('description'),
+                        "price": quote.get('c'),
+                        "change": quote.get('d'),
+                        "percent_change": quote.get('dp')
+                    })
+                except Exception:
+                    results.append({
+                        "type": "symbol",
+                        "symbol": symbol,
+                        "description": r.get('description')
+                    })
         
         return SearchResponse(
             results=results,
@@ -186,30 +269,32 @@ async def search(request: SearchRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/agents", response_model=dict)
+@app.get("/agents", response_model=AgentsListResponse, tags=["System"])
 async def list_agents():
-    """List available agents"""
-    return {
-        "agents": [
-            {
-                "name": "plan_agent",
-                "description": "Root coordinator"
-            },
-            {
-                "name": "buffett_agent",
-                "description": "Warren Buffett - Value investing"
-            },
-            {
-                "name": "cathie_wood_agent",
-                "description": "Cathie Wood - Disruptive innovation"
-            },
-            {
-                "name": "greg_abel_agent",
-                "description": "Greg Abel - Operational excellence"
-            }
+    """List available expert agents"""
+    return AgentsListResponse(
+        agents=[
+            AgentInfo(
+                name="buffett_agent",
+                description="Warren Buffett - Value investing, moat analysis, long-term thinking"
+            ),
+            AgentInfo(
+                name="cathie_wood_agent",
+                description="Cathie Wood - Disruptive innovation, high-growth, Big Ideas"
+            ),
+            AgentInfo(
+                name="greg_abel_agent",
+                description="Greg Abel - Operational excellence, Berkshire perspective"
+            ),
+            AgentInfo(
+                name="plan_agent",
+                description="Plan Agent - Automatically routes to appropriate expert(s)"
+            )
         ]
-    }
+    )
 
+
+# ============== Run Server ==============
 
 if __name__ == "__main__":
     import uvicorn
