@@ -4,6 +4,9 @@ google-adk>=1.0.0
 # LiteLLM - Model calling
 litellm>=1.0.0
 
+# Finnhub - Financial data
+finnhub-python>=1.0.0
+
 # FastAPI - REST API
 fastapi>=0.100.0
 uvicorn>=0.23.0

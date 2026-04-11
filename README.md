@@ -257,3 +257,98 @@ MIT License
 Copyright (c) 2026 [Leo Li](https://github.com/Talentedleo)
 
 MIT License © [Leo Li](https://github.com/Talentedleo)
+
+---
+
+## Data Source: Finnhub API
+
+We use **Finnhub API** for real-time stock data and financial news.
+
+### Finnhub Features
+
+| Endpoint | Description |
+|----------|-------------|
+| `/quote` | Real-time stock quote (price, volume, etc.) |
+| `/company-news` | Company-specific news |
+| `/general-news` | General market news |
+| `/stock/candle` | OHLCV candlestick data |
+| `/stock/profile2` | Company profile and fundamentals |
+| `/earnings` | Earnings data |
+
+### Finnhub Python SDK
+
+```python
+import finnhub
+
+# Initialize client
+finnhub_client = finnhub.Client(api_key=os.environ["FINNHUB_API_KEY"])
+
+# Get real-time quote
+quote = finnhub_client.quote('AAPL')
+print(f"Apple price: ${quote['c']}")
+print(f"Change: {quote['dp']}%")
+
+# Get company news
+news = finnhub_client.company_news('AAPL', _from="2026-01-01", to="2026-04-11")
+for article in news:
+    print(f"{article['headline']}")
+
+# Get company profile
+profile = finnhub_client.profile2(symbol='AAPL')
+print(f"Industry: {profile['finnhubIndustry']}")
+```
+
+### Install Finnhub SDK
+
+```bash
+pip install finnhub-python
+```
+
+### Environment Variable
+
+```bash
+export FINNHUB_API_KEY="your-finnhub-api-key"
+```
+
+---
+
+## Tool Integration Architecture
+
+```
+Agent Tools
+    ↓
+┌─────────────────────────────┐
+│     Finnhub API Client      │
+├─────────────────────────────┤
+│ • Stock quotes              │
+│ • Company news              │
+│ • Market news              │
+│ • Company fundamentals      │
+│ • Earnings data            │
+└─────────────────────────────┘
+    ↓
+Returns structured data
+```
+
+---
+
+## Updated Project Structure
+
+```
+financial_analyst/
+├── agents/
+│   ├── __init__.py
+│   ├── plan_agent.py           # Root coordinator
+│   ├── web_search_agent.py    # Web search
+│   └── financial_master.py      # Expert sub-agent
+├── skills/                     # Celebrity Skills
+├── tools/
+│   ├── __init__.py
+│   └── finnhub_tools.py       # Finnhub API tools
+├── api/
+│   └── main.py                # FastAPI
+├── services/
+│   └── data_service.py        # Data aggregation
+├── requirements.txt
+└── main.py
+```
