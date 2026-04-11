@@ -17,7 +17,7 @@ class BaseAgent:
         name: str,
         description: str,
         instruction: str,
-        model_name: str = "minimax/MiniMax-M2.1",
+        model_name: str = "minimax/MiniMax-M2.7-highspeed",
         tools: Optional[List] = None,
         sub_agents: Optional[List['BaseAgent']] = None
     ):
@@ -82,7 +82,7 @@ def create_agent(
     name: str,
     description: str,
     instruction: str,
-    model_name: str = "minimax/MiniMax-M2.1",
+    model_name: str = "minimax/MiniMax-M2.7-highspeed",
     tools: Optional[List] = None
 ) -> Agent:
     """

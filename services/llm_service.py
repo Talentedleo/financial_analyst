@@ -12,7 +12,7 @@ class LLMService:
     
     def __init__(
         self,
-        model_name: str = "minimax/MiniMax-M2.1",
+        model_name: str = "minimax/MiniMax-M2.7-highspeed",
         api_key: Optional[str] = None,
         api_base: str = "https://api.minimax.io/v1"
     ):
@@ -46,7 +46,7 @@ class LLMService:
         Create a new model instance with custom parameters
         
         Args:
-            model_name: Model name (default: minimax/MiniMax-M2.1)
+            model_name: Model name (default: minimax/MiniMax-M2.7-highspeed)
             temperature: Sampling temperature
             max_tokens: Maximum tokens to generate
             
@@ -75,7 +75,7 @@ def get_llm_service() -> LLMService:
 
 
 def init_llm_service(
-    model_name: str = "minimax/MiniMax-M2.1",
+    model_name: str = "minimax/MiniMax-M2.7-highspeed",
     api_key: Optional[str] = None
 ) -> LLMService:
     """Initialize global LLM service with custom settings"""

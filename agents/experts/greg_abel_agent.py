@@ -70,7 +70,7 @@ Skill Reference:
 """
     
     model = LiteLlm(
-        model="minimax/MiniMax-M2.1",
+        model="minimax/MiniMax-M2.7-highspeed",
         api_key=os.environ.get("MINIMAX_API_KEY", ""),
         api_base="https://api.minimax.io/v1"
     )
