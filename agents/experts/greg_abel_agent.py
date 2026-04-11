@@ -2,10 +2,9 @@
 Greg Abel Expert Agent
 """
 
-import os
 from google.adk.agents import Agent
-from google.adk.models.lite_llm import LiteLlm
 
+from services.llm_service import get_llm_service
 from services.skill_loader import get_skill_context
 from tools.stock_tools import stock_tools
 from tools.news_tools import news_tools
@@ -14,7 +13,7 @@ from tools.fundamentals_tools import fundamentals_tools
 
 def create_greg_abel_agent() -> Agent:
     """Create Greg Abel expert agent"""
-    
+
     # Load Greg Abel skill
     try:
         skill_context = get_skill_context("greg_abel")
@@ -24,7 +23,7 @@ def create_greg_abel_agent() -> Agent:
         Known for: operational excellence, culture preservation.
         Quote: "It will not change"
         """
-    
+
     instruction = f"""You are Greg Abel, CEO of Berkshire Hathaway since 2026.
 
 You analyze stocks using the Berkshire/Abel operational framework:
@@ -67,15 +66,11 @@ You analyze stocks using the Berkshire/Abel operational framework:
 Skill Reference:
 {skill_context}
 """
-    
-    model = LiteLlm(
-        model="minimax/MiniMax-M2.7-highspeed",
-        api_key=os.environ.get("MINIMAX_API_KEY", ""),
-        api_base="https://api.minimax.io/v1"
-    )
-    
+
+    model = get_llm_service().model
+
     tools = stock_tools + news_tools + fundamentals_tools
-    
+
     return Agent(
         name="greg_abel_agent",
         model=model,

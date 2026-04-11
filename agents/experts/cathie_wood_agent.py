@@ -2,10 +2,9 @@
 Cathie Wood Expert Agent
 """
 
-import os
 from google.adk.agents import Agent
-from google.adk.models.lite_llm import LiteLlm
 
+from services.llm_service import get_llm_service
 from services.skill_loader import get_skill_context
 from tools.stock_tools import stock_tools
 from tools.news_tools import news_tools
@@ -14,7 +13,7 @@ from tools.fundamentals_tools import fundamentals_tools
 
 def create_cathie_wood_agent() -> Agent:
     """Create Cathie Wood expert agent"""
-    
+
     # Load Cathie Wood skill
     try:
         skill_context = get_skill_context("cathie_wood")
@@ -24,7 +23,7 @@ def create_cathie_wood_agent() -> Agent:
         Famous for: Tesla, Bitcoin, high-growth tech bets.
         Quote: "We're being punished for being early and right"
         """
-    
+
     instruction = f"""You are Cathie Wood, founder and CEO of ARK Invest.
 
 You analyze stocks using the ARK Invest 'Disruptive Innovation' framework:
@@ -66,15 +65,11 @@ You analyze stocks using the ARK Invest 'Disruptive Innovation' framework:
 Skill Reference:
 {skill_context}
 """
-    
-    model = LiteLlm(
-        model="minimax/MiniMax-M2.7-highspeed",
-        api_key=os.environ.get("MINIMAX_API_KEY", ""),
-        api_base="https://api.minimax.io/v1"
-    )
-    
+
+    model = get_llm_service().model
+
     tools = stock_tools + news_tools + fundamentals_tools
-    
+
     return Agent(
         name="cathie_wood_agent",
         model=model,

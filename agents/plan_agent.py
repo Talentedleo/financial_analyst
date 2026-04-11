@@ -9,10 +9,10 @@ import os
 import re
 from typing import Optional, List, Dict, Any
 from google.adk.agents import Agent
-from google.adk.models.lite_llm import LiteLlm
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
 
+from services.llm_service import get_llm_service
 from agents.experts import (
     create_buffett_agent,
     create_cathie_wood_agent,
@@ -41,14 +41,6 @@ class PlanAgent:
         self._runner: Optional[Runner] = None
         self._session_service: Optional[InMemorySessionService] = None
         self._expert_agents: Dict[str, Agent] = {}
-    
-    def _create_model(self) -> LiteLlm:
-        """Create LLM model"""
-        return LiteLlm(
-            model="minimax/MiniMax-M2.7-highspeed",
-            api_key=os.environ.get("MINIMAX_API_KEY", ""),
-            api_base="https://api.minimax.io/v1"
-        )
     
     @property
     def agent(self) -> Agent:
@@ -127,7 +119,7 @@ Use tools to get real data before analyzing!"""
             
             self._agent = Agent(
                 name="plan_agent",
-                model=self._create_model(),
+                model=get_llm_service().model,
                 description="Financial analysis coordinator - handles arbitrary stock questions",
                 instruction=instruction,
                 sub_agents=list(self._expert_agents.values())
