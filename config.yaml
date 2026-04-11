@@ -1,4 +1,5 @@
-# LiteLLM Proxy Configuration for MiniMax
+# LiteLLM Configuration (Optional - for advanced use cases)
+# Note: Google ADK can call MiniMax directly via LiteLlm without LiteLLM proxy
 
 model_list:
   - model_name: minimax/MiniMax-M2.1
@@ -6,27 +7,6 @@ model_list:
       model: minimax/MiniMax-M2.1
       api_key: os.environ/MINIMAX_API_KEY
       api_base: https://api.minimax.io/v1
-      rpm: 60  # requests per minute
-
-  - model_name: minimax/MiniMax-M2.1-lightning
-    litellm_params:
-      model: minimax/MiniMax-M2.1-lightning
-      api_key: os.environ/MINIMAX_API_KEY
-      api_base: https://api.minimax.io/v1
-      rpm: 120  # faster model, higher limit
-
-  - model_name: minimax/MiniMax-M2Agent
-    litellm_params:
-      model: minimax/MiniMax-M2Agent
-      api_key: os.environ/MINIMAX_API_KEY
-      api_base: https://api.minimax.io/v1
-      rpm: 60
-
-litellm_settings:
-  drop_params: true
-  set_verbose: false
-  json_logs: false
-  ul_http_timeout: 600
 
 general_settings:
-  master_key: sk-1234  # Your LiteLLM proxy key
+  master_key: sk-1234

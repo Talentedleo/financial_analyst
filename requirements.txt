@@ -1,6 +1,10 @@
-# Core
+# Google ADK - Agent framework
 google-adk>=1.0.0
+
+# LiteLLM - Model calling
 litellm>=1.0.0
+
+# FastAPI - REST API
 fastapi>=0.100.0
 uvicorn>=0.23.0
 pydantic>=2.0.0

@@ -1,6 +1,6 @@
 # Financial Analyst AI Agent System
 
-> Multi-agent system using Google ADK + LiteLLM (proxy to MiniMax) for professional-grade stock analysis
+> Multi-agent system using Google ADK + LiteLLM + MiniMax for professional-grade stock analysis
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://www.python.org/)
@@ -12,7 +12,7 @@
 
 ## Overview
 
-The Financial Analyst AI Agent System is an intelligent, multi-expert autonomous platform designed to deliver professional-grade stock analysis on demand. When a user requests an analysis of any stock, the system instantly triggers a fully automated workflow.
+The Financial Analyst AI Agent System is an intelligent, multi-expert autonomous platform for professional-grade stock analysis using Google ADK with MiniMax models.
 
 ---
 
@@ -21,58 +21,20 @@ The Financial Analyst AI Agent System is an intelligent, multi-expert autonomous
 ```
 User Input
     ↓
-Google ADK (Plan Agent)
+Google ADK Agent
     ↓
-LiteLLM Proxy (Unified API)
+LiteLlm (from google.adk.models.lite_llm)
     ↓
-MiniMax-M2.1 Model
+MiniMax API (api.minimax.io)
     ↓
 FastAPI → JSON Response
 ```
 
-**Note:** Google ADK does NOT support MiniMax directly. All LLM calls must go through **LiteLLM Proxy**, which provides OpenAI-compatible endpoints to connect to MiniMax.
-
----
-
-## Tech Stack
-
-| Component | Technology | Purpose |
-|-----------|------------|---------|
-| Agent Framework | Google ADK | Multi-agent orchestration |
-| LLM Proxy | LiteLLM | Unified API gateway |
-| LLM Provider | MiniMax | Language model (MiniMax-M2.1) |
-| API | FastAPI | REST endpoints |
-
----
-
-## Why LiteLLM?
-
-Google ADK only supports these LLM providers natively:
-- Gemini (Google)
-- Claude (Anthropic)
-- OpenAI
-
-**MiniMax is NOT directly supported.** Therefore, we use **LiteLLM Proxy** to bridge Google ADK → OpenAI-compatible API → MiniMax.
-
-### The Call Flow
-
-```
-Google ADK
-    ↓ (OpenAI-compatible format)
-LiteLLM Proxy (localhost:4000)
-    ↓ (translates to MiniMax API)
-MiniMax API (api.minimax.io)
-```
+**Note:** Google ADK uses `google.adk.models.lite_llm.LiteLlm` to connect to MiniMax via OpenAI-compatible API.
 
 ---
 
 ## Quick Start
-
-### Prerequisites
-
-- Python 3.10+
-- MiniMax API Key
-- LiteLLM Proxy running
 
 ### 1. Install Dependencies
 
@@ -80,119 +42,159 @@ MiniMax API (api.minimax.io)
 pip install google-adk litellm fastapi uvicorn pydantic
 ```
 
-### 2. Configure LiteLLM Proxy
-
-Create `config.yaml`:
-
-```yaml
-model_list:
-  - model_name: minimax/MiniMax-M2.1
-    litellm_params:
-      model: minimax/MiniMax-M2.1
-      api_key: os.environ/MINIMAX_API_KEY
-      api_base: https://api.minimax.io/v1
-
-general_settings:
-  master_key: sk-1234
-```
-
-### 3. Start LiteLLM Proxy
+### 2. Configure Environment
 
 ```bash
 export MINIMAX_API_KEY="your-minimax-api-key"
-litellm --config config.yaml --port 4000
 ```
 
-### 4. Set Environment Variables for Google ADK
+### 3. Create Agent with MiniMax
 
-```bash
-export LITEllM_API_KEY="sk-1234"  # LiteLLM proxy key
-export LITEllM_BASE_URL="http://localhost:4000"
+```python
+import os
+from google.adk.agents import Agent
+from google.adk.models.lite_llm import LiteLlm
+from google.adk.sessions import InMemorySessionService
+from google.adk.runners import Runner
+from google.genai import types
+
+# Create LiteLlm model (connects to MiniMax)
+model = LiteLlm(
+    model="minimax/MiniMax-M2.1",
+    api_key=os.environ["MINIMAX_API_KEY"],
+    api_base="https://api.minimax.io/v1"
+)
+
+# Create Agent
+agent = Agent(
+    name="plan_agent",
+    model=model,
+    instruction="You are a financial analysis coordinator...",
+    description="Analyzes user questions and routes to sub-agents"
+)
+
+# Create session service
+session_service = InMemorySessionService()
+
+# Create runner
+runner = Runner(
+    agent=agent,
+    app_name="financial_analyst",
+    session_service=session_service
+)
 ```
 
-### 5. Run the API
+### 4. Run Agent
 
-```bash
-uvicorn api.main:app --reload --port 8000
+```python
+import asyncio
+
+async def run_agent(query: str):
+    content = types.Content(role="user", parts=[types.Part(text=query)])
+    
+    async for event in runner.run_async(
+        user_id="user_1",
+        session_id="session_001",
+        new_message=content
+    ):
+        if event.is_final_response():
+            return event.content.parts[0].text
+    
+asyncio.run(run_agent("Should I invest in Tesla?"))
 ```
 
 ---
 
-## MiniMax Models via LiteLLM
+## ADK + LiteLLM + MiniMax Integration
 
-### Supported Models
+### The Key Connection
+
+Google ADK provides native `LiteLlm` support:
+
+```python
+from google.adk.models.lite_llm import LiteLlm
+```
+
+This allows ADK to call **any OpenAI-compatible API** including MiniMax.
+
+### Create Model
+
+```python
+model = LiteLlm(
+    model="minimax/MiniMax-M2.1",  # Model name
+    api_key=os.environ["MINIMAX_API_KEY"],
+    api_base="https://api.minimax.io/v1"  # MiniMax API endpoint
+)
+```
+
+### MiniMax Models Supported
 
 | Model | Description | Input | Output |
 |-------|-------------|-------|--------|
-| MiniMax-M2.1 | High performance, multi-language | $0.3/1M | $1.2/1M |
-| MiniMax-M2.1-lightning | Fast, ~100 tps | $0.3/1M | $2.4/1M |
-| MiniMax-M2Agent | Agentic, advanced reasoning | $0.3/1M | $1.2/1M |
+| minimax/MiniMax-M2.1 | High performance | $0.3/1M | $1.2/1M |
+| minimax/MiniMax-M2.1-lightning | Fast, ~100 tps | $0.3/1M | $2.4/1M |
+| minimax/MiniMax-M2Agent | Agentic, advanced reasoning | $0.3/1M | $1.2/1M |
 
-### LiteLLM SDK Usage
+---
+
+## Multi-Agent Architecture
+
+```
+Plan Agent (Root)
+    ↓
+├── Web Search Agent → Search financial data
+└── Financial Master Agent
+    ├── Buffett Skill
+    ├── Cathie Wood Skill
+    └── Greg Abel Skill
+```
+
+### Plan Agent
 
 ```python
-import litellm
-
-# Point to LiteLLM proxy
-os.environ["LITEllM_API_KEY"] = "sk-1234"
-os.environ["LITEllM_BASE_URL"] = "http://localhost:4000"
-
-# Use MiniMax through LiteLLM
-response = litellm.completion(
-    model="minimax/MiniMax-M2.1",
-    messages=[
-        {"role": "system", "content": "You are a helpful assistant."},
-        {"role": "user", "content": "Hello!"}
-    ],
-    api_key=os.environ["LITEllM_API_KEY"],
-    base_url=os.environ["LITEllM_BASE_URL"]
+plan_agent = Agent(
+    name="plan_agent",
+    model=model,
+    instruction="""You are a financial analysis coordinator.
+    Analyze user questions and route to appropriate sub-agents.""",
+    description="Coordinates analysis requests"
 )
 ```
 
-### With Tool Calling
+### Financial Master Agent
 
 ```python
-tools = [
-    {
-        "type": "function",
-        "function": {
-            "name": "search_stocks",
-            "description": "Search for stock information",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "symbol": {"type": "string"},
-                    "market": {"type": "string"}
-                }
-            }
-        }
-    }
-]
-
-response = litellm.completion(
-    model="minimax/MiniMax-M2.1",
-    messages=[{"role": "user", "content": "What's the P/E ratio of Apple?"}],
-    tools=tools
+financial_master = Agent(
+    name="financial_master",
+    model=model,
+    instruction="""You are a financial expert using celebrity investment frameworks.
+    Use Buffett, Cathie Wood, and Greg Abel perspectives.""",
+    description="Provides expert financial analysis",
+    sub_agents=[buffett_agent, wood_agent, abel_agent]
 )
 ```
 
 ---
 
-## Google ADK Agent Structure
+## Project Structure
 
-### Agent with LiteLLM
-
-```python
-from google.adk.agents import Agent
-
-# Google ADK → LiteLLM Proxy → MiniMax
-agent = Agent(
-    name="plan_agent",
-    model="minimax/MiniMax-M2.1",  # ADK sees this as OpenAI-compatible
-    description="Financial analysis coordinator",
-    instruction="You are a financial analysis coordinator...",
-    # ADK will route through LiteLLM proxy
-)
+```
+financial_analyst/
+├── agents/
+│   ├── __init__.py
+│   ├── plan_agent.py        # Root coordinator
+│   ├── web_search_agent.py # Search sub-agent
+│   └── financial_master.py  # Expert sub-agent
+├── skills/
+│   ├── buffett/
+│   ├── cathie_wood/
+│   └── greg_abel/
+├── api/
+│   └── main.py              # FastAPI endpoints
+├── models/
+│   └── schemas.py
+├── requirements.txt
+└── main.py
 ```
 
 ---
@@ -207,13 +209,6 @@ Request:
   "question": "Should I invest in Tesla?",
   "style": "buffett" | "wood" | "abel" | "all"
 }
-
-Response:
-{
-  "answer": "...",
-  "sources": [...],
-  "agent_used": "financial_master"
-}
 ```
 
 ### POST /search
@@ -223,34 +218,6 @@ Request:
 {
   "query": "Tesla Q1 2026 earnings"
 }
-
-Response:
-{
-  "results": [...]
-}
-```
-
----
-
-## Project Structure
-
-```
-financial_analyst/
-├── agents/
-│   ├── plan_agent.py          # Root coordinator (Google ADK)
-│   ├── web_search_agent.py   # Search agent
-│   └── financial_master.py    # Expert agent
-├── skills/                    # Celebrity Skills
-│   ├── buffett/
-│   ├── cathie_wood/
-│   └── greg_abel/
-├── api/
-│   └── main.py               # FastAPI endpoints
-├── services/
-│   └── llm_service.py        # LiteLLM + MiniMax service
-├── config.yaml                # LiteLLM Proxy config
-├── requirements.txt
-└── main.py
 ```
 
 ---
@@ -270,7 +237,8 @@ This project uses [Celebrity Skills](https://github.com/Talentedleo/celebrity_sk
 ## References
 
 - [Google ADK](https://adk.dev/)
-- [LiteLLM Documentation](https://docs.litellm.ai/)
+- [ADK Documentation](https://google.github.io/adk-docs/)
+- [LiteLLM](https://docs.litellm.ai/)
 - [MiniMax API](https://www.minimax.io/)
 
 ---
