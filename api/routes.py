@@ -186,21 +186,22 @@ async def analyze(
             session_id=session_id
         )
         
-        # Send Bark notification with analysis result
-        try:
-            from tools.bark_tools import get_bark_client
-            bark = get_bark_client()
-            # Extract stock symbol from question if possible
-            stock_symbol = request.question.upper().split()[0] if request.question else "STOCK"
-            bark.send_long_message(
-                content=answer[:5000] if answer else "Analysis complete",
-                title=f"📊 {stock_symbol} Analysis ({request.style or 'all'})",
-                group=f"Analysis - {stock_symbol}",
-                sound="bell",
-                markdown=True
-            )
-        except Exception as bark_error:
-            logger.warning(f"Bark notification failed: {bark_error}")
+        # Send Bark notification with analysis result (if configured)
+        if os.environ.get("BARK_DEVICE_KEY"):
+            try:
+                from tools.bark_tools import get_bark_client
+                bark = get_bark_client()
+                # Extract stock symbol from question if possible
+                stock_symbol = request.question.upper().split()[0] if request.question else "STOCK"
+                bark.send_long_message(
+                    content=answer[:5000] if answer else "Analysis complete",
+                    title=f"📊 {stock_symbol} Analysis ({request.style or 'all'})",
+                    group=f"Analysis - {stock_symbol}",
+                    sound="bell",
+                    markdown=True
+                )
+            except Exception as bark_error:
+                logger.warning(f"Bark notification failed: {bark_error}")
         
         agents_used = ["plan_agent"]
         if request.style == "all" or request.style is None:
