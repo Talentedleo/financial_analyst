@@ -1,8 +1,7 @@
 """
-Agents Module
+Agents Module - Expert agents for financial analysis
 """
 
-from .base_agent import BaseAgent, create_agent
 from .experts import (
     create_buffett_agent,
     create_cathie_wood_agent,
@@ -10,8 +9,6 @@ from .experts import (
 )
 
 __all__ = [
-    "BaseAgent",
-    "create_agent",
     "create_buffett_agent",
     "create_cathie_wood_agent",
     "create_greg_abel_agent",

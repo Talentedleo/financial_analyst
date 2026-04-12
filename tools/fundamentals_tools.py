@@ -69,7 +69,7 @@ def get_company_peers(symbol: str) -> Dict[str, Any]:
     data_service = get_data_service()
     client = data_service.client
     
-    peers = client.peers(symbol)
+    peers = client.company_peers(symbol)
     
     return {
         "symbol": symbol,
