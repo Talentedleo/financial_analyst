@@ -6,6 +6,7 @@
 [![Python](https://img.shields.io/badge/Python-3.12-blue.svg)](https://www.python.org/)
 [![Google ADK](https://img.shields.io/badge/Google%20ADK-Latest-green.svg)](https://adk.dev/)
 [![MiniMax](https://img.shields.io/badge/MiniMax-M2.7--highspeed-red.svg)](https://www.minimax.chat/)
+[![Language: 中文](https://img.shields.io/badge/-中文-009688?style=flat-square)](README_zh.md)
 
 ---
 
