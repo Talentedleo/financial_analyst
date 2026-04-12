@@ -9,6 +9,8 @@ Usage:
     2. Get your Bark push key from the app
     3. Configure BARK_API_KEY in .env (your device push key)
     4. Configure BARK_SERVER_URL in .env (default: https://api.day.app)
+
+Note: Body text uses \\n for line breaks. Markdown is not fully supported.
 """
 
 import os
@@ -43,9 +45,11 @@ class BarkNotifier:
         """
         Send a push notification via Bark
         
+        Note: content uses \\n for line breaks, not markdown.
+        
         Args:
             title: Notification title (max 50 chars recommended)
-            content: Notification body content
+            content: Notification body content (use \\n for line breaks)
             group: Notification group/category (default: "Financial Analyst")
             sound: Notification sound (default: "alarm")
             icon: Notification icon URL
@@ -89,13 +93,14 @@ class BarkNotifier:
         Returns:
             dict with 'code' (0 = success) and 'message'
         """
-        title = f"📈 {stock_symbol} Analysis ({style.upper()})"
+        title = f"📈 {stock_symbol} ({style.upper()})"
+        # Truncate if too long
         content = analysis_result[:500] + "..." if len(analysis_result) > 500 else analysis_result
         
         return self.send(
             title=title,
             content=content,
-            group=f"Stock Analysis - {stock_symbol}",
+            group=f"Stock - {stock_symbol}",
             sound="alarm"
         )
     
@@ -182,15 +187,17 @@ def send_notification(
     - You want to be alerted about important market events
     - A long-running analysis has finished
     
+    Note: Use \\n for line breaks in content, not markdown.
+    
     Args:
         title: Notification title (keep it short, max 50 chars)
-        content: Notification body content
+        content: Notification body content (use \\n for new lines)
         group: Notification group (default: "Financial Analyst")
         sound: Sound name - "alarm", "anticipate", "bell", "bird", etc.
         level: Interruption level - "passive", "active", "timeSensitive"
     
     Returns:
-        dict with 'code' (0 = success) and 'message'
+        dict with 'code' (200 = success) and 'message'
     """
     notifier = get_bark_notifier()
     return notifier.send(
@@ -212,13 +219,16 @@ def send_analysis_notification(
     
     Use this to receive analysis results directly on your phone.
     
+    Note: analysis_summary will be truncated to 500 characters.
+    Use \\n for line breaks in the summary.
+    
     Args:
         stock_symbol: Stock symbol (e.g., "AAPL", "GOOGL")
-        analysis_summary: Brief summary of the analysis (will be truncated to 500 chars)
+        analysis_summary: Brief summary of the analysis
         style: Analysis style used - "buffett", "wood", "abel", or "all"
     
     Returns:
-        dict with 'code' (0 = success) and 'message'
+        dict with 'code' (200 = success) and 'message'
     """
     notifier = get_bark_notifier()
     return notifier.send_analysis(
@@ -243,11 +253,11 @@ def send_market_alert(
     
     Args:
         title: Alert title
-        message: Alert content
+        message: Alert content (use \\n for new lines)
         urgent: If True, uses "timeSensitive" level for immediate delivery
     
     Returns:
-        dict with 'code' (0 = success) and 'message'
+        dict with 'code' (200 = success) and 'message'
     """
     notifier = get_bark_notifier()
     return notifier.send_alert(
