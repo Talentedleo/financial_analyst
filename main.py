@@ -3,7 +3,7 @@ Financial Analyst AI Agent System - Main Entry Point
 
 Usage:
     python main.py                    # Start API server (default port 8000)
-    python main.py --port 9000       # Start with custom port
+    python main.py --port 8000       # Start with custom port
     python main.py --host 127.0.0.1   # Start with custom host
 """
 

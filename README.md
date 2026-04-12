@@ -64,7 +64,7 @@ python tests/test_main.py
 python main.py --server
 
 # Or with custom port
-python main.py --server --port 9000
+python main.py --server --port 8000
 ```
 
 ### 5. Test the API
