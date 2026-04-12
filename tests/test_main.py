@@ -111,8 +111,7 @@ class TestSuite:
         try:
             from services import get_data_service
             data = get_data_service()
-            assert data.api_key is not None
-            self.log("Data Service Init", True, "Finnhub client initialized")
+            self.log("Data Service Init", True, "Yahoo Finance (yfinance) initialized")
             return True
         except Exception as e:
             self.log("Data Service Init", False, str(e))
