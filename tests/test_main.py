@@ -86,7 +86,7 @@ class TestSuite:
         try:
             from services import get_llm_service
             llm = get_llm_service()
-            assert llm.model_name == "MiniMax-M2.7-highspeed"
+            assert llm.model_name == "minimax/MiniMax-M2.7-highspeed"
             self.log("LLM Service Init", True, f"Model: {llm.model_name}")
             return True
         except Exception as e:

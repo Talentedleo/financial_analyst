@@ -81,7 +81,7 @@ class DataService:
         Returns:
             Company profile data
         """
-        return self.client.profile2(symbol=symbol)
+        return self.client.company_profile2(symbol=symbol)
     
     def get_candles(
         self,

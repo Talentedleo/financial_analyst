@@ -258,7 +258,9 @@ async def search(
                 pass
         else:
             search_results = data_service.search_symbol(query)
-            for r in search_results[:5]:
+            # Finnhub returns {'count': N, 'result': [...]}
+            result_list = search_results.get('result', search_results) if isinstance(search_results, dict) else search_results
+            for r in result_list[:5]:
                 symbol = r.get('symbol')
                 try:
                     quote = data_service.get_quote(symbol)
