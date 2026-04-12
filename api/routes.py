@@ -8,10 +8,14 @@ Production deployment should:
 """
 
 import os
+import logging
 import asyncio
 from typing import Optional, Literal, List, Dict
 from datetime import datetime
 from collections import defaultdict
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 from fastapi import FastAPI, HTTPException, Body, Header, Depends
 from fastapi.middleware.cors import CORSMiddleware
@@ -181,6 +185,22 @@ async def analyze(
             user_id=user_id,
             session_id=session_id
         )
+        
+        # Send Bark notification with analysis result
+        try:
+            from tools.bark_tools import get_bark_client
+            bark = get_bark_client()
+            # Extract stock symbol from question if possible
+            stock_symbol = request.question.upper().split()[0] if request.question else "STOCK"
+            bark.send_long_message(
+                content=answer[:5000] if answer else "Analysis complete",
+                title=f"📊 {stock_symbol} Analysis ({request.style or 'all'})",
+                group=f"Analysis - {stock_symbol}",
+                sound="bell",
+                markdown=True
+            )
+        except Exception as bark_error:
+            logger.warning(f"Bark notification failed: {bark_error}")
         
         agents_used = ["plan_agent"]
         if request.style == "all" or request.style is None:
