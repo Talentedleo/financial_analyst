@@ -72,10 +72,10 @@ class BarkClient:
     def __init__(
         self,
         device_key: Optional[str] = None,
-        base_url: str = "https://api.day.app"
+        base_url: Optional[str] = None
     ):
         self.device_key = device_key or os.environ.get("BARK_DEVICE_KEY")
-        self.base_url = base_url.rstrip("/")
+        self.base_url = (base_url or os.environ.get("BARK_SERVER_URL", "https://api.day.app")).rstrip("/")
         self.endpoint = f"{self.base_url}/{self.device_key}"
         
         if not self.device_key:
