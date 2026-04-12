@@ -4,7 +4,10 @@ google-adk>=1.0.0
 # LiteLLM - Model calling
 litellm>=1.0.0
 
-# Finnhub - Financial data
+# Yahoo Finance - Free market data (premium features like candles)
+yfinance>=0.2.0
+
+# Finnhub - Free basic market data (quote, news, profile, search)
 finnhub-python>=1.0.0
 
 # FastAPI - REST API
@@ -19,3 +22,6 @@ beautifulsoup4>=4.12.0
 # Development
 pytest>=7.4.0
 httpx>=0.24.0
+
+# Environment
+python-dotenv>=1.0.0

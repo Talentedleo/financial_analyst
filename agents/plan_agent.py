@@ -133,7 +133,7 @@ Use tools to get real data before analyzing!"""
         if self._runner is None:
             self._runner = Runner(
                 agent=self.agent,
-                app_name="financial_analyst",
+                app_name="agents",
                 session_service=self.session_service
             )
         return self._runner
@@ -153,6 +153,13 @@ Use tools to get real data before analyzing!"""
     ) -> str:
         """Run analysis with user question"""
         from google.genai import types
+        
+        # Create session explicitly if not exists
+        await self.session_service.create_session(
+            app_name="agents",
+            user_id=user_id,
+            session_id=session_id
+        )
         
         content = types.Content(
             role="user",

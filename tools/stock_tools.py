@@ -2,7 +2,6 @@
 Stock Tools - Finnhub stock data tools for ADK
 """
 
-import os
 from typing import Dict, List, Any
 from google.adk.tools import FunctionTool
 
@@ -33,15 +32,6 @@ def get_stock_quote(symbol: str) -> Dict[str, Any]:
         "previous_close": quote.get('pc'),
         "timestamp": quote.get('t')
     }
-
-
-def get_stock_price_formatted(symbol: str) -> str:
-    """Get formatted stock price string"""
-    data = get_stock_quote(symbol)
-    return (
-        f"{data['symbol']}: ${data['current_price']} "
-        f"({data['percent_change']:+.2f}%)"
-    )
 
 
 def search_stocks(query: str) -> List[Dict[str, Any]]:
@@ -89,71 +79,19 @@ def get_stock_candles(
     return {
         "symbol": symbol.upper(),
         "timeframe": timeframe,
-        "c": candles.get('c', []),  # Close prices
-        "h": candles.get('h', []),  # High prices
-        "l": candles.get('l', []),  # Low prices
-        "o": candles.get('o', []),  # Open prices
-        "v": candles.get('v', []),  # Volume
-        "t": candles.get('t', [])    # Timestamps
+        "c": candles.get('c', []),
+        "h": candles.get('h', []),
+        "l": candles.get('l', []),
+        "o": candles.get('o', []),
+        "v": candles.get('v', []),
+        "t": candles.get('t', [])
     }
 
 
-# ADK Tool definitions
-get_quote_tool = FunctionTool(
-    name="get_stock_quote",
-    description="Get real-time stock quote including current price, change, and volume",
-    parameters={
-        "type": "object",
-        "properties": {
-            "symbol": {
-                "type": "string",
-                "description": "Stock symbol (e.g., 'AAPL', 'GOOGL')"
-            }
-        },
-        "required": ["symbol"]
-    },
-    function=get_stock_quote
-)
-
-search_stocks_tool = FunctionTool(
-    name="search_stocks",
-    description="Search for stocks by company name or symbol",
-    parameters={
-        "type": "object",
-        "properties": {
-            "query": {
-                "type": "string",
-                "description": "Company name or stock symbol to search"
-            }
-        },
-        "required": ["query"]
-    },
-    function=search_stocks
-)
-
-get_candles_tool = FunctionTool(
-    name="get_stock_candles",
-    description="Get OHLCV candlestick data for stock price history",
-    parameters={
-        "type": "object",
-        "properties": {
-            "symbol": {"type": "string", "description": "Stock symbol"},
-            "timeframe": {
-                "type": "string",
-                "description": "Timeframe: 'D' (daily), 'W' (weekly), 'M' (monthly)",
-                "enum": ["D", "W", "M"],
-                "default": "D"
-            },
-            "days": {
-                "type": "integer",
-                "description": "Number of days of data",
-                "default": 30
-            }
-        },
-        "required": ["symbol"]
-    },
-    function=get_stock_candles
-)
+# ADK Tool definitions - new API
+get_quote_tool = FunctionTool(func=get_stock_quote)
+search_stocks_tool = FunctionTool(func=search_stocks)
+get_candles_tool = FunctionTool(func=get_stock_candles)
 
 # Export all tools
 stock_tools = [get_quote_tool, search_stocks_tool, get_candles_tool]

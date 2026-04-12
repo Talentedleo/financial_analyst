@@ -1,45 +1,46 @@
 """
-Data Service - Finnhub API Wrapper
+Data Service - Finnhub + Yahoo Finance (yfinance) Integration
+
+Strategy:
+- Finnhub: Basic free features (quote, news, profile, search)
+- yfinance: Premium features (real-time candles, historical data)
 """
 
 import os
 from typing import Optional, Dict, List, Any
 from datetime import datetime, timedelta
 import finnhub
+import yfinance as yf
 
 
 class DataService:
-    """Service for fetching financial data via Finnhub API"""
+    """Service for fetching financial data via Finnhub + yfinance"""
     
     def __init__(self, api_key: Optional[str] = None):
         self.api_key = api_key or os.environ.get("FINNHUB_API_KEY")
-        if not self.api_key:
-            raise ValueError("FINNHUB_API_KEY not set in environment")
         self._client = None
     
     @property
     def client(self) -> finnhub.Client:
         """Get or create Finnhub client"""
         if self._client is None:
+            if not self.api_key:
+                raise ValueError("FINNHUB_API_KEY not set in environment")
             self._client = finnhub.Client(api_key=self.api_key)
         return self._client
     
     def get_quote(self, symbol: str) -> Dict[str, Any]:
         """
-        Get real-time stock quote
+        Get real-time stock quote (from Finnhub)
         
         Returns:
-            {'c': current, 'd': change, 'dp': percent change, ...}
+            Dictionary with price data
         """
         return self.client.quote(symbol)
     
-    def get_company_news(
-        self,
-        symbol: str,
-        days: int = 7
-    ) -> List[Dict[str, Any]]:
+    def get_company_news(self, symbol: str, days: int = 7) -> List[Dict[str, Any]]:
         """
-        Get company-specific news
+        Get company-specific news (from Finnhub)
         
         Args:
             symbol: Stock symbol (e.g., 'AAPL')
@@ -57,21 +58,22 @@ class DataService:
             to=end_date.strftime("%Y-%m-%d")
         )
     
-    def get_market_news(self, min_id: int = 0) -> List[Dict[str, Any]]:
+    def get_market_news(self, category: str = "general", min_id: int = 0) -> List[Dict[str, Any]]:
         """
-        Get general market news
+        Get general market news (from Finnhub)
         
         Args:
-            min_id: Minimum news ID (for pagination)
+            category: News category
+            min_id: Minimum news ID for pagination
             
         Returns:
             List of market news articles
         """
-        return self.client.general_news('general', min_id=min_id)
+        return self.client.general_news(category, min_id=min_id)
     
     def get_company_profile(self, symbol: str) -> Dict[str, Any]:
         """
-        Get company profile and fundamentals
+        Get company profile and fundamentals (from Finnhub)
         
         Args:
             symbol: Stock symbol
@@ -79,7 +81,7 @@ class DataService:
         Returns:
             Company profile data
         """
-        return self.client.profile2(symbol=symbol)
+        return self.client.company_profile2(symbol=symbol)
     
     def get_candles(
         self,
@@ -88,7 +90,7 @@ class DataService:
         days: int = 365
     ) -> Dict[str, Any]:
         """
-        Get OHLCV candlestick data
+        Get OHLCV candlestick data (from yfinance - Finnhub premium)
         
         Args:
             symbol: Stock symbol
@@ -98,18 +100,32 @@ class DataService:
         Returns:
             Candlestick data
         """
+        # Map timeframe to yfinance interval
+        interval_map = {
+            'D': '1d',
+            'W': '1wk',
+            'M': '1mo'
+        }
+        interval = interval_map.get(timeframe, '1d')
+        
         end_date = datetime.now()
         start_date = end_date - timedelta(days=days)
         
-        return self.client.stock_candles(
-            symbol, timeframe,
-            int(start_date.timestamp()),
-            int(end_date.timestamp())
-        )
+        ticker = yf.Ticker(symbol)
+        hist = ticker.history(start=start_date, end=end_date, interval=interval)
+        
+        return {
+            'c': hist['Close'].tolist() if 'Close' in hist.columns else [],
+            'h': hist['High'].tolist() if 'High' in hist.columns else [],
+            'l': hist['Low'].tolist() if 'Low' in hist.columns else [],
+            'o': hist['Open'].tolist() if 'Open' in hist.columns else [],
+            'v': hist['Volume'].tolist() if 'Volume' in hist.columns else [],
+            't': [int(d.timestamp()) for d in hist.index] if hasattr(hist.index, 'timestamp') else []
+        }
     
     def search_symbol(self, query: str) -> List[Dict[str, Any]]:
         """
-        Search for stock symbols
+        Search for stock symbols (from Finnhub)
         
         Args:
             query: Search query (company name or symbol)
@@ -117,7 +133,36 @@ class DataService:
         Returns:
             List of matching symbols
         """
-        return self.client.symbol_search(query)
+        return self.client.symbol_lookup(query)
+    
+    def get_company_peers(self, symbol: str) -> List[str]:
+        """
+        Get peer companies for comparison (from Finnhub)
+        
+        Args:
+            symbol: Stock symbol
+            
+        Returns:
+            List of peer symbols
+        """
+        return self.client.peers(symbol)
+    
+    def get_company_financials(self, symbol: str) -> Dict[str, Any]:
+        """
+        Get basic financial metrics (from Finnhub)
+        
+        Args:
+            symbol: Stock symbol
+            
+        Returns:
+            Financial metrics
+        """
+        metrics = self.client.company_basic_financials(symbol, 'all')
+        return {
+            "symbol": symbol,
+            "metrics": metrics.get('metric', {}),
+            "series": metrics.get('series', {}).get('annual', {})
+        }
     
     def format_quote(self, symbol: str) -> str:
         """Format quote as readable string"""

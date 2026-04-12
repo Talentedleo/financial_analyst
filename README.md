@@ -6,14 +6,15 @@
 [![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://www.python.org/)
 [![Google ADK](https://img.shields.io/badge/Google%20ADK-Latest-green.svg)](https://adk.dev/)
 [![LiteLLM](https://img.shields.io/badge/LiteLLM-Proxy-orange.svg)](https://docs.litellm.ai/)
-[![MiniMax](https://img.shields.io/badge/MiniMax-M2.7--highspeed-red.svg)](https://www.minimax.io/)
+[![MiniMax](https://img.shields.io/badge/MiniMax-M2.7--highspeed-red.svg)](https://www.minimax.chat/)
 
 ---
 
 ## Features
 
 - **Multi-Agent Architecture**: Plan Agent + 3 Expert Agents (Buffett, Cathie Wood, Greg Abel)
-- **Real-Time Data**: Finnhub API for stock quotes, news, and fundamentals
+- **Hybrid Data Sources**: Finnhub (free) + Yahoo Finance (premium) for comprehensive market data
+- **Real-Time Data**: Stock quotes, news, company profiles, financial metrics
 - **Flexible Analysis**: Ask any stock or financial question naturally
 - **Celebrity Perspectives**: Get insights from legendary investors' frameworks
 - **REST API**: FastAPI-powered endpoints with session management
@@ -25,6 +26,12 @@
 ### 1. Install Dependencies
 
 ```bash
+# Create virtual environment (recommended)
+python -m venv venv
+source venv/bin/activate  # Linux/Mac
+# or: venv\Scripts\activate  # Windows
+
+# Install dependencies
 pip install -r requirements.txt
 ```
 
@@ -34,19 +41,33 @@ pip install -r requirements.txt
 # Copy and edit .env file
 cp .env.example .env
 
-# Or set environment variables directly
-export MINIMAX_API_KEY="your-minimax-api-key"
-export FINNHUB_API_KEY="your-finnhub-api-key"
-export API_MASTER_KEY="your-api-key"  # For authentication
+# Edit .env with your API keys
+# MINIMAX_API_KEY=your-minimax-api-key
+# MINIMAX_API_BASE=https://api.minimax.chat/v1
+# FINNHUB_API_KEY=your-finnhub-api-key
 ```
 
-### 3. Run the API Server
+### 3. Run Tests
 
 ```bash
-uvicorn api.main:app --reload --port 8000
+# Make sure virtual environment is activated
+source venv/bin/activate
+
+# Run test suite
+python tests/test_main.py
 ```
 
-### 4. Test the API
+### 4. Start the API Server
+
+```bash
+# Using main.py
+python main.py --server
+
+# Or with custom port
+python main.py --server --port 8000
+```
+
+### 5. Test the API
 
 ```bash
 # Analyze any stock question (requires X-API-Key header)
@@ -124,10 +145,11 @@ Plan Agent (automatic stock identification + routing)
 └─────────────────┴─────────────────┴──────────────┘
     ↓                    ↓                    ↓
 ┌─────────────────────────────────────────────────┐
-│              Finnhub Tools                      │
-├─────────────┬─────────────┬────────────────────┤
-│ Stock Quote │ News        │ Fundamentals        │
-└─────────────┴─────────────┴────────────────────┘
+│              Data Service                        │
+├─────────────────┬─────────────────┬────────────┤
+│  Finnhub        │ Yahoo Finance   │ Tools       │
+│  (Quote/News)  │ (Candles)       │ (ADK)       │
+└─────────────────┴─────────────────┴────────────┘
     ↓
 LiteLlm → MiniMax-M2.7-highspeed
     ↓
@@ -140,6 +162,10 @@ JSON Response
 
 ```
 financial_analyst/
+├── main.py                    # Entry point (start server, run tests)
+├── app.py                     # Legacy entry point
+├── requirements.txt           # Python dependencies
+├── .env.example               # Environment template
 ├── agents/
 │   ├── __init__.py
 │   ├── base_agent.py          # Base agent class
@@ -156,19 +182,18 @@ financial_analyst/
 │   └── fundamentals_tools.py  # Profile, peers, financials
 ├── services/
 │   ├── __init__.py
-│   ├── llm_service.py         # LLM service (singleton)
-│   ├── data_service.py        # Finnhub wrapper
-│   └── skill_loader.py       # Celebrity skills loader
+│   ├── llm_service.py         # LLM service (MiniMax)
+│   ├── data_service.py        # Finnhub + yfinance wrapper
+│   └── skill_loader.py        # Celebrity skills loader
 ├── skills/                    # Celebrity Skills (embedded)
 │   ├── warren_buffett/
 │   ├── cathie_wood/
 │   └── greg_abel/
 ├── api/
-│   └── main.py                # FastAPI app
-├── main.py                    # Entry point
-├── config.yaml               # Configuration
-├── .env.example              # Environment template
-└── requirements.txt
+│   ├── __init__.py
+│   └── routes.py              # FastAPI routes
+└── tests/
+    └── test_main.py           # Test suite
 ```
 
 ---
@@ -185,16 +210,25 @@ Expert perspectives from legendary investors:
 
 ---
 
-## Data Source: Finnhub API
+## Data Sources
 
-| Endpoint | Usage |
-|----------|-------|
-| `/quote` | Real-time stock price, change, volume |
-| `/company-news` | Company-specific news |
-| `/general-news` | Market news |
-| `/stock/candle` | OHLCV candlestick data |
-| `/stock/profile2` | Company profile |
-| `/peers` | Peer companies |
+### Finnhub (Free Tier)
+
+| Feature | Description |
+|---------|-------------|
+| Stock Quote | Real-time price, change, volume |
+| Company News | Company-specific news articles |
+| Market News | General financial news |
+| Company Profile | Business info, industry, description |
+| Symbol Search | Search by company name or symbol |
+| Peer Companies | Competitors comparison |
+| Financial Metrics | Revenue, earnings, P/E ratios |
+
+### Yahoo Finance (yfinance)
+
+| Feature | Description |
+|---------|-------------|
+| Candlestick Data | Historical OHLCV data (premium on Finnhub) |
 
 ---
 
@@ -205,16 +239,22 @@ Expert perspectives from legendary investors:
 ```bash
 cd ~/Desktop/sandbox/financial_analyst
 
+# Create and activate virtual environment
+python -m venv venv
+source venv/bin/activate
+
 # Install dependencies
 pip install -r requirements.txt
 
-# Set environment variables
-export MINIMAX_API_KEY="your-key"
-export FINNHUB_API_KEY="your-key"
-export API_MASTER_KEY="your-api-key"
+# Configure environment
+cp .env.example .env
+# Edit .env with your API keys
 
-# Run server
-uvicorn api.main:app --reload --port 8000
+# Run test suite
+python tests/test_main.py
+
+# Start API server
+python main.py --server --port 8000
 ```
 
 ### API Documentation
@@ -223,14 +263,21 @@ Once running, visit:
 - Swagger UI: http://localhost:8000/docs
 - ReDoc: http://localhost:8000/redoc
 
+### Test Results
+
+```
+Total: 22 | Passed: 22 | Failed: 0 (100.0%)
+```
+
 ---
 
 ## References
 
 - [Google ADK](https://github.com/google/adk-python)
 - [LiteLLM](https://docs.litellm.ai/)
-- [MiniMax](https://www.minimax.io/)
+- [MiniMax](https://www.minimax.chat/)
 - [Finnhub API](https://finnhub.io/)
+- [Yahoo Finance (yfinance)](https://github.com/ranaroussi/yfinance)
 
 ---
 
