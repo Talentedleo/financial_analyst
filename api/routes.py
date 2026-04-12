@@ -58,11 +58,11 @@ class SessionManager:
         
         if key not in self._runners:
             # Create appropriate agent based on agent_name
-            if agent_name == "buffett_agent":
+            if agent_name == "warren_buffett":
                 agent = create_buffett_agent()
-            elif agent_name == "cathie_wood_agent":
+            elif agent_name == "cathie_wood":
                 agent = create_cathie_wood_agent()
-            elif agent_name == "greg_abel_agent":
+            elif agent_name == "greg_abel":
                 agent = create_greg_abel_agent()
             else:
                 agent = create_buffett_agent()  # default
@@ -242,7 +242,7 @@ async def analyze(
                 bark = get_bark_client()
                 stock_symbol = request.question.upper().split()[0] if request.question else "STOCK"
                 bark.send_long_message(
-                    content=response_text[:5000] if response_text else "Analysis complete",
+                    content=response_text if response_text else "Analysis complete",
                     title=f"📊 {stock_symbol} Analysis ({request.style})",
                     group=f"Analysis - {stock_symbol}",
                     sound="bell",
@@ -353,8 +353,8 @@ async def list_agents(
     """List available expert agents"""
     return AgentsListResponse(
         agents=[
-            AgentInfo(name="buffett_agent", description="Warren Buffett - Value investing"),
-            AgentInfo(name="cathie_wood_agent", description="Cathie Wood - Disruptive innovation"),
-            AgentInfo(name="greg_abel_agent", description="Greg Abel - Operational excellence"),
+            AgentInfo(name="warren_buffett", description="Warren Buffett - Value investing"),
+            AgentInfo(name="cathie_wood", description="Cathie Wood - Disruptive innovation"),
+            AgentInfo(name="greg_abel", description="Greg Abel - Operational excellence"),
         ]
     )

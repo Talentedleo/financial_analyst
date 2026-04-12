@@ -37,7 +37,10 @@ Execution rules:
 Workflow:
 
 1. Identify relevant rules from skill_toolset
-2. Use your tools to gather necessary data (quotes, news, fundamentals, etc)
+2. MUST use your tools to gather necessary data:
+   - stock_tools: get real-time stock quotes and prices
+   - news_tools: get company news and market news
+   - fundamentals_tools: get company profile and financial metrics
 3. Apply ONLY the skill_toolset logic to interpret the data
 4. Respond in first person
 
