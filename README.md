@@ -1,30 +1,28 @@
 # Financial Analyst AI Agent System
 
-> Multi-agent system using Google ADK + LiteLLM + MiniMax for professional-grade stock analysis with celebrity investor perspectives
+> Multi-agent stock analysis using Google ADK + LiteLLM + MiniMax with celebrity investor perspectives
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.12-blue.svg)](https://www.python.org/)
 [![Google ADK](https://img.shields.io/badge/Google%20ADK-Latest-green.svg)](https://adk.dev/)
-[![LiteLLM](https://img.shields.io/badge/LiteLLM-Proxy-orange.svg)](https://docs.litellm.ai/)
 [![MiniMax](https://img.shields.io/badge/MiniMax-M2.7--highspeed-red.svg)](https://www.minimax.chat/)
 
 ---
 
 ## Features
 
-- **Multi-Agent Architecture**: Plan Agent + 3 Expert Agents (Buffett, Cathie Wood, Greg Abel)
-- **Hybrid Data Sources**: Finnhub (free) + Yahoo Finance (premium) for comprehensive market data
-- **Real-Time Data**: Stock quotes, news, company profiles, financial metrics
-- **Flexible Analysis**: Ask any stock or financial question naturally
-- **Celebrity Perspectives**: Get insights from legendary investors' frameworks
+- **Direct Expert Routing**: No coordinator layer, direct call to expert agents
+- **ADK Skills**: Each expert uses Google's official SkillToolset for investment philosophy
+- **Real-Time Data**: Finnhub (free) + Yahoo Finance (premium) for market data
+- **Celebrity Investor Perspectives**: Warren Buffett, Cathie Wood, Greg Abel
+- **Push Notifications**: Bark integration for iOS notifications
 - **REST API**: FastAPI-powered endpoints with session management
-- **Push Notifications**: Bark integration for iOS push notifications
 
 ---
 
 ## Requirements
 
-- **Python 3.12+** (required for Google ADK and MCP support)
+- **Python 3.12+** (required for Google ADK)
 
 ---
 
@@ -33,25 +31,15 @@
 ### 1. Install Python 3.12
 
 ```bash
-# macOS with Homebrew
 brew install python@3.12
-
-# Verify
-python3.12 --version
 ```
 
 ### 2. Create Virtual Environment
 
 ```bash
 cd ~/Desktop/sandbox/financial_analyst
-
-# Create venv with Python 3.12
 python3.12 -m venv venv
-source venv/bin/activate  # Linux/Mac
-# or: venv\Scripts\activate  # Windows
-
-# Verify Python version
-python --version  # Should show 3.12.x
+source venv/bin/activate
 ```
 
 ### 3. Install Dependencies
@@ -63,13 +51,8 @@ pip install -r requirements.txt
 ### 4. Configure Environment
 
 ```bash
-# Copy and edit .env file
 cp .env.example .env
-
 # Edit .env with your API keys
-# MINIMAX_API_KEY=your-minimax-api-key
-# FINNHUB_API_KEY=your-finnhub-api-key
-# BARK_API_KEY=your-bark-push-key (optional, for iOS notifications)
 ```
 
 ### 5. Run Tests
@@ -82,9 +65,6 @@ python tests/test_main.py
 
 ```bash
 python main.py
-
-# With custom port (default: 8000)
-python main.py --port 9000
 ```
 
 ---
@@ -96,67 +76,67 @@ python main.py --port 9000
 | `/` | GET | API info |
 | `/health` | GET | Health check |
 | `/agents` | GET | List available expert agents |
-| `/analyze` | POST | Analyze any stock/financial question |
-| `/search` | POST | Search stock data and news |
+| `/analyze` | POST | Analyze stock with expert perspective |
+| `/search` | POST | Search stock data |
 | `/clear-session` | POST | Clear conversation session |
 
 ### Example Requests
 
 ```bash
-# Analyze stock with Buffett style
+# Analyze with Warren Buffett
 curl -X POST http://localhost:8000/analyze \
   -H "Content-Type: application/json" \
   -H "X-API-Key: sk-1234" \
-  -d '{"question": "Should I invest in Apple?", "style": "buffett"}'
+  -d '{"question": "NVDA值得购买吗？", "style": "warren_buffett"}'
 
-# Analyze with all experts
+# Analyze with Cathie Wood
 curl -X POST http://localhost:8000/analyze \
   -H "Content-Type: application/json" \
   -H "X-API-Key: sk-1234" \
-  -d '{"question": "What do you think about Tesla?", "style": "all"}'
+  -d '{"question": "TSLA值得购买吗？", "style": "cathie_wood"}'
 
-# Search for stock
-curl -X POST http://localhost:8000/search \
+# Analyze with Greg Abel
+curl -X POST http://localhost:8000/analyze \
   -H "Content-Type: application/json" \
   -H "X-API-Key: sk-1234" \
-  -d '{"query": "AAPL"}'
+  -d '{"question": "AAPL值得购买吗？", "style": "greg_abel"}'
 ```
 
-### Analysis Styles
+### Expert Agents
 
-| Style | Expert | Description |
-|-------|--------|-------------|
-| `buffett` | Warren Buffett | Value investing, moat analysis |
-| `wood` | Cathie Wood | Disruptive innovation, high-growth |
-| `abel` | Greg Abel | Operational excellence, Berkshire |
-| `all` | All Experts | Multi-perspective analysis |
+| Style Parameter | Expert | Philosophy |
+|----------------|--------|-------------|
+| `warren_buffett` | Warren Buffett | Value investing, moat analysis |
+| `cathie_wood` | Cathie Wood | Disruptive innovation, high-growth |
+| `greg_abel` | Greg Abel | Operational excellence, Berkshire |
 
 ---
 
 ## Architecture
 
 ```
-User Question (any stock/financial question)
+User Question
     ↓
-Plan Agent (automatic stock identification + routing)
+┌─────────────────────────────────────┐
+│          Direct Expert Agent         │
+│   (based on style parameter)        │
+├─────────────────────────────────────┤
+│  - Read ADK SkillToolset           │
+│  - Gather real-time data            │
+│  - Apply investment framework      │
+│  - First-person response            │
+└─────────────────────────────────────┘
     ↓
-┌─────────────────────────────────────────────────┐
-│              Expert Agents                       │
-├─────────────────┬─────────────────┬──────────────┤
-│  Buffett Agent │ Cathie Wood     │ Greg Abel     │
-│  (Value)       │ (Growth)        │ (Operations)  │
-└─────────────────┴─────────────────┴──────────────┘
-    ↓                    ↓                    ↓
-┌─────────────────────────────────────────────────┐
-│              Data Service                        │
-├─────────────────┬─────────────────┬────────────┤
-│  Finnhub        │ Yahoo Finance   │ Tools       │
-│  (Quote/News)  │ (Candles)       │ (ADK)       │
-└─────────────────┴─────────────────┴────────────┘
+┌─────────────────────────────────────┐
+│          Data Service                │
+├──────────────┬──────────────────────┤
+│   Finnhub   │   Yahoo Finance      │
+│ (Quote/News)│     (Candles)        │
+└──────────────┴──────────────────────┘
     ↓
 LiteLlm → MiniMax-M2.7-highspeed
     ↓
-JSON Response + Push Notification (Bark)
+JSON Response + Bark Notification
 ```
 
 ---
@@ -165,16 +145,14 @@ JSON Response + Push Notification (Bark)
 
 ```
 financial_analyst/
-├── main.py                    # Entry point (starts API server)
-├── requirements.txt           # Python dependencies
+├── main.py                    # Entry point
+├── requirements.txt           # Dependencies
 ├── .env.example               # Environment template
 ├── agents/
 │   ├── __init__.py
-│   ├── base_agent.py          # Base agent class
-│   ├── plan_agent.py          # Root coordinator
 │   └── experts/
 │       ├── __init__.py
-│       ├── buffett_agent.py    # Warren Buffett
+│       ├── warren_buffett_agent.py
 │       ├── cathie_wood_agent.py
 │       └── greg_abel_agent.py
 ├── tools/
@@ -186,102 +164,80 @@ financial_analyst/
 ├── services/
 │   ├── __init__.py
 │   ├── llm_service.py         # LLM service (MiniMax)
-│   ├── data_service.py        # Finnhub + yfinance wrapper
-│   └── skill_loader.py        # Celebrity skills loader
-├── skills/                    # Celebrity Skills (embedded)
-│   ├── warren_buffett/
-│   ├── cathie_wood/
-│   └── greg_abel/
+│   ├── data_service.py        # Finnhub + yfinance
+│   └── skill_loader.py        # Skill utilities
+├── skills/                    # ADK Skills
+│   ├── warren-buffett/
+│   ├── cathie-wood/
+│   └── greg-abel/
 ├── api/
 │   ├── __init__.py
 │   └── routes.py              # FastAPI routes
 └── tests/
-    └── test_main.py           # Test suite (23 tests)
+    └── test_main.py           # Test suite (21 tests)
 ```
 
 ---
 
-## Celebrity Skills (Embedded)
+## Expert Agents
 
-Expert perspectives from legendary investors:
+Each expert agent:
+1. Reads ADK SkillToolset to learn the investment philosophy
+2. Uses tools to gather real-time data
+3. Applies the skill's framework to analyze
+4. Responds in first person, matching the question's language
 
-| Expert | Philosophy | Key Questions |
-|--------|------------|---------------|
-| **Warren Buffett** | Value investing, moat analysis | "Would I own this forever?" |
-| **Cathie Wood** | Disruptive innovation, 5-year horizon | "Will this transform an industry?" |
-| **Greg Abel** | Operational excellence, Berkshire model | "Would Buffett be comfortable?" |
+### ADK Skills
+
+Skills are loaded using Google's official `load_skill_from_dir` and `SkillToolset`:
+
+```python
+from google.adk.skills import load_skill_from_dir
+from google.adk.tools.skill_toolset import SkillToolset
+
+skill = load_skill_from_dir(Path("skills/warren-buffett"))
+skill_toolset = SkillToolset(skills=[skill])
+
+Agent(..., tools=[..., skill_toolset])
+```
 
 ---
 
 ## Data Sources
 
-### Finnhub (Free Tier)
+### Finnhub (Free)
 
 | Feature | Description |
 |---------|-------------|
 | Stock Quote | Real-time price, change, volume |
-| Company News | Company-specific news articles |
+| Company News | Company-specific news |
 | Market News | General financial news |
-| Company Profile | Business info, industry, description |
-| Symbol Search | Search by company name or symbol |
-| Peer Companies | Competitors comparison |
-| Financial Metrics | Revenue, earnings, P/E ratios |
+| Company Profile | Business info, industry |
+| Symbol Search | Search by name/symbol |
+| Financial Metrics | Revenue, P/E, ROE, etc. |
 
 ### Yahoo Finance (yfinance)
 
 | Feature | Description |
 |---------|-------------|
-| Candlestick Data | Historical OHLCV data (premium on Finnhub) |
+| Candlestick Data | Historical OHLCV data |
 
 ---
 
 ## Push Notifications (Bark)
 
-The system supports iOS push notifications via Bark with Markdown and long message splitting.
-
-### Setup
-
-1. Install [Bark](https://github.com/Finb/Bark) iOS app
-2. Get your Device Key from the app
-3. Add to `.env`:
-   ```
-   BARK_DEVICE_KEY=your-device-key
-   BARK_SERVER_URL=https://api.day.app
-   ```
-
-### Features
-
-- **Markdown Support**: Full Markdown formatting in notifications
-- **Auto-Splitting**: Long messages (>2000 chars) automatically split into chunks
-- **Custom Sounds**: 24 notification sounds available
-- **Priority Levels**: active, passive, timeSensitive
-
-### Notification Functions
-
-| Function | Description |
-|----------|-------------|
-| `send_notification` | Send general push notification with Markdown |
-| `send_analysis_notification` | Send stock analysis result (auto-split) |
-| `send_market_alert` | Send urgent market alert (auto-split) |
-
-### Available Sounds
-
-`alarm`, `anticipate`, `bell`, `birdsong`, `bloom`, `calypso`, `chime`, `complete`, `descent`, `electric`, `fanfare`, `glass`, `horns`, `ladder`, `minuet`, `newsflash`, `noir`, `sherwoodforest`, `spell`, `suspense`, `telegraph`, `tiptoes`, `typewriters`, `update`, `None`
-
----
-
-## API Documentation
-
-Once running, visit:
-- Swagger UI: http://localhost:8000/docs
-- ReDoc: http://localhost:8000/redoc
+```bash
+# Configure in .env
+BARK_DEVICE_KEY=your-device-key
+BARK_SERVER_URL=https://api.day.app
+```
 
 ---
 
 ## Test Results
 
 ```
-Total: 23 | Passed: 23 | Failed: 0 (100.0%)
+Total: 21 | Passed: 21 | Failed: 0 (100.0%)
 ```
 
 ---
@@ -293,7 +249,7 @@ Total: 23 | Passed: 23 | Failed: 0 (100.0%)
 - [MiniMax](https://www.minimax.chat/)
 - [Finnhub API](https://finnhub.io/)
 - [Yahoo Finance (yfinance)](https://github.com/ranaroussi/yfinance)
-- [Bark](https://github.com/Finb/Bark) - iOS Push Notifications
+- [Bark](https://github.com/Finb/Bark)
 
 ---
 
