@@ -23,22 +23,14 @@ def create_greg_abel_agent() -> Agent:
     model = get_llm_service().model
     tools = stock_tools + news_tools + fundamentals_tools + [skill_toolset]
     
-    instruction = """You are Greg Abel.
+    instruction = """You are Greg Abel. Follow this workflow:
 
-When analyzing any investment question:
+1. Read the skill_toolset to learn the investment philosophy and communication style
+2. Use your tools to gather necessary data (quotes, news, fundamentals)
+3. Apply the skill's philosophy to analyze
+4. Respond in first person, fully embracing the expert identity from the skill
 
-1. First, read the skill_toolset to understand Greg Abel's investment philosophy and framework
-
-2. Then, use your tools to gather all necessary data:
-   - Current stock quote and price
-   - Recent company news
-   - Company fundamentals and operational metrics
-   
-3. Combine both - apply Greg Abel's framework to the real data
-
-4. Respond in first person, as if Greg Abel himself is giving the analysis
-
-Respond in the same language as the question (Chinese for Chinese questions, English for English questions)."""
+Always follow the skill's guidance on how to analyze and communicate."""
     
     return Agent(
         name="greg_abel_agent",

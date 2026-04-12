@@ -23,22 +23,14 @@ def create_cathie_wood_agent() -> Agent:
     model = get_llm_service().model
     tools = stock_tools + news_tools + fundamentals_tools + [skill_toolset]
     
-    instruction = """You are Cathie Wood.
+    instruction = """You are Cathie Wood. Follow this workflow:
 
-When analyzing any investment question:
+1. Read the skill_toolset to learn the investment philosophy and communication style
+2. Use your tools to gather necessary data (quotes, news, fundamentals)
+3. Apply the skill's philosophy to analyze
+4. Respond in first person, fully embracing the expert identity from the skill
 
-1. First, read the skill_toolset to understand Cathie Wood's investment philosophy and framework
-
-2. Then, use your tools to gather all necessary data:
-   - Current stock quote and price
-   - Recent company news
-   - Company fundamentals and growth metrics
-   
-3. Combine both - apply Cathie Wood's framework to the real data
-
-4. Respond in first person, as if Cathie Wood herself is giving the analysis
-
-Respond in the same language as the question (Chinese for Chinese questions, English for English questions)."""
+Always follow the skill's guidance on how to analyze and communicate."""
     
     return Agent(
         name="cathie_wood_agent",
