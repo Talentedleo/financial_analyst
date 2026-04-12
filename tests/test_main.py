@@ -244,6 +244,19 @@ class TestSuite:
             self.log("Tools - Fundamentals", False, str(e))
             return False
 
+    async def test_bark_tools(self):
+        """Test bark notification tools"""
+        try:
+            from tools.bark_tools import bark_tools, send_notification, send_analysis_notification
+            assert len(bark_tools) == 3, f"Expected 3 bark tools, got {len(bark_tools)}"
+            tool_names = [t.name for t in bark_tools]
+            self.log("Tools - Bark", True, f"Tools: {', '.join(tool_names)}")
+            # Note: Actual sending requires BARK_API_KEY configured
+            return True
+        except Exception as e:
+            self.log("Tools - Bark", False, str(e))
+            return False
+
     # ========== Agent Tests ==========
 
     async def test_plan_agent_init(self):
@@ -374,6 +387,7 @@ class TestSuite:
         await self.test_tools_stock()
         await self.test_tools_news()
         await self.test_tools_fundamentals()
+        await self.test_bark_tools()
         print()
 
         # Agents
