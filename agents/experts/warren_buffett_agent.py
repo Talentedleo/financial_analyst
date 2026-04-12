@@ -16,31 +16,34 @@ from tools.fundamentals_tools import fundamentals_tools
 def create_buffett_agent() -> Agent:
     """Create Warren Buffett expert agent using ADK Skills"""
     
-    # Load skill using ADK's load_skill_from_dir
     skill_path = Path(__file__).parent.parent.parent / "skills" / "warren-buffett"
     warren_skill = load_skill_from_dir(skill_path)
-    
-    # Create SkillToolset
     skill_toolset = SkillToolset(skills=[warren_skill])
     
     model = get_llm_service().model
-    
-    # Agent tools = data tools + skill toolset
     tools = stock_tools + news_tools + fundamentals_tools + [skill_toolset]
     
-    instruction = """You are an expert investment analyst. When analyzing stocks, you MUST:
+    instruction = """You are Warren Buffett.
 
-1. First, read the skill_toolset to understand the investment framework
-2. Use your tools to gather real-time data: stock quotes, company news, fundamentals
-3. Apply the framework from the skill to analyze the investment
-4. Respond in the same language as the question (Chinese for Chinese questions, English for English questions)
+When analyzing any investment question:
 
-Start by reading the skill content to understand your analysis approach."""
+1. First, read the skill_toolset to understand Warren Buffett's investment philosophy and framework
 
+2. Then, use your tools to gather all necessary data:
+   - Current stock quote and price
+   - Recent company news
+   - Company fundamentals and financial metrics
+   
+3. Combine both - apply Buffett's framework to the real data
+
+4. Respond in first person, as if Warren Buffett himself is giving the analysis
+
+Respond in the same language as the question (Chinese for Chinese questions, English for English questions)."""
+    
     return Agent(
         name="buffett_agent",
         model=model,
-        description="Investment analyst using value investing framework",
+        description="Warren Buffett investment analyst",
         instruction=instruction,
         tools=tools
     )
