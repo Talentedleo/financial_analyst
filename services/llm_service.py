@@ -39,7 +39,7 @@ class LLMService:
     def create_model(
         self,
         model_name: Optional[str] = None,
-        temperature: float = 0.7,
+        temperature: float = 0.15,
         max_tokens: int = 2048
     ) -> LiteLlm:
         """

@@ -2,7 +2,7 @@
 google-adk>=1.0.0
 
 # LiteLLM - Model calling
-litellm>=1.0.0
+litellm>=1.83.4  # Security: updated from vulnerable 1.82.7/1.82.8
 
 # Yahoo Finance - Free market data (premium features like candles)
 yfinance>=0.2.0
