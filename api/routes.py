@@ -100,7 +100,7 @@ session_manager = SessionManager()
 
 class AnalyzeRequest(BaseModel):
     question: str = Field(..., description="Any stock or financial question")
-    style: Optional[Literal["buffett", "wood", "abel"]] = Field(default="buffett")
+    style: Optional[Literal["warren_buffett", "cathie_wood", "greg_abel"]] = Field(default="warren_buffett")
     user_id: Optional[str] = Field(default="default_user")
     new_session: Optional[bool] = Field(default=False)
 
@@ -206,8 +206,8 @@ async def analyze(
             session_id = existing_session if existing_session else f"session_{datetime.now().timestamp()}"
             session_manager.set_session_id(user_id, session_id)
         
-        # Determine which agent to use based on style
-        agent_name = f"{request.style}_agent"
+        # Determine which agent to use based on style (full agent name)
+        agent_name = request.style
         
         # Get or create runner for this agent
         runner = session_manager.get_or_create_runner(user_id, session_id, agent_name)
@@ -257,7 +257,7 @@ async def analyze(
             sources=[],
             agents_used=[agent_name],
             timestamp=datetime.now().isoformat(),
-            style=request.style or "buffett",
+            style=request.style or "warren_buffett",
             session_id=session_id
         )
     
