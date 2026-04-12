@@ -18,6 +18,7 @@
 - **Flexible Analysis**: Ask any stock or financial question naturally
 - **Celebrity Perspectives**: Get insights from legendary investors' frameworks
 - **REST API**: FastAPI-powered endpoints with session management
+- **Push Notifications**: Bark integration for iOS push notifications
 
 ---
 
@@ -67,8 +68,8 @@ cp .env.example .env
 
 # Edit .env with your API keys
 # MINIMAX_API_KEY=your-minimax-api-key
-# MINIMAX_API_BASE=https://api.minimax.chat/v1
 # FINNHUB_API_KEY=your-finnhub-api-key
+# BARK_API_KEY=your-bark-push-key (optional, for iOS notifications)
 ```
 
 ### 5. Run Tests
@@ -155,7 +156,7 @@ Plan Agent (automatic stock identification + routing)
     ↓
 LiteLlm → MiniMax-M2.7-highspeed
     ↓
-JSON Response
+JSON Response + Push Notification (Bark)
 ```
 
 ---
@@ -180,7 +181,8 @@ financial_analyst/
 │   ├── __init__.py
 │   ├── stock_tools.py         # Quote, search, candles
 │   ├── news_tools.py          # Company & market news
-│   └── fundamentals_tools.py  # Profile, peers, financials
+│   ├── fundamentals_tools.py  # Profile, peers, financials
+│   └── bark_tools.py          # iOS push notifications
 ├── services/
 │   ├── __init__.py
 │   ├── llm_service.py         # LLM service (MiniMax)
@@ -194,7 +196,7 @@ financial_analyst/
 │   ├── __init__.py
 │   └── routes.py              # FastAPI routes
 └── tests/
-    └── test_main.py           # Test suite (22 tests)
+    └── test_main.py           # Test suite (23 tests)
 ```
 
 ---
@@ -233,6 +235,30 @@ Expert perspectives from legendary investors:
 
 ---
 
+## Push Notifications (Bark)
+
+The system supports iOS push notifications via Bark.
+
+### Setup
+
+1. Install [Bark](https://github.com/Finb/Bark) iOS app
+2. Get your Push Key from the app
+3. Add to `.env`:
+   ```
+   BARK_API_KEY=your-push-key
+   BARK_SERVER_URL=https://api.day.app
+   ```
+
+### Notification Functions
+
+| Function | Description |
+|----------|-------------|
+| `send_notification` | Send general push notification |
+| `send_analysis_notification` | Send stock analysis result |
+| `send_market_alert` | Send urgent market alert |
+
+---
+
 ## API Documentation
 
 Once running, visit:
@@ -244,7 +270,7 @@ Once running, visit:
 ## Test Results
 
 ```
-Total: 22 | Passed: 22 | Failed: 0 (100.0%)
+Total: 23 | Passed: 23 | Failed: 0 (100.0%)
 ```
 
 ---
@@ -256,6 +282,7 @@ Total: 22 | Passed: 22 | Failed: 0 (100.0%)
 - [MiniMax](https://www.minimax.chat/)
 - [Finnhub API](https://finnhub.io/)
 - [Yahoo Finance (yfinance)](https://github.com/ranaroussi/yfinance)
+- [Bark](https://github.com/Finb/Bark) - iOS Push Notifications
 
 ---
 
