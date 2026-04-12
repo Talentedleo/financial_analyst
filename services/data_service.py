@@ -1,43 +1,46 @@
 """
-Data Service - Yahoo Finance API (yfinance) Wrapper
+Data Service - Finnhub + Yahoo Finance (yfinance) Integration
+
+Strategy:
+- Finnhub: Basic free features (quote, news, profile, search)
+- yfinance: Premium features (real-time candles, historical data)
 """
 
 import os
 from typing import Optional, Dict, List, Any
 from datetime import datetime, timedelta
+import finnhub
 import yfinance as yf
 
 
 class DataService:
-    """Service for fetching financial data via Yahoo Finance (yfinance)"""
+    """Service for fetching financial data via Finnhub + yfinance"""
     
-    def __init__(self):
-        self._cache: Dict[str, Any] = {}
+    def __init__(self, api_key: Optional[str] = None):
+        self.api_key = api_key or os.environ.get("FINNHUB_API_KEY")
+        self._client = None
+    
+    @property
+    def client(self) -> finnhub.Client:
+        """Get or create Finnhub client"""
+        if self._client is None:
+            if not self.api_key:
+                raise ValueError("FINNHUB_API_KEY not set in environment")
+            self._client = finnhub.Client(api_key=self.api_key)
+        return self._client
     
     def get_quote(self, symbol: str) -> Dict[str, Any]:
         """
-        Get real-time stock quote
+        Get real-time stock quote (from Finnhub)
         
         Returns:
             Dictionary with price data
         """
-        ticker = yf.Ticker(symbol)
-        info = ticker.info
-        
-        return {
-            'c': info.get('currentPrice') or info.get('regularMarketPrice'),
-            'd': info.get('regularMarketChange'),
-            'dp': info.get('regularMarketChangePercent'),
-            'h': info.get('dayHigh'),
-            'l': info.get('dayLow'),
-            'o': info.get('open'),
-            'pc': info.get('previousClose'),
-            't': int(datetime.now().timestamp())
-        }
+        return self.client.quote(symbol)
     
     def get_company_news(self, symbol: str, days: int = 7) -> List[Dict[str, Any]]:
         """
-        Get company-specific news
+        Get company-specific news (from Finnhub)
         
         Args:
             symbol: Stock symbol (e.g., 'AAPL')
@@ -46,60 +49,31 @@ class DataService:
         Returns:
             List of news articles
         """
-        ticker = yf.Ticker(symbol)
-        news = ticker.news or []
+        end_date = datetime.now()
+        start_date = end_date - timedelta(days=days)
         
-        result = []
-        for article in news:
-            result.append({
-                'headline': article.get('title', ''),
-                'summary': article.get('summary', ''),
-                'source': article.get('publisher', ''),
-                'url': article.get('link', ''),
-                'datetime': article.get('providerPublishTime', 0)
-            })
-        
-        return result
+        return self.client.company_news(
+            symbol,
+            _from=start_date.strftime("%Y-%m-%d"),
+            to=end_date.strftime("%Y-%m-%d")
+        )
     
-    def get_market_news(self, category: str = "general") -> List[Dict[str, Any]]:
+    def get_market_news(self, category: str = "general", min_id: int = 0) -> List[Dict[str, Any]]:
         """
-        Get general market news.
-        Note: yfinance doesn't support category filtering, returns general news.
+        Get general market news (from Finnhub)
         
         Args:
-            category: News category (ignored for yfinance)
+            category: News category
+            min_id: Minimum news ID for pagination
             
         Returns:
             List of market news articles
         """
-        # yfinance doesn't have a general news endpoint separate from ticker news
-        # Return tech/growth focused news via major indices
-        tickers = ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'META']
-        all_news = []
-        
-        for symbol in tickers[:3]:  # Limit to 3 tickers
-            ticker = yf.Ticker(symbol)
-            news = ticker.news or []
-            all_news.extend(news)
-        
-        # Sort by time
-        all_news.sort(key=lambda x: x.get('providerPublishTime', 0), reverse=True)
-        
-        result = []
-        for article in all_news[:20]:
-            result.append({
-                'headline': article.get('title', ''),
-                'summary': article.get('summary', ''),
-                'source': article.get('publisher', ''),
-                'url': article.get('link', ''),
-                'category': 'general'
-            })
-        
-        return result
+        return self.client.general_news(category, min_id=min_id)
     
     def get_company_profile(self, symbol: str) -> Dict[str, Any]:
         """
-        Get company profile and fundamentals
+        Get company profile and fundamentals (from Finnhub)
         
         Args:
             symbol: Stock symbol
@@ -107,20 +81,7 @@ class DataService:
         Returns:
             Company profile data
         """
-        ticker = yf.Ticker(symbol)
-        info = ticker.info
-        
-        return {
-            'name': info.get('shortName', ''),
-            'ticker': symbol,
-            'exchange': info.get('exchange', ''),
-            'finnhubIndustry': info.get('industry', ''),
-            'logo': '',
-            'weburl': info.get('website', ''),
-            'country': info.get('country', ''),
-            'currency': info.get('currency', 'USD'),
-            'description': info.get('longBusinessSummary', '')[:500]
-        }
+        return self.client.profile2(symbol=symbol)
     
     def get_candles(
         self,
@@ -129,11 +90,11 @@ class DataService:
         days: int = 365
     ) -> Dict[str, Any]:
         """
-        Get OHLCV candlestick data
+        Get OHLCV candlestick data (from yfinance - Finnhub premium)
         
         Args:
             symbol: Stock symbol
-            timeframe: 'D' (daily), 'W' (weekly), 'M' (monthly) - mapped to yfinance interval
+            timeframe: 'D' (daily), 'W' (weekly), 'M' (monthly)
             days: Number of days of data
             
         Returns:
@@ -164,7 +125,7 @@ class DataService:
     
     def search_symbol(self, query: str) -> List[Dict[str, Any]]:
         """
-        Search for stock symbols
+        Search for stock symbols (from Finnhub)
         
         Args:
             query: Search query (company name or symbol)
@@ -172,44 +133,36 @@ class DataService:
         Returns:
             List of matching symbols
         """
-        # yfinance doesn't have a direct search API
-        # Use common tickers as fallback for demo
-        search_lower = query.lower()
+        return self.client.symbol_lookup(query)
+    
+    def get_company_peers(self, symbol: str) -> List[str]:
+        """
+        Get peer companies for comparison (from Finnhub)
         
-        # Try direct ticker first
-        try:
-            ticker = yf.Ticker(query.upper())
-            info = ticker.info
-            if info.get('regularMarketPrice'):
-                return [{
-                    'symbol': query.upper(),
-                    'description': info.get('shortName', info.get('longName', query)),
-                    'type': 'Equity'
-                }]
-        except Exception:
-            pass
+        Args:
+            symbol: Stock symbol
+            
+        Returns:
+            List of peer symbols
+        """
+        return self.client.peers(symbol)
+    
+    def get_company_financials(self, symbol: str) -> Dict[str, Any]:
+        """
+        Get basic financial metrics (from Finnhub)
         
-        # Return common tech stocks as demo results
-        common_tickers = {
-            'apple': ('AAPL', 'Apple Inc.'),
-            'google': ('GOOGL', 'Alphabet Inc.'),
-            'microsoft': ('MSFT', 'Microsoft Corporation'),
-            'amazon': ('AMZN', 'Amazon.com Inc.'),
-            'meta': ('META', 'Meta Platforms Inc.'),
-            'tesla': ('TSLA', 'Tesla Inc.'),
-            'nvidia': ('NVDA', 'NVIDIA Corporation'),
+        Args:
+            symbol: Stock symbol
+            
+        Returns:
+            Financial metrics
+        """
+        metrics = self.client.company_basic_financials(symbol, 'all')
+        return {
+            "symbol": symbol,
+            "metrics": metrics.get('metric', {}),
+            "series": metrics.get('series', {}).get('annual', {})
         }
-        
-        results = []
-        for name, (symbol, full_name) in common_tickers.items():
-            if search_lower in name or search_lower in full_name.lower():
-                results.append({
-                    'symbol': symbol,
-                    'description': full_name,
-                    'type': 'Equity'
-                })
-        
-        return results
     
     def format_quote(self, symbol: str) -> str:
         """Format quote as readable string"""

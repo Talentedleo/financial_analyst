@@ -111,7 +111,7 @@ class TestSuite:
         try:
             from services import get_data_service
             data = get_data_service()
-            self.log("Data Service Init", True, "Yahoo Finance (yfinance) initialized")
+            self.log("Data Service Init", True, "Finnhub + Yahoo Finance initialized")
             return True
         except Exception as e:
             self.log("Data Service Init", False, str(e))
