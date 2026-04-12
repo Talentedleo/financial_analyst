@@ -117,7 +117,7 @@ class DataService:
         Returns:
             List of matching symbols
         """
-        return self.client.symbol_search(query)
+        return self.client.symbol_lookup(query)
     
     def format_quote(self, symbol: str) -> str:
         """Format quote as readable string"""

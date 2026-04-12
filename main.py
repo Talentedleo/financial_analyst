@@ -10,6 +10,8 @@ Usage:
 import os
 import sys
 import asyncio
+from dotenv import load_dotenv
+load_dotenv()
 
 # Check required environment variables
 required_env = ["MINIMAX_API_KEY"]
