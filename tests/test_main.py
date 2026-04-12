@@ -198,7 +198,7 @@ class TestSuite:
         """Test skill context generation"""
         try:
             from services import get_skill_context
-            context = get_skill_context("warren_buffett")
+            context = get_skill_context("warren-buffett")
             assert len(context) > 100, "Context too short"
             self.log("Skill Loader Context", True, f"Context length: {len(context)} chars")
             return True
@@ -244,32 +244,20 @@ class TestSuite:
             self.log("Tools - Fundamentals", False, str(e))
             return False
 
+    async def test_bark_tools(self):
+        """Test bark notification tools"""
+        try:
+            from tools.bark_tools import bark_tools, send_notification, send_analysis_notification
+            assert len(bark_tools) == 3, f"Expected 3 bark tools, got {len(bark_tools)}"
+            tool_names = [t.name for t in bark_tools]
+            self.log("Tools - Bark", True, f"Tools: {', '.join(tool_names)}")
+            # Note: Actual sending requires BARK_API_KEY configured
+            return True
+        except Exception as e:
+            self.log("Tools - Bark", False, str(e))
+            return False
+
     # ========== Agent Tests ==========
-
-    async def test_plan_agent_init(self):
-        """Test plan agent initialization"""
-        try:
-            from agents.plan_agent import get_plan_agent
-            agent = get_plan_agent()
-            assert agent.agent is not None
-            self.log("Plan Agent Init", True, f"Agent: {agent.agent.name}")
-            return True
-        except Exception as e:
-            self.log("Plan Agent Init", False, str(e))
-            return False
-
-    async def test_plan_agent_experts(self):
-        """Test plan agent has expert sub-agents"""
-        try:
-            from agents.plan_agent import get_plan_agent
-            agent = get_plan_agent()
-            experts = agent.get_expert("buffett")
-            assert experts is not None
-            self.log("Plan Agent Experts", True, "Expert agents available")
-            return True
-        except Exception as e:
-            self.log("Plan Agent Experts", False, str(e))
-            return False
 
     async def test_buffett_agent_init(self):
         """Test Buffett agent initialization"""
@@ -374,13 +362,12 @@ class TestSuite:
         await self.test_tools_stock()
         await self.test_tools_news()
         await self.test_tools_fundamentals()
+        await self.test_bark_tools()
         print()
 
         # Agents
         print("🤖 Agent Tests")
         print("-" * 40)
-        await self.test_plan_agent_init()
-        await self.test_plan_agent_experts()
         await self.test_buffett_agent_init()
         await self.test_cathie_wood_agent_init()
         await self.test_greg_abel_agent_init()

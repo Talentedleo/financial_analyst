@@ -28,8 +28,15 @@ from .fundamentals_tools import (
     fundamentals_tools
 )
 
+from .bark_tools import (
+    send_notification,
+    send_analysis_notification,
+    send_market_alert,
+    bark_tools
+)
+
 # All tools combined
-ALL_TOOLS = stock_tools + news_tools + fundamentals_tools
+ALL_TOOLS = stock_tools + news_tools + fundamentals_tools + bark_tools
 
 __all__ = [
     # Finnhub wrapper
@@ -50,6 +57,11 @@ __all__ = [
     "get_company_profile",
     "get_company_peers",
     "fundamentals_tools",
+    # Bark notification tools
+    "send_notification",
+    "send_analysis_notification",
+    "send_market_alert",
+    "bark_tools",
     # Combined
     "ALL_TOOLS",
 ]

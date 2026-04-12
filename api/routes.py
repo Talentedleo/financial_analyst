@@ -8,31 +8,34 @@ Production deployment should:
 """
 
 import os
-import asyncio
+import logging
 from typing import Optional, Literal, List, Dict
 from datetime import datetime
 from collections import defaultdict
 
-from fastapi import FastAPI, HTTPException, Body, Header, Depends
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+from fastapi import FastAPI, HTTPException, Header, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
-from agents.plan_agent import get_plan_agent
+from google.adk.runners import Runner
+from google.adk.sessions import InMemorySessionService
+
+from agents import create_buffett_agent, create_cathie_wood_agent, create_greg_abel_agent
 from services import get_data_service
 
 
 # ============== Authentication ==============
 
-API_MASTER_KEY = os.environ.get("API_MASTER_KEY", "sk-1234")  # Change in production
+API_MASTER_KEY = os.environ.get("API_MASTER_KEY", "sk-1234")
 
 
 async def verify_api_key(x_api_key: str = Header(None)) -> str:
     """Verify API key from header"""
     if not x_api_key:
-        raise HTTPException(
-            status_code=401,
-            detail="Missing X-API-Key header. Set API_MASTER_KEY environment variable."
-        )
+        raise HTTPException(status_code=401, detail="Missing X-API-Key header")
     if x_api_key != API_MASTER_KEY:
         raise HTTPException(status_code=403, detail="Invalid API key")
     return x_api_key
@@ -46,6 +49,34 @@ class SessionManager:
     def __init__(self):
         self._user_sessions: Dict[str, str] = defaultdict(lambda: None)
         self._last_used: Dict[str, float] = {}
+        self._session_services: Dict[str, InMemorySessionService] = {}
+        self._runners: Dict[str, Runner] = {}
+    
+    def get_or_create_runner(self, user_id: str, session_id: str, agent_name: str) -> Runner:
+        """Get or create a runner for the given user/session/agent combination"""
+        key = f"{user_id}:{session_id}:{agent_name}"
+        
+        if key not in self._runners:
+            # Create appropriate agent based on agent_name
+            if agent_name == "buffett_agent":
+                agent = create_buffett_agent()
+            elif agent_name == "cathie_wood_agent":
+                agent = create_cathie_wood_agent()
+            elif agent_name == "greg_abel_agent":
+                agent = create_greg_abel_agent()
+            else:
+                agent = create_buffett_agent()  # default
+            
+            session_service = InMemorySessionService()
+            self._session_services[key] = session_service
+            
+            self._runners[key] = Runner(
+                agent=agent,
+                app_name=agent_name,
+                session_service=session_service
+            )
+        
+        return self._runners[key]
     
     def get_session_id(self, user_id: str) -> str:
         return self._user_sessions[user_id]
@@ -69,7 +100,7 @@ session_manager = SessionManager()
 
 class AnalyzeRequest(BaseModel):
     question: str = Field(..., description="Any stock or financial question")
-    style: Optional[Literal["buffett", "wood", "abel", "all"]] = Field(default="all")
+    style: Optional[Literal["warren_buffett", "cathie_wood", "greg_abel"]] = Field(default="warren_buffett")
     user_id: Optional[str] = Field(default="default_user")
     new_session: Optional[bool] = Field(default=False)
 
@@ -112,7 +143,7 @@ class AgentsListResponse(BaseModel):
 
 ALLOWED_ORIGINS = os.environ.get(
     "CORS_ALLOWED_ORIGINS",
-    "*"  # Configure for production (e.g., "https://yourdomain.com")
+    "*"
 ).split(",")
 
 
@@ -120,8 +151,8 @@ ALLOWED_ORIGINS = os.environ.get(
 
 app = FastAPI(
     title="Financial Analyst AI Agent",
-    description="Multi-agent stock analysis with Buffett, Cathie Wood, Greg Abel perspectives",
-    version="1.0.0"
+    description="Stock analysis with Buffett, Cathie Wood, Greg Abel perspectives",
+    version="2.0.0"
 )
 
 app.add_middleware(
@@ -139,7 +170,7 @@ app.add_middleware(
 async def root():
     return {
         "name": "Financial Analyst AI Agent",
-        "version": "1.0.0",
+        "version": "2.0.0",
         "docs": "/docs"
     }
 
@@ -148,7 +179,7 @@ async def root():
 async def health():
     return HealthResponse(
         status="healthy",
-        version="1.0.0",
+        version="2.0.0",
         timestamp=datetime.now().isoformat()
     )
 
@@ -165,7 +196,6 @@ async def analyze(
     Use same user_id for conversation continuity.
     """
     try:
-        plan_agent = get_plan_agent()
         user_id = request.user_id or "default_user"
         
         if request.new_session:
@@ -176,29 +206,58 @@ async def analyze(
             session_id = existing_session if existing_session else f"session_{datetime.now().timestamp()}"
             session_manager.set_session_id(user_id, session_id)
         
-        answer = await plan_agent.run(
-            query=request.question,
+        # Determine which agent to use based on style (full agent name)
+        agent_name = request.style
+        
+        # Get or create runner for this agent
+        runner = session_manager.get_or_create_runner(user_id, session_id, agent_name)
+        
+        # Create session
+        await runner.session_service.create_session(
+            app_name=agent_name,
             user_id=user_id,
             session_id=session_id
         )
         
-        agents_used = ["plan_agent"]
-        if request.style == "all" or request.style is None:
-            agents_used.extend(["buffett_agent", "cathie_wood_agent", "greg_abel_agent"])
-        elif request.style == "buffett":
-            agents_used.append("buffett_agent")
-        elif request.style == "wood":
-            agents_used.append("cathie_wood_agent")
-        elif request.style == "abel":
-            agents_used.append("greg_abel_agent")
+        # Run the agent
+        from google.genai import types
+        content = types.Content(
+            role="user",
+            parts=[types.Part(text=request.question)]
+        )
+        
+        response_text = ""
+        async for event in runner.run_async(
+            user_id=user_id,
+            session_id=session_id,
+            new_message=content
+        ):
+            if event.is_final_response():
+                response_text = event.content.parts[0].text
+        
+        # Send Bark notification with analysis result (if configured)
+        if os.environ.get("BARK_DEVICE_KEY"):
+            try:
+                from tools.bark_tools import get_bark_client
+                bark = get_bark_client()
+                stock_symbol = request.question.upper().split()[0] if request.question else "STOCK"
+                bark.send_long_message(
+                    content=response_text[:5000] if response_text else "Analysis complete",
+                    title=f"📊 {stock_symbol} Analysis ({request.style})",
+                    group=f"Analysis - {stock_symbol}",
+                    sound="bell",
+                    markdown=True
+                )
+            except Exception as bark_error:
+                logger.warning(f"Bark notification failed: {bark_error}")
         
         return AnalyzeResponse(
-            answer=answer or f"Analysis of: {request.question}",
+            answer=response_text or f"Analysis of: {request.question}",
             stock_identified=None,
             sources=[],
-            agents_used=agents_used,
+            agents_used=[agent_name],
             timestamp=datetime.now().isoformat(),
-            style=request.style or "all",
+            style=request.style or "warren_buffett",
             session_id=session_id
         )
     
@@ -258,7 +317,6 @@ async def search(
                 pass
         else:
             search_results = data_service.search_symbol(query)
-            # Finnhub returns {'count': N, 'result': [...]}
             result_list = search_results.get('result', search_results) if isinstance(search_results, dict) else search_results
             for r in result_list[:5]:
                 symbol = r.get('symbol')
@@ -298,8 +356,5 @@ async def list_agents(
             AgentInfo(name="buffett_agent", description="Warren Buffett - Value investing"),
             AgentInfo(name="cathie_wood_agent", description="Cathie Wood - Disruptive innovation"),
             AgentInfo(name="greg_abel_agent", description="Greg Abel - Operational excellence"),
-            AgentInfo(name="plan_agent", description="Plan Agent - Coordinator")
         ]
     )
-
-

@@ -145,7 +145,7 @@ class DataService:
         Returns:
             List of peer symbols
         """
-        return self.client.peers(symbol)
+        return self.client.company_peers(symbol)
     
     def get_company_financials(self, symbol: str) -> Dict[str, Any]:
         """

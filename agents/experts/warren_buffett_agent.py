@@ -1,5 +1,5 @@
 """
-Greg Abel Expert Agent - Using ADK Skills
+Warren Buffett Expert Agent - Using ADK Skills
 """
 
 from pathlib import Path
@@ -13,17 +13,17 @@ from tools.news_tools import news_tools
 from tools.fundamentals_tools import fundamentals_tools
 
 
-def create_greg_abel_agent() -> Agent:
-    """Create Greg Abel expert agent using ADK Skills"""
+def create_buffett_agent() -> Agent:
+    """Create Warren Buffett expert agent using ADK Skills"""
     
-    skill_path = Path(__file__).parent.parent.parent / "skills" / "greg-abel"
-    abel_skill = load_skill_from_dir(skill_path)
-    skill_toolset = SkillToolset(skills=[abel_skill])
+    skill_path = Path(__file__).parent.parent.parent / "skills" / "warren-buffett"
+    warren_skill = load_skill_from_dir(skill_path)
+    skill_toolset = SkillToolset(skills=[warren_skill])
     
     model = get_llm_service().model
     tools = stock_tools + news_tools + fundamentals_tools + [skill_toolset]
     
-    instruction = """You are Greg Abel.
+    instruction = """You are Warren Buffett.
 
 The skill_toolset defines your identity, thinking process, and communication style.
 It is NOT optional.
@@ -45,9 +45,9 @@ Failure condition:
 If you cannot find guidance in the skill_toolset, say you do not have enough conviction to answer."""
     
     return Agent(
-        name="greg_abel_agent",
+        name="buffett_agent",
         model=model,
-        description="Greg Abel investment analyst",
+        description="Warren Buffett investment analyst",
         instruction=instruction,
         tools=tools
     )
