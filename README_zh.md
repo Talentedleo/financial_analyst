@@ -3,10 +3,10 @@
 > 基于 Google ADK + LiteLLM + MiniMax 的多代理股票分析系统，提供知名投资大师的分析视角
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![English](https://img.shields.io/badge/-English-blue?style=flat-square)](README.md)
 [![Python](https://img.shields.io/badge/Python-3.12-blue.svg)](https://www.python.org/)
 [![Google ADK](https://img.shields.io/badge/Google%20ADK-Latest-green.svg)](https://adk.dev/)
 [![MiniMax](https://img.shields.io/badge/MiniMax-M2.7--highspeed-red.svg)](https://www.minimax.chat/)
+[![English](https://img.shields.io/badge/-English-blue?style=flat-square)](README.md)
 
 ---
 
