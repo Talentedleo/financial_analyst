@@ -12,13 +12,13 @@ class LLMService:
     
     def __init__(
         self,
-        model_name: str = "minimax/MiniMax-M2.7-highspeed",
+        model_name: str = "MiniMax-M2.7-highspeed",
         api_key: Optional[str] = None,
-        api_base: str = "https://api.minimax.io/v1"
+        api_base: str = "https://api.minimax.chat/v1"
     ):
         self.model_name = model_name
         self.api_key = api_key or os.environ.get("MINIMAX_API_KEY")
-        self.api_base = api_base
+        self.api_base = api_base or os.environ.get("MINIMAX_API_BASE", "https://api.minimax.chat/v1")
         
         if not self.api_key:
             raise ValueError("MINIMAX_API_KEY not set in environment")
@@ -46,7 +46,7 @@ class LLMService:
         Create a new model instance with custom parameters
         
         Args:
-            model_name: Model name (default: minimax/MiniMax-M2.7-highspeed)
+            model_name: Model name (default: MiniMax-M2.7-highspeed)
             temperature: Sampling temperature
             max_tokens: Maximum tokens to generate
             
@@ -75,10 +75,15 @@ def get_llm_service() -> LLMService:
 
 
 def init_llm_service(
-    model_name: str = "minimax/MiniMax-M2.7-highspeed",
-    api_key: Optional[str] = None
+    model_name: str = "MiniMax-M2.7-highspeed",
+    api_key: Optional[str] = None,
+    api_base: Optional[str] = None
 ) -> LLMService:
     """Initialize global LLM service with custom settings"""
     global _llm_service
-    _llm_service = LLMService(model_name=model_name, api_key=api_key)
+    _llm_service = LLMService(
+        model_name=model_name,
+        api_key=api_key,
+        api_base=api_base
+    )
     return _llm_service
