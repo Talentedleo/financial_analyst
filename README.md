@@ -3,7 +3,7 @@
 > Multi-agent system using Google ADK + LiteLLM + MiniMax for professional-grade stock analysis with celebrity investor perspectives
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://www.python.org/)
+[![Python](https://img.shields.io/badge/Python-3.12-blue.svg)](https://www.python.org/)
 [![Google ADK](https://img.shields.io/badge/Google%20ADK-Latest-green.svg)](https://adk.dev/)
 [![LiteLLM](https://img.shields.io/badge/LiteLLM-Proxy-orange.svg)](https://docs.litellm.ai/)
 [![MiniMax](https://img.shields.io/badge/MiniMax-M2.7--highspeed-red.svg)](https://www.minimax.chat/)
@@ -21,21 +21,45 @@
 
 ---
 
+## Requirements
+
+- **Python 3.12+** (required for Google ADK and MCP support)
+
+---
+
 ## Quick Start
 
-### 1. Install Dependencies
+### 1. Install Python 3.12
 
 ```bash
-# Create virtual environment (recommended)
-python -m venv venv
+# macOS with Homebrew
+brew install python@3.12
+
+# Verify
+python3.12 --version
+```
+
+### 2. Create Virtual Environment
+
+```bash
+cd ~/Desktop/sandbox/financial_analyst
+
+# Create venv with Python 3.12
+python3.12 -m venv venv
 source venv/bin/activate  # Linux/Mac
 # or: venv\Scripts\activate  # Windows
 
-# Install dependencies
+# Verify Python version
+python --version  # Should show 3.12.x
+```
+
+### 3. Install Dependencies
+
+```bash
 pip install -r requirements.txt
 ```
 
-### 2. Configure Environment
+### 4. Configure Environment
 
 ```bash
 # Copy and edit .env file
@@ -47,40 +71,19 @@ cp .env.example .env
 # FINNHUB_API_KEY=your-finnhub-api-key
 ```
 
-### 3. Run Tests
+### 5. Run Tests
 
 ```bash
-# Make sure virtual environment is activated
-source venv/bin/activate
-
-# Run test suite
 python tests/test_main.py
 ```
 
-### 4. Start the API Server
+### 6. Start the API Server
 
 ```bash
-# Using main.py
-python main.py --server
+python main.py
 
-# Or with custom port
-python main.py --server --port 8000
-```
-
-### 5. Test the API
-
-```bash
-# Analyze any stock question (requires X-API-Key header)
-curl -X POST http://localhost:8000/analyze \
-  -H "Content-Type: application/json" \
-  -H "X-API-Key: sk-1234" \
-  -d '{"question": "Should I invest in Apple?", "style": "all"}'
-
-# Search for stock data
-curl -X POST http://localhost:8000/search \
-  -H "Content-Type: application/json" \
-  -H "X-API-Key: sk-1234" \
-  -d '{"query": "AAPL"}'
+# With custom port (default: 8000)
+python main.py --port 9000
 ```
 
 ---
@@ -96,27 +99,26 @@ curl -X POST http://localhost:8000/search \
 | `/search` | POST | Search stock data and news |
 | `/clear-session` | POST | Clear conversation session |
 
-### Example Questions
+### Example Requests
 
-```json
-{
-  "question": "Should I invest in Apple?",
-  "style": "all"
-}
-```
+```bash
+# Analyze stock with Buffett style
+curl -X POST http://localhost:8000/analyze \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: sk-1234" \
+  -d '{"question": "Should I invest in Apple?", "style": "buffett"}'
 
-```json
-{
-  "question": "What do you think about Tesla from Cathie Wood's perspective?",
-  "style": "wood"
-}
-```
+# Analyze with all experts
+curl -X POST http://localhost:8000/analyze \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: sk-1234" \
+  -d '{"question": "What do you think about Tesla?", "style": "all"}'
 
-```json
-{
-  "question": "Is Nvidia overvalued using Buffett's framework?",
-  "style": "buffett"
-}
+# Search for stock
+curl -X POST http://localhost:8000/search \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: sk-1234" \
+  -d '{"query": "AAPL"}'
 ```
 
 ### Analysis Styles
@@ -162,8 +164,7 @@ JSON Response
 
 ```
 financial_analyst/
-├── main.py                    # Entry point (start server, run tests)
-├── app.py                     # Legacy entry point
+├── main.py                    # Entry point (starts API server)
 ├── requirements.txt           # Python dependencies
 ├── .env.example               # Environment template
 ├── agents/
@@ -193,7 +194,7 @@ financial_analyst/
 │   ├── __init__.py
 │   └── routes.py              # FastAPI routes
 └── tests/
-    └── test_main.py           # Test suite
+    └── test_main.py           # Test suite (22 tests)
 ```
 
 ---
@@ -232,38 +233,15 @@ Expert perspectives from legendary investors:
 
 ---
 
-## Development
-
-### Run Locally
-
-```bash
-cd ~/Desktop/sandbox/financial_analyst
-
-# Create and activate virtual environment
-python -m venv venv
-source venv/bin/activate
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Configure environment
-cp .env.example .env
-# Edit .env with your API keys
-
-# Run test suite
-python tests/test_main.py
-
-# Start API server
-python main.py --server --port 8000
-```
-
-### API Documentation
+## API Documentation
 
 Once running, visit:
 - Swagger UI: http://localhost:8000/docs
 - ReDoc: http://localhost:8000/redoc
 
-### Test Results
+---
+
+## Test Results
 
 ```
 Total: 22 | Passed: 22 | Failed: 0 (100.0%)
