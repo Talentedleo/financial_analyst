@@ -71,7 +71,6 @@ def main():
     init_services()
     
     # Import FastAPI app
-    from api import app as fastapi_app
     
     # Start API server
     print("\n" + "=" * 60)
@@ -82,7 +81,7 @@ def main():
     print()
     
     uvicorn.run(
-        fastapi_app,
+        "api:app",
         host=args.host,
         port=args.port,
         reload=True
