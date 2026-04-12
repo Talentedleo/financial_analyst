@@ -1,173 +1,267 @@
 """
 Bark Notification Tools - Send push notifications to iOS devices
 
-Bark is a simple iOS notification service that allows sending push notifications
-via HTTP requests. Configure BARK_API_KEY and BARK_SERVER_URL in .env
+Bark is an iOS notification service that supports:
+- Markdown formatting (using 'markdown' field)
+- Long message splitting (automatic chunking)
+- Custom sounds, levels, icons, groups
+- Time-sensitive notifications
+
+Configure BARK_DEVICE_KEY and BARK_SERVER_URL in .env
 
 Usage:
     1. Install Bark app on your iOS device
-    2. Get your Bark push key from the app
-    3. Configure BARK_API_KEY in .env (your device push key)
+    2. Get your device key from the app
+    3. Configure BARK_DEVICE_KEY in .env
     4. Configure BARK_SERVER_URL in .env (default: https://api.day.app)
-
-Note: Body text uses \\n for line breaks. Markdown is not fully supported.
 """
 
 import os
-from typing import Optional
+import json
+import logging
+from enum import Enum
+from typing import Optional, Union, List, Dict, Any
 from google.adk.tools import FunctionTool
 
+import requests
 
-class BarkNotifier:
-    """Service for sending push notifications via Bark"""
+
+class BarkSound(Enum):
+    """Bark supported notification sounds"""
+    ALARM = "alarm"
+    ANTICIPATE = "anticipate"
+    BELL = "bell"
+    BIRDSONG = "birdsong"
+    BLOOM = "bloom"
+    CALYPSO = "calypso"
+    CHIME = "chime"
+    COMPLETE = "complete"
+    DESCENT = "descent"
+    ELECTRIC = "electric"
+    FANFARE = "fanfare"
+    GLASS = "glass"
+    HORNS = "horns"
+    LADDER = "ladder"
+    MINUET = "minuet"
+    NEWSFLASH = "newsflash"
+    NOIR = "noir"
+    SHERWOODFOREST = "sherwoodforest"
+    SPELL = "spell"
+    SUSPENSE = "suspense"
+    TELEGRAPH = "telegraph"
+    TIPTOES = "tiptoes"
+    TYPEWRITERS = "typewriters"
+    UPDATE = "update"
+    NONE = "None"  # Silent
+
+
+class BarkLevel(Enum):
+    """Message level (affects notification behavior)"""
+    ACTIVE = "active"  # Default, lights up screen
+    PASSIVE = "passive"  # Notification list only, no screen light
+    TIME_SENSITIVE = "timeSensitive"  # Delivered during Focus mode
+
+
+class BarkClient:
+    """
+    Bark message push client
+    
+    Supports Markdown mode and automatic long message splitting.
+    """
     
     def __init__(
         self,
-        api_key: Optional[str] = None,
-        server_url: Optional[str] = None
+        device_key: Optional[str] = None,
+        base_url: str = "https://api.day.app"
     ):
-        self.api_key = api_key or os.environ.get("BARK_API_KEY")
-        self.server_url = server_url or os.environ.get("BARK_SERVER_URL", "https://api.day.app")
+        self.device_key = device_key or os.environ.get("BARK_DEVICE_KEY")
+        self.base_url = base_url.rstrip("/")
+        self.endpoint = f"{self.base_url}/{self.device_key}"
         
-        if not self.api_key:
-            raise ValueError("BARK_API_KEY not set in environment")
+        if not self.device_key:
+            raise ValueError("BARK_DEVICE_KEY not set in environment")
+        
+        logging.basicConfig(level=logging.INFO)
+        self.logger = logging.getLogger(__name__)
+        
+        self.session = requests.Session()
+        self.session.headers.update({
+            "Content-Type": "application/json; charset=utf-8"
+        })
     
-    def send(
+    def _send_request(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+        """Send request to Bark API"""
+        try:
+            response = self.session.post(
+                self.endpoint,
+                data=json.dumps(payload, ensure_ascii=False).encode("utf-8"),
+                timeout=10
+            )
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.RequestException as e:
+            self.logger.error(f"Bark request failed: {e}")
+            return {"code": 500, "message": f"Request failed: {str(e)}"}
+        except json.JSONDecodeError as e:
+            self.logger.error(f"Bark response parsing failed: {e}")
+            return {"code": 500, "message": "Response parsing failed"}
+    
+    def send_message(
         self,
-        title: str,
+        body: str,
+        title: Optional[str] = None,
+        sound: Optional[Union[BarkSound, str]] = None,
+        icon: Optional[str] = None,
+        group: Optional[str] = None,
+        url: Optional[str] = None,
+        level: Optional[Union[BarkLevel, str]] = None,
+        copy: Optional[str] = None,
+        is_archive: Optional[bool] = None,
+        badge: Optional[int] = None,
+        markdown: bool = True
+    ) -> Dict[str, Any]:
+        """
+        Send push notification message.
+        
+        Args:
+            body: Message body (supports Markdown when markdown=True)
+            title: Notification title
+            sound: Notification sound (BarkSound enum or string)
+            icon: Icon URL
+            group: Notification group
+            url: URL to open when tapped
+            level: Notification level (BarkLevel enum or string)
+            copy: Content to copy to clipboard
+            is_archive: Auto-archive flag
+            badge: Badge number
+            markdown: If True, use 'markdown' field (recommended for formatting)
+        
+        Returns:
+            API response with 'code' and 'message'
+        """
+        # Use markdown field for formatted content
+        if markdown:
+            payload = {"markdown": body}
+        else:
+            payload = {"body": body}
+        
+        if title:
+            payload["title"] = title
+        if sound:
+            payload["sound"] = sound.value if isinstance(sound, BarkSound) else sound
+        if icon:
+            payload["icon"] = icon
+        if group:
+            payload["group"] = group
+        if url:
+            payload["url"] = url
+        if level:
+            payload["level"] = level.value if isinstance(level, BarkLevel) else level
+        if copy:
+            payload["copy"] = copy
+        if is_archive is not None:
+            payload["isArchive"] = 1 if is_archive else 0
+        if badge is not None:
+            payload["badge"] = badge
+        
+        mode = "markdown" if markdown else "body"
+        self.logger.info(f"Sending Bark message ({mode}): {title}")
+        
+        return self._send_request(payload)
+    
+    def send_long_message(
+        self,
         content: str,
-        group: str = "Financial Analyst",
-        sound: str = "alarm",
-        icon: str = "https://img.icons8.com/ios-filled/100/000000/demo.png",
-        url: str = "",
-        level: str = "active"
-    ) -> dict:
+        title: str,
+        max_length: int = 2000,
+        group: str = "long-message",
+        sound: Optional[Union[BarkSound, str]] = None,
+        markdown: bool = True
+    ) -> List[Dict[str, Any]]:
         """
-        Send a push notification via Bark
-        
-        Note: content uses \\n for line breaks, not markdown.
+        Send long messages by automatically splitting into chunks.
         
         Args:
-            title: Notification title (max 50 chars recommended)
-            content: Notification body content (use \\n for line breaks)
-            group: Notification group/category (default: "Financial Analyst")
-            sound: Notification sound (default: "alarm")
-            icon: Notification icon URL
-            url: URL to open when notification is tapped
-            level: Interruption level - "passive", "active", "timeSensitive"
+            content: Full content to send
+            title: Base title for all chunks
+            max_length: Maximum characters per chunk (default 2000)
+            group: Notification group
+            sound: Sound for first chunk (silent for rest)
+            markdown: Use markdown formatting
         
         Returns:
-            dict with 'code' (0 = success) and 'message'
+            List of API responses for each chunk
         """
-        import requests
+        if len(content) <= max_length:
+            return [self.send_message(
+                body=content,
+                title=title,
+                sound=sound or BarkSound.BELL,
+                group=group,
+                markdown=markdown
+            )]
         
-        endpoint = f"{self.server_url}/{self.api_key}"
+        results = []
+        chunks = [content[i:i + max_length] for i in range(0, len(content), max_length)]
         
-        payload = {
-            "title": title,
-            "body": content,
-            "group": group,
-            "sound": sound,
-            "icon": icon,
-            "url": url,
-            "level": level
-        }
+        for i, chunk in enumerate(chunks):
+            result = self.send_message(
+                body=chunk,
+                title=f"{title} ({i + 1}/{len(chunks)})",
+                sound=sound if i == 0 else BarkSound.NONE,
+                group=group,
+                markdown=markdown
+            )
+            results.append(result)
         
-        response = requests.post(endpoint, json=payload)
-        return response.json()
-    
-    def send_analysis(
-        self,
-        stock_symbol: str,
-        analysis_result: str,
-        style: str = "buffett"
-    ) -> dict:
-        """
-        Send a stock analysis result as notification
-        
-        Args:
-            stock_symbol: Stock symbol (e.g., "AAPL")
-            analysis_result: Analysis summary to send
-            style: Analysis style (buffett/wood/abel/all)
-        
-        Returns:
-            dict with 'code' (0 = success) and 'message'
-        """
-        title = f"📈 {stock_symbol} ({style.upper()})"
-        # Truncate if too long
-        content = analysis_result[:500] + "..." if len(analysis_result) > 500 else analysis_result
-        
-        return self.send(
-            title=title,
-            content=content,
-            group=f"Stock - {stock_symbol}",
-            sound="alarm"
-        )
+        self.logger.info(f"Long message split into {len(chunks)} chunks")
+        return results
     
     def send_alert(
         self,
-        title: str,
-        message: str,
-        level: str = "timeSensitive"
-    ) -> dict:
-        """
-        Send an urgent alert notification
-        
-        Args:
-            title: Alert title
-            message: Alert message
-            level: Interruption level - "passive", "active", "timeSensitive"
-        
-        Returns:
-            dict with 'code' (0 = success) and 'message'
-        """
-        return self.send(
-            title=f"🚨 {title}",
-            content=message,
-            group="Alerts",
-            sound="alarm",
-            level=level
+        body: str,
+        title: str = "Alert",
+        sound: Union[BarkSound, str] = BarkSound.ALARM,
+        level: Union[BarkLevel, str] = BarkLevel.TIME_SENSITIVE,
+        markdown: bool = True
+    ) -> Dict[str, Any]:
+        """Send alert notification"""
+        return self.send_message(
+            body=body,
+            title=title,
+            sound=sound,
+            level=level,
+            markdown=markdown
         )
     
-    def send_daily_summary(
+    def send_info(
         self,
-        summary: str,
-        top_movers: list = None
-    ) -> dict:
-        """
-        Send a daily market summary notification
-        
-        Args:
-            summary: Daily summary text
-            top_movers: List of top moving stocks
-        
-        Returns:
-            dict with 'code' (0 = success) and 'message'
-        """
-        content = summary
-        if top_movers:
-            content += "\n\n📊 Top Movers:\n"
-            for mover in top_movers[:5]:
-                content += f"• {mover}\n"
-        
-        return self.send(
-            title="📋 Daily Market Summary",
-            content=content,
-            group="Daily Summary",
-            sound="morning"
+        body: str,
+        title: str = "Information",
+        sound: Union[BarkSound, str] = BarkSound.BELL,
+        level: Union[BarkLevel, str] = BarkLevel.ACTIVE,
+        markdown: bool = True
+    ) -> Dict[str, Any]:
+        """Send regular information notification"""
+        return self.send_message(
+            body=body,
+            title=title,
+            sound=sound,
+            level=level,
+            markdown=markdown
         )
 
 
 # Singleton instance
-_notifier: Optional[BarkNotifier] = None
+_bark_client: Optional[BarkClient] = None
 
 
-def get_bark_notifier() -> BarkNotifier:
-    """Get or create global Bark notifier instance"""
-    global _notifier
-    if _notifier is None:
-        _notifier = BarkNotifier()
-    return _notifier
+def get_bark_client() -> BarkClient:
+    """Get or create global Bark client instance"""
+    global _bark_client
+    if _bark_client is None:
+        _bark_client = BarkClient()
+    return _bark_client
 
 
 # ========== ADK Tool Functions ==========
@@ -176,36 +270,33 @@ def send_notification(
     title: str,
     content: str,
     group: str = "Financial Analyst",
-    sound: str = "alarm",
+    sound: str = "bell",
     level: str = "active"
 ) -> dict:
     """
     Send a push notification to your iOS device via Bark.
     
-    Use this tool to send notifications when:
-    - A stock analysis is complete
-    - You want to be alerted about important market events
-    - A long-running analysis has finished
-    
-    Note: Use \\n for line breaks in content, not markdown.
+    Supports Markdown formatting. Long content will be automatically split.
     
     Args:
-        title: Notification title (keep it short, max 50 chars)
-        content: Notification body content (use \\n for new lines)
+        title: Notification title (short, max 50 chars)
+        content: Message content (supports Markdown, will be split if > 2000 chars)
         group: Notification group (default: "Financial Analyst")
-        sound: Sound name - "alarm", "anticipate", "bell", "bird", etc.
-        level: Interruption level - "passive", "active", "timeSensitive"
+        sound: Sound name - "alarm", "bell", "birdsong", "calypso", etc.
+        level: "active", "passive", or "timeSensitive"
     
     Returns:
         dict with 'code' (200 = success) and 'message'
     """
-    notifier = get_bark_notifier()
-    return notifier.send(
+    client = get_bark_client()
+    
+    return client.send_message(
+        body=content,
         title=title,
-        content=content,
         group=group,
-        sound=sound,
-        level=level
+        sound=BarkSound(sound) if sound in [s.value for s in BarkSound] else sound,
+        level=BarkLevel(level) if level in [l.value for l in BarkLevel] else level,
+        markdown=True
     )
 
 
@@ -217,24 +308,25 @@ def send_analysis_notification(
     """
     Send a stock analysis result as a push notification.
     
-    Use this to receive analysis results directly on your phone.
-    
-    Note: analysis_summary will be truncated to 500 characters.
-    Use \\n for line breaks in the summary.
+    Automatically splits long content into multiple notifications.
     
     Args:
         stock_symbol: Stock symbol (e.g., "AAPL", "GOOGL")
-        analysis_summary: Brief summary of the analysis
-        style: Analysis style used - "buffett", "wood", "abel", or "all"
+        analysis_summary: Full analysis result (will be split if too long)
+        style: Analysis style - "buffett", "wood", "abel", or "all"
     
     Returns:
         dict with 'code' (200 = success) and 'message'
     """
-    notifier = get_bark_notifier()
-    return notifier.send_analysis(
-        stock_symbol=stock_symbol,
-        analysis_result=analysis_summary,
-        style=style
+    client = get_bark_client()
+    title = f"📈 {stock_symbol} ({style.upper()}) Analysis"
+    
+    return client.send_long_message(
+        content=analysis_summary,
+        title=title,
+        group=f"Stock - {stock_symbol}",
+        sound=BarkSound.ALARM,
+        markdown=True
     )
 
 
@@ -246,24 +338,24 @@ def send_market_alert(
     """
     Send an urgent market alert notification.
     
-    Use this for time-sensitive alerts like:
-    - Major market moves
-    - Breaking financial news
-    - Price alerts
+    Automatically splits long content into multiple notifications.
     
     Args:
         title: Alert title
-        message: Alert content (use \\n for new lines)
+        message: Alert content (supports Markdown, will be split if > 2000 chars)
         urgent: If True, uses "timeSensitive" level for immediate delivery
     
     Returns:
         dict with 'code' (200 = success) and 'message'
     """
-    notifier = get_bark_notifier()
-    return notifier.send_alert(
-        title=title,
-        message=message,
-        level="timeSensitive" if urgent else "active"
+    client = get_bark_client()
+    
+    return client.send_long_message(
+        content=message,
+        title=f"🚨 {title}",
+        group="Alerts",
+        sound=BarkSound.ALARM if urgent else BarkSound.BELL,
+        markdown=True
     )
 
 

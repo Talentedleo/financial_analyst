@@ -237,25 +237,36 @@ Expert perspectives from legendary investors:
 
 ## Push Notifications (Bark)
 
-The system supports iOS push notifications via Bark.
+The system supports iOS push notifications via Bark with Markdown and long message splitting.
 
 ### Setup
 
 1. Install [Bark](https://github.com/Finb/Bark) iOS app
-2. Get your Push Key from the app
+2. Get your Device Key from the app
 3. Add to `.env`:
    ```
-   BARK_API_KEY=your-push-key
+   BARK_DEVICE_KEY=your-device-key
    BARK_SERVER_URL=https://api.day.app
    ```
+
+### Features
+
+- **Markdown Support**: Full Markdown formatting in notifications
+- **Auto-Splitting**: Long messages (>2000 chars) automatically split into chunks
+- **Custom Sounds**: 24 notification sounds available
+- **Priority Levels**: active, passive, timeSensitive
 
 ### Notification Functions
 
 | Function | Description |
 |----------|-------------|
-| `send_notification` | Send general push notification |
-| `send_analysis_notification` | Send stock analysis result |
-| `send_market_alert` | Send urgent market alert |
+| `send_notification` | Send general push notification with Markdown |
+| `send_analysis_notification` | Send stock analysis result (auto-split) |
+| `send_market_alert` | Send urgent market alert (auto-split) |
+
+### Available Sounds
+
+`alarm`, `anticipate`, `bell`, `birdsong`, `bloom`, `calypso`, `chime`, `complete`, `descent`, `electric`, `fanfare`, `glass`, `horns`, `ladder`, `minuet`, `newsflash`, `noir`, `sherwoodforest`, `spell`, `suspense`, `telegraph`, `tiptoes`, `typewriters`, `update`, `None`
 
 ---
 
