@@ -39,8 +39,7 @@ class LLMService:
     def create_model(
         self,
         model_name: Optional[str] = None,
-        temperature: float = 0.15,
-        max_tokens: int = 2048
+        temperature: float = 0.15
     ) -> LiteLlm:
         """
         Create a new model instance with custom parameters
@@ -48,7 +47,6 @@ class LLMService:
         Args:
             model_name: Model name (default: minimax/MiniMax-M2.7-highspeed)
             temperature: Sampling temperature
-            max_tokens: Maximum tokens to generate
             
         Returns:
             LiteLlm model instance
@@ -57,8 +55,7 @@ class LLMService:
             model=model_name or self.model_name,
             api_key=self.api_key,
             api_base=self.api_base,
-            temperature=temperature,
-            max_tokens=max_tokens
+            temperature=temperature
         )
 
 
