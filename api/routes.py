@@ -242,7 +242,7 @@ async def analyze(
                 bark = get_bark_client()
                 stock_symbol = request.question.upper().split()[0] if request.question else "STOCK"
                 bark.send_long_message(
-                    content=response_text[:5000] if response_text else "Analysis complete",
+                    content=response_text if response_text else "Analysis complete",
                     title=f"📊 {stock_symbol} Analysis ({request.style})",
                     group=f"Analysis - {stock_symbol}",
                     sound="bell",
