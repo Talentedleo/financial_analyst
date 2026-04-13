@@ -199,6 +199,8 @@ async def analyze(
         user_id = request.user_id or "default_user"
         
         if request.new_session:
+            # Clear old session data before creating new one
+            session_manager.clear_session(user_id)
             session_id = f"session_{datetime.now().timestamp()}"
             session_manager.set_session_id(user_id, session_id)
         else:
@@ -212,12 +214,21 @@ async def analyze(
         # Get or create runner for this agent
         runner = session_manager.get_or_create_runner(user_id, session_id, agent_name)
         
-        # Create session
-        await runner.session_service.create_session(
-            app_name=agent_name,
-            user_id=user_id,
-            session_id=session_id
-        )
+        # Create session only if it doesn't exist
+        try:
+            existing = await runner.session_service.get_session(app_name=agent_name, user_id=user_id, session_id=session_id)
+            if not existing:
+                await runner.session_service.create_session(
+                    app_name=agent_name,
+                    user_id=user_id,
+                    session_id=session_id
+                )
+        except Exception:
+            await runner.session_service.create_session(
+                app_name=agent_name,
+                user_id=user_id,
+                session_id=session_id
+            )
         
         # Run the agent
         from google.genai import types
