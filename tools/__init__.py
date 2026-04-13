@@ -2,13 +2,6 @@
 Tools Module - All ADK tools
 """
 
-from .finnhub_tools import (
-    FinnhubTools,
-    handle_get_quote,
-    handle_get_company_news,
-    handle_get_market_news
-)
-
 from .stock_tools import (
     get_stock_quote,
     search_stocks,
@@ -39,11 +32,6 @@ from .bark_tools import (
 ALL_TOOLS = stock_tools + news_tools + fundamentals_tools + bark_tools
 
 __all__ = [
-    # Finnhub wrapper
-    "FinnhubTools",
-    "handle_get_quote",
-    "handle_get_company_news",
-    "handle_get_market_news",
     # Stock tools
     "get_stock_quote",
     "search_stocks",
