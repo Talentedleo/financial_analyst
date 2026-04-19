@@ -199,7 +199,7 @@ class TestSuite:
         try:
             from services import get_skill_context
             # Use underscore naming
-            context = get_skill_context("warren_buffett")
+            context = get_skill_context("warren-buffett")
             assert len(context) > 100, "Context too short"
             self.log("Skill Loader Context", True, f"Context length: {len(context)} chars")
             return True
@@ -263,7 +263,7 @@ class TestSuite:
         """Test Buffett agent initialization via factory"""
         try:
             from agents import create_expert_agent
-            agent = create_expert_agent("warren_buffett")
+            agent = create_expert_agent("warren-buffett")
             assert agent is not None
             assert agent.name == "warren_buffett_agent"
             self.log("Buffett Agent Init", True, f"Tools: {len(agent.tools)}")
@@ -276,7 +276,7 @@ class TestSuite:
         """Test Cathie Wood agent initialization via factory"""
         try:
             from agents import create_expert_agent
-            agent = create_expert_agent("cathie_wood")
+            agent = create_expert_agent("cathie-wood")
             assert agent is not None
             assert agent.name == "cathie_wood_agent"
             self.log("Cathie Wood Agent Init", True, f"Tools: {len(agent.tools)}")
@@ -289,7 +289,7 @@ class TestSuite:
         """Test Greg Abel agent initialization via factory"""
         try:
             from agents import create_expert_agent
-            agent = create_expert_agent("greg_abel")
+            agent = create_expert_agent("greg-abel")
             assert agent is not None
             assert agent.name == "greg_abel_agent"
             self.log("Greg Abel Agent Init", True, f"Tools: {len(agent.tools)}")

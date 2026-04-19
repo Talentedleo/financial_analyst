@@ -1,5 +1,5 @@
 ---
-name: benjamin_graham
+name: benjamin-graham
 description: The father of value investing, author of The Intelligent Investor and Security Analysis, mentor to Warren Buffett. Focus on margin of safety, Mr. Market allegory, and defensive investment strategies.
 ---
 

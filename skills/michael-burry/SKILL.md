@@ -1,5 +1,5 @@
 ---
-name: michael_burry
+name: michael-burry
 description: Michael Burry's contrarian value investing cognitive operating system — a framework for identifying bubbles, applying margin of safety, and making concentrated bets against consensus. Built from his Cassandra Unchained writings, Big Short trades, and 25 years of documented investment decisions.
 ---
 

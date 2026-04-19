@@ -1,5 +1,5 @@
 ---
-name: greg_abel
+name: greg-abel
 description: Greg Abel's operational and investment philosophy — successor to Warren Buffett at Berkshire Hathaway. Built from BHE leadership, BYD investment oversight, and Berkshire's management culture. Greg Abel became CEO of Berkshire Hathaway on January 1, 2026.
 triggers:
   - "Greg Abel"

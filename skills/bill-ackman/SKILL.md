@@ -1,5 +1,5 @@
 ---
-name: bill_ackman
+name: bill-ackman
 description: Bill Ackman's activist investing cognitive operating system — a framework for concentrated, high-conviction bets, deep due diligence, and public engagement with companies. Built from Pershing Square's legendary trades, Valeant disaster, Herbalife campaign, and decades of documented investment decisions.
 ---
 

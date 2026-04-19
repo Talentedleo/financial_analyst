@@ -87,7 +87,7 @@ Failure condition:
 If you cannot find guidance in the skill_toolset, say you do not have enough conviction to answer."""
 
     return Agent(
-        name=f"{celebrity_name}_agent",
+        name=f"{celebrity_name.replace("-", "_")}_agent",
         model=model,
         description=f"{display_name} investment analyst",
         instruction=instruction,

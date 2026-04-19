@@ -88,36 +88,36 @@ python main.py
 curl -X POST http://localhost:8000/analyze \
   -H "Content-Type: application/json" \
   -H "X-API-Key: sk-1234" \
-  -d '{"question": "NVDA值得购买吗？", "style": "warren_buffett"}'
+  -d '{"question": "NVDA值得购买吗？", "style": "warren-buffett"}'
 
 # Charlie Munger 分析
 curl -X POST http://localhost:8000/analyze \
   -H "Content-Type: application/json" \
   -H "X-API-Key: sk-1234" \
-  -d '{"question": "AAPL怎么样？", "style": "charlie_munger"}'
+  -d '{"question": "AAPL怎么样？", "style": "charlie-munger"}'
 
 # Cathie Wood 分析
 curl -X POST http://localhost:8000/analyze \
   -H "Content-Type: application/json" \
   -H "X-API-Key: sk-1234" \
-  -d '{"question": "TSLA值得买吗？", "style": "cathie_wood"}'
+  -d '{"question": "TSLA值得买吗？", "style": "cathie-wood"}'
 ```
 
 ### 专家代理
 
 | style 参数 | 专家 | 投资理念 |
 |------------|------|----------|
-| `warren_buffett` | Warren Buffett | 价值投资、护城河分析 |
-| `cathie_wood` | Cathie Wood | 颠覆性创新、高增长 |
-| `charlie_munger` | Charlie Munger | 多元思维模型 |
-| `greg_abel` | Greg Abel | 运营卓越、伯克希尔视角 |
-| `peter_lynch` | Peter Lynch | 成长投资、知道自己拥有什么 |
-| `benjamin_graham` | Benjamin Graham | 安全边际、防守型投资 |
-| `phil_fisher` | Phil Fisher | 成长股、闲聊法 |
-| `michael_burry` | Michael Burry | 逆向投资、泡沫识别 |
-| `bill_ackman` | Bill Ackman | 激进投资、高置信度 |
-| `stanley_druckenmiller` | Stanley Druckenmiller | 宏观投资、集中押注 |
-| `aswath_damodaran` | Aswath Damodaran | 估值、叙事投资 |
+| `warren-buffett` | Warren Buffett | 价值投资、护城河分析 |
+| `cathie-wood` | Cathie Wood | 颠覆性创新、高增长 |
+| `charlie-munger` | Charlie Munger | 多元思维模型 |
+| `greg-abel` | Greg Abel | 运营卓越、伯克希尔视角 |
+| `peter-lynch` | Peter Lynch | 成长投资、知道自己拥有什么 |
+| `benjamin-graham` | Benjamin Graham | 安全边际、防守型投资 |
+| `phil-fisher` | Phil Fisher | 成长股、闲聊法 |
+| `michael-burry` | Michael Burry | 逆向投资、泡沫识别 |
+| `bill-ackman` | Bill Ackman | 激进投资、高置信度 |
+| `stanley-druckenmiller` | Stanley Druckenmiller | 宏观投资、集中押注 |
+| `aswath-damodaran` | Aswath Damodaran | 估值、叙事投资 |
 
 ---
 
@@ -174,17 +174,17 @@ financial_analyst/
 │   ├── data_service.py      # Finnhub + yfinance
 │   └── skill_loader.py      # Skill 加载工具
 ├── skills/                   # ADK Skills（11 位专家）
-│   ├── warren_buffett/
-│   ├── cathie_wood/
-│   ├── charlie_munger/
-│   ├── greg_abel/
-│   ├── peter_lynch/
-│   ├── benjamin_graham/
-│   ├── phil_fisher/
-│   ├── michael_burry/
-│   ├── bill_ackman/
-│   ├── stanley_druckenmiller/
-│   └── aswath_damodaran/
+│   ├── warren-buffett/
+│   ├── cathie-wood/
+│   ├── charlie-munger/
+│   ├── greg-abel/
+│   ├── peter-lynch/
+│   ├── benjamin-graham/
+│   ├── phil-fisher/
+│   ├── michael-burry/
+│   ├── bill-ackman/
+│   ├── stanley-druckenmiller/
+│   └── aswath-damodaran/
 ├── api/
 │   ├── __init__.py
 │   └── routes.py            # FastAPI 路由
@@ -210,7 +210,7 @@ financial_analyst/
 from google.adk.skills import load_skill_from_dir
 from google.adk.tools.skill_toolset import SkillToolset
 
-skill = load_skill_from_dir(Path("skills/warren_buffett"))
+skill = load_skill_from_dir(Path("skills/warren-buffett"))
 skill_toolset = SkillToolset(skills=[skill])
 
 Agent(..., tools=[..., skill_toolset])

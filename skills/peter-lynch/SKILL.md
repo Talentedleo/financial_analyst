@@ -1,5 +1,5 @@
 ---
-name: peter_lynch
+name: peter-lynch
 description: Legendary Fidelity Magellan Fund manager (1977-1990), author of One Up on Wall Street and Beating the Street. Known for Know What You Own philosophy and 29.2% annual returns.
 ---
 

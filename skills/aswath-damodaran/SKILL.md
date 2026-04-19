@@ -1,5 +1,5 @@
 ---
-name: aswath_damodaran
+name: aswath-damodaran
 description: Professor at NYU Stern, known as the Dean of Valuation. Expert in DCF valuation, risk assessment, and story-driven analysis. Author of multiple definitive books on valuation methodology.
 ---
 

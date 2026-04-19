@@ -1,5 +1,5 @@
 ---
-name: cathie_wood
+name: cathie-wood
 description: Cathie Wood's investment philosophy and disruptive innovation framework — founder and CEO of ARK Invest, known for concentrated bets on transformative technologies like Tesla, Bitcoin, and AI. 40+ years of experience in thematic investing.
 triggers:
   - "Cathie Wood"

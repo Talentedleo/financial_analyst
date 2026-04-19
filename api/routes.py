@@ -94,7 +94,7 @@ session_manager = SessionManager()
 
 class AnalyzeRequest(BaseModel):
     question: str = Field(..., description="Any stock or financial question")
-    style: Optional[str] = Field(default="warren_buffett")
+    style: Optional[str] = Field(default="warren-buffett")
     user_id: Optional[str] = Field(default="default_user")
     new_session: Optional[bool] = Field(default=False)
 
@@ -204,7 +204,7 @@ async def analyze(
             session_manager.set_session_id(user_id, session_id)
         
         # Determine which agent to use
-        agent_name = request.style or "warren_buffett"
+        agent_name = request.style or "warren-buffett"
         
         # Validate agent exists
         available = get_available_celebrities()
@@ -271,7 +271,7 @@ async def analyze(
             sources=[],
             agents_used=[agent_name],
             timestamp=datetime.now().isoformat(),
-            style=request.style or "warren_buffett",
+            style=request.style or "warren-buffett",
             session_id=session_id
         )
     
