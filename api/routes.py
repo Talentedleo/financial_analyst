@@ -8,6 +8,7 @@ Production deployment should:
 """
 
 import os
+from dotenv import load_dotenv; load_dotenv()
 import logging
 from typing import Optional, Literal, List, Dict
 from datetime import datetime
@@ -23,7 +24,7 @@ from pydantic import BaseModel, Field
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
 
-from agents import create_buffett_agent, create_cathie_wood_agent, create_greg_abel_agent
+from agents import create_expert_agent, list_all_expert_agents, get_available_celebrities
 from services import get_data_service
 
 
@@ -57,15 +58,8 @@ class SessionManager:
         key = f"{user_id}:{session_id}:{agent_name}"
         
         if key not in self._runners:
-            # Create appropriate agent based on agent_name
-            if agent_name == "warren_buffett":
-                agent = create_buffett_agent()
-            elif agent_name == "cathie_wood":
-                agent = create_cathie_wood_agent()
-            elif agent_name == "greg_abel":
-                agent = create_greg_abel_agent()
-            else:
-                agent = create_buffett_agent()  # default
+            # Create appropriate agent dynamically
+            agent = create_expert_agent(agent_name)
             
             session_service = InMemorySessionService()
             self._session_services[key] = session_service
@@ -100,7 +94,7 @@ session_manager = SessionManager()
 
 class AnalyzeRequest(BaseModel):
     question: str = Field(..., description="Any stock or financial question")
-    style: Optional[Literal["warren_buffett", "cathie_wood", "greg_abel"]] = Field(default="warren_buffett")
+    style: Optional[str] = Field(default="warren-buffett")
     user_id: Optional[str] = Field(default="default_user")
     new_session: Optional[bool] = Field(default=False)
 
@@ -151,8 +145,8 @@ ALLOWED_ORIGINS = os.environ.get(
 
 app = FastAPI(
     title="Financial Analyst AI Agent",
-    description="Stock analysis with Buffett, Cathie Wood, Greg Abel perspectives",
-    version="2.0.0"
+    description="Stock analysis with celebrity investor perspectives (ADK Skills)",
+    version="3.0.0"
 )
 
 app.add_middleware(
@@ -170,8 +164,9 @@ app.add_middleware(
 async def root():
     return {
         "name": "Financial Analyst AI Agent",
-        "version": "2.0.0",
-        "docs": "/docs"
+        "version": "3.0.0",
+        "docs": "/docs",
+        "available_agents": get_available_celebrities()
     }
 
 
@@ -179,7 +174,7 @@ async def root():
 async def health():
     return HealthResponse(
         status="healthy",
-        version="2.0.0",
+        version="3.0.0",
         timestamp=datetime.now().isoformat()
     )
 
@@ -208,8 +203,16 @@ async def analyze(
             session_id = existing_session if existing_session else f"session_{datetime.now().timestamp()}"
             session_manager.set_session_id(user_id, session_id)
         
-        # Determine which agent to use based on style (full agent name)
-        agent_name = request.style
+        # Determine which agent to use
+        agent_name = request.style or "warren-buffett"
+        
+        # Validate agent exists
+        available = get_available_celebrities()
+        if agent_name not in available:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Agent '{agent_name}' not found. Available: {available}"
+            )
         
         # Get or create runner for this agent
         runner = session_manager.get_or_create_runner(user_id, session_id, agent_name)
@@ -268,10 +271,12 @@ async def analyze(
             sources=[],
             agents_used=[agent_name],
             timestamp=datetime.now().isoformat(),
-            style=request.style or "warren_buffett",
+            style=request.style or "warren-buffett",
             session_id=session_id
         )
     
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -361,11 +366,11 @@ async def search(
 async def list_agents(
     _api_key: str = Depends(verify_api_key)
 ):
-    """List available expert agents"""
+    """List available expert agents (discovered from skills folders via SKILL.md)"""
+    agents_info = list_all_expert_agents()
     return AgentsListResponse(
         agents=[
-            AgentInfo(name="warren_buffett", description="Warren Buffett - Value investing"),
-            AgentInfo(name="cathie_wood", description="Cathie Wood - Disruptive innovation"),
-            AgentInfo(name="greg_abel", description="Greg Abel - Operational excellence"),
+            AgentInfo(name=name, description=info.get("description", ""))
+            for name, info in agents_info.items()
         ]
     )

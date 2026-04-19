@@ -1,15 +1,21 @@
 """
-Agents Module - Expert agents for financial analysis
+Expert Agents Module - Dynamic factory by celebrity name
+
+Usage:
+    from agents import create_expert_agent, get_available_celebrities
+    
+    agent = create_expert_agent("warren_buffett")
+    agents = get_available_celebrities()
 """
 
-from .experts import (
-    create_buffett_agent,
-    create_cathie_wood_agent,
-    create_greg_abel_agent
+from .experts.factory import (
+    create_expert_agent,
+    get_available_celebrities,
+    list_all_expert_agents,
 )
 
 __all__ = [
-    "create_buffett_agent",
-    "create_cathie_wood_agent",
-    "create_greg_abel_agent",
+    "create_expert_agent",
+    "get_available_celebrities",
+    "list_all_expert_agents",
 ]

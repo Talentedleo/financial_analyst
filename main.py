@@ -49,13 +49,15 @@ def init_services():
         print(f"  ✓ Data Service: initialized")
     except Exception as e:
         print(f"  ✗ Data Service failed: {e}")
-    
+
     # Skill Loader
     try:
         from services import get_skill_loader
         loader = get_skill_loader()
-        skills = loader.load_all_skills()
+        skills = loader.get_available_skills()
         print(f"  ✓ Skill Loader: {len(skills)} skills loaded")
+        for skill in skills:
+            print(f"      - {skill}")
     except Exception as e:
         print(f"  ✗ Skill Loader failed: {e}")
 
