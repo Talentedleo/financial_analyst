@@ -1,9 +1,14 @@
 """
 Skill Loader Service - Load Celebrity Skills into agents
+
+Handles the SKILL.md format used by celebrity investor skills.
+Each skill folder contains:
+- SKILL.md: Main skill definition with YAML frontmatter and rich markdown content
+- references/: Additional reference documents
 """
 
 import os
-import json
+import re
 from typing import Dict, Optional, List
 from pathlib import Path
 
@@ -36,37 +41,32 @@ class SkillLoader:
             )
     
     def get_available_skills(self) -> List[str]:
-        """Get list of available skill names (folder names with _meta.json)"""
+        """Get list of available skill names (folder names with SKILL.md)"""
         if not self.skills_path.exists():
             return []
         
         skills = []
         for d in self.skills_path.iterdir():
-            if d.is_dir() and (d / "_meta.json").exists():
+            if d.is_dir() and (d / "SKILL.md").exists():
                 skills.append(d.name)
         return sorted(skills)
     
-    def load_skill_meta(self, skill_name: str) -> Dict:
-        """
-        Load skill metadata from _meta.json.
-        
-        Args:
-            skill_name: e.g., 'warren_buffett', 'cathie_wood'
+    def _parse_yaml_frontmatter(self, content: str) -> tuple[Dict, str]:
+        """Parse YAML frontmatter from markdown content.
         
         Returns:
-            Dict with metadata from _meta.json
+            (frontmatter_dict, remaining_content)
         """
-        skill_path = self.skills_path / skill_name / "_meta.json"
-        
-        if not skill_path.exists():
-            available = self.get_available_skills()
-            raise ValueError(
-                f"Skill '{skill_name}' not found. _meta.json missing at {skill_path}.\n"
-                f"Available skills: {available}"
-            )
-        
-        with open(skill_path, 'r', encoding='utf-8') as f:
-            return json.load(f)
+        # Match YAML frontmatter between --- markers
+        match = re.match(r'^---\s*\n(.*?)\n---\s*\n*(.*)$', content, re.DOTALL)
+        if match:
+            import yaml
+            try:
+                fm = yaml.safe_load(match.group(1))
+                return (fm or {}), match.group(2)
+            except yaml.YAMLError:
+                pass
+        return {}, content
     
     def load_skill(self, skill_name: str) -> Dict:
         """
@@ -76,7 +76,7 @@ class SkillLoader:
             skill_name: 'warren_buffett', 'cathie_wood', etc.
         
         Returns:
-            Dict with 'name', 'path', 'meta', 'references'
+            Dict with 'name', 'path', 'meta', 'skill_md', 'references'
         """
         if skill_name in self._skills_cache:
             return self._skills_cache[skill_name]
@@ -93,15 +93,20 @@ class SkillLoader:
         result = {
             "name": skill_name,
             "path": str(skill_path),
-            "meta": None,
+            "meta": {},
+            "skill_md": None,
             "references": {}
         }
         
-        # Load _meta.json (required)
-        meta_path = skill_path / "_meta.json"
-        if meta_path.exists():
-            with open(meta_path, 'r', encoding='utf-8') as f:
-                result["meta"] = json.load(f)
+        # Load SKILL.md
+        skill_md_path = skill_path / "SKILL.md"
+        if skill_md_path.exists():
+            content = skill_md_path.read_text(encoding='utf-8')
+            meta, remaining = self._parse_yaml_frontmatter(content)
+            result["meta"] = meta
+            result["skill_md"] = remaining.strip() if remaining else content
+        else:
+            raise ValueError(f"SKILL.md not found for skill '{skill_name}' at {skill_md_path}")
         
         # Load reference files
         ref_path = skill_path / "references"
@@ -123,60 +128,35 @@ class SkillLoader:
         return skills
     
     def get_skill_description(self, skill_name: str) -> str:
-        """Get the description/display name for a skill."""
+        """Get the description for a skill."""
         try:
-            meta = self.load_skill_meta(skill_name)
-            # Try different field names across different meta formats
-            return meta.get('subtitle') or meta.get('display_name') or meta.get('name', skill_name)
+            skill = self.load_skill(skill_name)
+            meta = skill.get("meta", {})
+            # Try different field names
+            return meta.get('subtitle') or meta.get('description') or skill_name.replace('_', ' ').title()
         except Exception:
             return skill_name.replace('_', ' ').title()
     
     def get_skill_context(self, skill_name: str) -> str:
-        """Get skill content formatted for agent instruction."""
+        """Get full skill content for agent instruction."""
         skill = self.load_skill(skill_name)
         meta = skill.get("meta", {})
+        skill_md = skill.get("skill_md", "")
         
-        # Build context from meta fields
+        # Build context with meta info followed by full SKILL.md content
         context_parts = []
         
-        # Title
-        name = meta.get('display_name') or meta.get('name', skill_name).replace('_', ' ').title()
+        # Title from meta or name
+        name = meta.get('name', skill_name).replace('-', ' ').title()
         context_parts.append(f"# {name}\n")
         
-        # Description
+        # Description from meta
         if meta.get('description'):
-            context_parts.append(f"\n## Identity & Philosophy\n{meta.get('description')}\n")
+            context_parts.append(f"{meta.get('description')}\n")
         
-        # Subtitle
-        if meta.get('subtitle'):
-            context_parts.append(f"\n**{meta.get('subtitle')}**\n")
-        
-        # Tags as keywords
-        if meta.get('tags'):
-            tags = ', '.join(meta.get('tags', []))
-            context_parts.append(f"\n**Keywords:** {tags}\n")
-        
-        # Triggers
-        if meta.get('triggers'):
-            triggers = ', '.join(meta.get('triggers', []))
-            context_parts.append(f"\n**Triggers/Aliases:** {triggers}\n")
-        
-        # Sources
-        if meta.get('sources'):
-            context_parts.append("\n## Primary Sources\n")
-            for source in meta.get('sources', []):
-                source_name = source.get('name', 'Unknown')
-                source_url = source.get('url', '')
-                if source_url:
-                    context_parts.append(f"- [{source_name}]({source_url})")
-                else:
-                    context_parts.append(f"- {source_name}")
-        
-        # References (if any)
-        if skill.get("references"):
-            context_parts.append("\n## Reference Materials\n")
-            for filename, content in skill["references"].items():
-                context_parts.append(f"\n### {filename}\n\n{content}\n")
+        # Full SKILL.md content (which includes Effect Examples, Expression DNA, Mental Models, etc.)
+        if skill_md:
+            context_parts.append(f"\n---\n\n{skill_md}\n")
         
         return "\n".join(context_parts)
     

@@ -1,13 +1,20 @@
 """
-Expert Agents Module
+Expert Agents Module - Dynamic factory pattern
+
+Old individual agent files (warren_buffett_agent.py, cathie_wood_agent.py, greg_abel_agent.py)
+are deprecated. Use create_expert_agent(skill_name) instead.
 """
 
-from .warren_buffett_agent import create_buffett_agent
-from .cathie_wood_agent import create_cathie_wood_agent
-from .greg_abel_agent import create_greg_abel_agent
+from .factory import (
+    create_expert_agent,
+    get_all_expert_agents,
+    get_expert_agent_info,
+    list_all_expert_agents,
+)
 
 __all__ = [
-    "create_buffett_agent",
-    "create_cathie_wood_agent",
-    "create_greg_abel_agent",
+    "create_expert_agent",
+    "get_all_expert_agents",
+    "get_expert_agent_info",
+    "list_all_expert_agents",
 ]

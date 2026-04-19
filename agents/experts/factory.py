@@ -1,52 +1,23 @@
 """
 Expert Agent Factory - Dynamically create agents based on skills folder
+
+Each skill folder contains:
+- SKILL.md: Rich agent definition with identity, examples, mental models
+- references/: Additional reference documents
+
+The factory reads SKILL.md directly and injects its content into the agent instruction.
 """
 
-import os
 from pathlib import Path
-from typing import Dict, Optional, List
+from typing import Dict, List
 
 from google.adk.agents import Agent
-from google.adk.tools.skill_toolset import SkillToolset
 
 from services.llm_service import get_llm_service
 from services.skill_loader import get_skill_loader, get_available_skills
 from tools.stock_tools import stock_tools
 from tools.news_tools import news_tools
 from tools.fundamentals_tools import fundamentals_tools
-
-
-def _build_agent_instruction(skill_name: str, skill_context: str) -> str:
-    """Build the instruction for an expert agent based on skill context."""
-    return f"""You are {skill_name.replace('_', ' ').title()}.
-
-{skill_context}
-
-## Execution Rules
-
-- All reasoning MUST be derived from your identity and philosophy above
-- All outputs MUST reflect the tone and framework of your identity
-- Any response not aligned with your identity is invalid
-
-## Workflow
-
-1. Analyze the user's question and identify relevant aspects of your philosophy
-2. MUST use your tools to gather necessary data:
-   - stock_tools: get_quote, search_symbol, get_candles
-   - news_tools: get_company_news, get_market_news
-   - fundamentals_tools: get_company_profile, get_peers, get_financial_metrics
-3. Apply ONLY your identity/framework to interpret the data
-4. Respond in first person, matching the question's language
-
-## Tools Available
-
-- stock_tools: get_quote, search_symbol, get_candles
-- news_tools: get_company_news, get_market_news
-- fundamentals_tools: get_company_profile, get_peers, get_financial_metrics
-
-## Failure Condition
-
-If you cannot find guidance in your identity/framework, say you do not have enough conviction to answer."""
 
 
 def create_expert_agent(skill_name: str) -> Agent:
@@ -70,39 +41,63 @@ def create_expert_agent(skill_name: str) -> Agent:
             f"Skill '{skill_name}' not found. Available skills: {available}"
         )
     
-    # Load skill context
+    # Load the full skill content from SKILL.md
     skill_context = loader.get_skill_context(skill_name)
     
-    # Build instruction
-    instruction = _build_agent_instruction(skill_name, skill_context)
+    # Get skill meta for name/description
+    skill = loader.load_skill(skill_name)
+    meta = skill.get("meta", {})
+    skill_display_name = meta.get('name', skill_name).replace('-', ' ').title()
     
-    # Get skill path for ADK
-    skills_path = Path(__file__).parent.parent.parent / "skills"
-    skill_path = skills_path / skill_name
-    
-    # Try to load as ADK skill (if it has SKILL.md)
-    skill_md_path = skill_path / "SKILL.md"
-    skill_toolset = None
-    
-    if skill_md_path.exists():
-        try:
-            from google.adk.skills import load_skill_from_dir
-            skill = load_skill_from_dir(skill_path)
-            skill_toolset = SkillToolset(skills=[skill])
-        except Exception as e:
-            print(f"Warning: Could not load ADK skill from {skill_path}: {e}")
-    
+    # Build the agent instruction
+    instruction = f"""You are {skill_display_name}.
+
+Your identity, thinking process, and communication style are defined in the skill content below.
+Read it carefully — it is the source of truth for who you are and how you think.
+
+## Your Skill Content
+
+{skill_context}
+
+## Execution Rules
+
+- You MUST use your identity and philosophy from the skill content above
+- All reasoning MUST be derived from the skill content
+- All outputs MUST reflect the tone, framework, and examples in the skill content
+- Any response not aligned with the skill content is invalid
+
+## Workflow
+
+1. Analyze the user's question
+2. Identify relevant aspects of your philosophy from the skill content
+3. MUST use your tools to gather necessary data:
+   - stock_tools: get_quote, search_symbol, get_candles
+   - news_tools: get_company_news, get_market_news
+   - fundamentals_tools: get_company_profile, get_peers, get_financial_metrics
+4. Apply ONLY your identity/framework from the skill content
+5. Respond in first person, matching the question's language
+6. Use the Expression DNA patterns (how you speak) from the skill content
+
+## Tools Available
+
+- stock_tools: get_stock_quote, search_stocks, get_stock_candles
+- news_tools: get_company_news, get_market_news
+- fundamentals_tools: get_company_profile, get_company_peers, get_company_financials
+
+## Failure Condition
+
+If the question falls outside your circle of competence as defined in the skill content, 
+say so clearly and redirect to what you do know."""
+
     # Assemble tools
     model = get_llm_service().model
     tools: List = stock_tools + news_tools + fundamentals_tools
-    if skill_toolset:
-        tools.append(skill_toolset)
     
     # Create agent
     return Agent(
         name=f"{skill_name}_agent",
         model=model,
-        description=f"{skill_name.replace('_', ' ').title()} expert analyst",
+        description=f"{skill_display_name} expert analyst",
         instruction=instruction,
         tools=tools
     )
@@ -123,10 +118,12 @@ def get_expert_agent_info(skill_name: str) -> Dict[str, str]:
     """Get basic info about an expert agent."""
     loader = get_skill_loader()
     try:
-        description = loader.get_skill_description(skill_name)
+        skill = loader.load_skill(skill_name)
+        meta = skill.get("meta", {})
+        description = meta.get('description', '')[:100]
         return {
             "name": skill_name,
-            "description": description
+            "description": description or skill_name.replace('_', ' ').title()
         }
     except Exception:
         return {
