@@ -98,4 +98,4 @@ If you cannot find guidance in the skill_toolset, say you do not have enough con
 def list_all_expert_agents() -> dict:
     """List all available expert agents."""
     celebrities = get_available_celebrities()
-    return {name: name.replace('_', ' ').title() for name in celebrities}
+    return {name: {"description": name.replace('_', ' ').title()} for name in celebrities}

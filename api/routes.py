@@ -8,6 +8,7 @@ Production deployment should:
 """
 
 import os
+from dotenv import load_dotenv; load_dotenv()
 import logging
 from typing import Optional, Literal, List, Dict
 from datetime import datetime
