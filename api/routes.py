@@ -93,7 +93,7 @@ session_manager = SessionManager()
 
 class AnalyzeRequest(BaseModel):
     question: str = Field(..., description="Any stock or financial question")
-    style: Optional[str] = Field(default="warren-buffett")
+    style: Optional[str] = Field(default="warren_buffett")
     user_id: Optional[str] = Field(default="default_user")
     new_session: Optional[bool] = Field(default=False)
 

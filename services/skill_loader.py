@@ -2,13 +2,13 @@
 Skill Loader Service - Load Celebrity Skills
 
 Each skill folder contains:
-- SKILL.md: ADK skill definition with YAML frontmatter (name, description, triggers)
+- SKILL.md: Skill definition with YAML frontmatter
 - references/: Additional reference documents
 
-This loader reads SKILL.md for metadata and can provide context for agents.
+Simply scans skills/ folder and reads SKILL.md for each subdirectory.
+No naming restrictions - any folder with SKILL.md is a valid skill.
 """
 
-import os
 import re
 from typing import Dict, Optional, List
 from pathlib import Path
@@ -18,121 +18,76 @@ class SkillLoader:
     """Service for loading and parsing Celebrity Skills"""
     
     def __init__(self, skills_path: Optional[str] = None):
-        """
-        Initialize SkillLoader.
-        
-        Args:
-            skills_path: Optional explicit path. Defaults to local skills/ directory.
-        """
         if skills_path:
             self.skills_path = Path(skills_path)
         else:
-            # Default: local skills/ directory in project
             self.skills_path = Path(__file__).parent.parent / "skills"
         
         self._validate_path()
         self._skills_cache: Dict[str, Dict] = {}
     
     def _validate_path(self) -> None:
-        """Validate that skills path exists"""
         if not self.skills_path.exists():
             raise FileNotFoundError(
-                f"Skills path does not exist: {self.skills_path}\n"
-                f"Ensure celebrity skills are copied to the skills/ directory."
+                f"Skills path does not exist: {self.skills_path}"
             )
     
     def get_available_skills(self) -> List[str]:
-        """Get list of available skill names (from SKILL.md name field)"""
+        """Get list of skill names (folder names with SKILL.md)."""
         if not self.skills_path.exists():
             return []
         
         skills = []
         for folder in self.skills_path.iterdir():
-            if not folder.is_dir():
-                continue
-            skill_md_path = folder / "SKILL.md"
-            if not skill_md_path.exists():
-                continue
-            
-            content = skill_md_path.read_text(encoding='utf-8')
-            match = re.match(r'^---\s*\n(.*?)\n---\s*\n', content, re.DOTALL)
-            if not match:
-                continue
-            
-            import yaml
-            try:
-                meta = yaml.safe_load(match.group(1))
-                name = meta.get('name')
-                if name:
-                    skills.append(name)
-            except yaml.YAMLError:
-                continue
-        
+            if folder.is_dir() and (folder / "SKILL.md").exists():
+                skills.append(folder.name)
         return sorted(skills)
     
     def load_skill(self, skill_name: str) -> Dict:
         """
-        Load a celebrity skill by name (from SKILL.md).
+        Load a skill by folder name.
         
         Args:
-            skill_name: 'warren-buffett', 'cathie-wood', etc.
+            skill_name: Folder name, e.g., 'warren_buffett', 'cathie_wood'
         
         Returns:
-            Dict with 'name', 'path', 'meta', 'references'
+            Dict with 'name', 'path', 'meta', 'content', 'references'
         """
         if skill_name in self._skills_cache:
             return self._skills_cache[skill_name]
         
-        # Find the folder containing this skill
-        folder_path = None
-        for folder in self.skills_path.iterdir():
-            if not folder.is_dir():
-                continue
-            skill_md_path = folder / "SKILL.md"
-            if not skill_md_path.exists():
-                continue
-            
-            content = skill_md_path.read_text(encoding='utf-8')
-            match = re.match(r'^---\s*\n(.*?)\n---\s*\n', content, re.DOTALL)
-            if not match:
-                continue
-            
-            import yaml
-            try:
-                meta = yaml.safe_load(match.group(1))
-                if meta.get('name') == skill_name:
-                    folder_path = folder
-                    break
-            except yaml.YAMLError:
-                continue
-        
-        if folder_path is None:
+        folder_path = self.skills_path / skill_name
+        if not folder_path.exists() or not folder_path.is_dir():
             available = self.get_available_skills()
-            raise ValueError(
-                f"Skill '{skill_name}' not found. Available: {available}"
-            )
+            raise ValueError(f"Skill '{skill_name}' not found. Available: {available}")
         
-        result = {
-            "name": skill_name,
-            "path": str(folder_path),
-            "meta": {},
-            "references": {}
-        }
-        
-        # Load SKILL.md
         skill_md_path = folder_path / "SKILL.md"
+        if not skill_md_path.exists():
+            raise ValueError(f"SKILL.md not found for skill '{skill_name}'")
+        
         content = skill_md_path.read_text(encoding='utf-8')
+        
+        # Parse frontmatter
+        meta = {}
+        body = content
         match = re.match(r'^---\s*\n(.*?)\n---\s*\n(.*)$', content, re.DOTALL)
         if match:
             import yaml
             try:
-                result["meta"] = yaml.safe_load(match.group(1)) or {}
-                result["content"] = match.group(2).strip()
+                meta = yaml.safe_load(match.group(1)) or {}
+                body = match.group(2).strip()
             except yaml.YAMLError:
-                result["meta"] = {}
-                result["content"] = content
+                body = content
         
-        # Load reference files
+        result = {
+            "name": skill_name,
+            "path": str(folder_path),
+            "meta": meta,
+            "content": body,
+            "references": {}
+        }
+        
+        # Load references
         ref_path = folder_path / "references"
         if ref_path.exists():
             for ref_file in ref_path.glob("*.md"):
@@ -142,7 +97,7 @@ class SkillLoader:
         return result
     
     def load_all_skills(self) -> Dict[str, Dict]:
-        """Load all available celebrity skills"""
+        """Load all available skills."""
         skills = {}
         for skill_name in self.get_available_skills():
             try:
@@ -152,7 +107,7 @@ class SkillLoader:
         return skills
     
     def get_skill_description(self, skill_name: str) -> str:
-        """Get the description for a skill."""
+        """Get description from skill meta."""
         try:
             skill = self.load_skill(skill_name)
             meta = skill.get("meta", {})
@@ -161,14 +116,14 @@ class SkillLoader:
             return skill_name
     
     def get_skill_context(self, skill_name: str) -> str:
-        """Get skill content for context (meta + content)."""
+        """Get full skill context for agent instruction."""
         skill = self.load_skill(skill_name)
         meta = skill.get("meta", {})
         content = skill.get("content", "")
         
-        parts = []
-        if meta.get('name'):
-            parts.append(f"# {meta.get('name').replace('-', ' ').title()}\n")
+        name = meta.get('name', skill_name).replace('-', ' ').replace('_', ' ').title()
+        parts = [f"# {name}\n"]
+        
         if meta.get('description'):
             parts.append(f"\n{meta.get('description')}\n")
         if content:
@@ -182,7 +137,6 @@ _skill_loader: Optional[SkillLoader] = None
 
 
 def get_skill_loader() -> SkillLoader:
-    """Get or create global skill loader instance"""
     global _skill_loader
     if _skill_loader is None:
         _skill_loader = SkillLoader()
@@ -190,15 +144,12 @@ def get_skill_loader() -> SkillLoader:
 
 
 def load_skill(skill_name: str) -> Dict:
-    """Convenience function"""
     return get_skill_loader().load_skill(skill_name)
 
 
 def get_skill_context(skill_name: str) -> str:
-    """Convenience function"""
     return get_skill_loader().get_skill_context(skill_name)
 
 
 def get_available_skills() -> List[str]:
-    """Convenience function"""
     return get_skill_loader().get_available_skills()

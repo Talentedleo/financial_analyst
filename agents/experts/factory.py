@@ -1,12 +1,9 @@
 """
-Expert Agent Factory - Dynamic agent creation using ADK Skills
+Expert Agent Factory - Dynamic agent creation
 
-Each skill folder contains:
-- SKILL.md: ADK skill definition with YAML frontmatter (name, description, triggers)
-- references/: Additional reference documents
-
-Factory scans skills folder, reads SKILL.md to get the skill's name,
-then creates agents using ADK's load_skill_from_dir + SkillToolset.
+Scans skills/ folder, reads SKILL.md directly for each skill,
+and creates agents with skill content injected into instruction.
+No ADK skill loading validation - supports any folder name.
 """
 
 import os
@@ -15,8 +12,6 @@ from pathlib import Path
 from typing import Dict, List, Optional
 
 from google.adk.agents import Agent
-from google.adk.tools.skill_toolset import SkillToolset
-from google.adk.skills import load_skill_from_dir
 
 from services.llm_service import get_llm_service
 from tools.stock_tools import stock_tools
@@ -25,10 +20,10 @@ from tools.fundamentals_tools import fundamentals_tools
 
 
 def _discover_skills(skills_base_path: Path) -> Dict[str, Dict]:
-    """Discover all skills by scanning folders and reading SKILL.md names.
+    """Discover all skills by scanning folders and reading SKILL.md.
     
     Returns:
-        Dict mapping skill_name (from SKILL.md) -> {folder_path, skill_name, description}
+        Dict mapping skill_name (folder name) -> {folder_path, skill_md_content}
     """
     skills = {}
     
@@ -43,27 +38,13 @@ def _discover_skills(skills_base_path: Path) -> Dict[str, Dict]:
         if not skill_md_path.exists():
             continue
         
-        # Read SKILL.md to get the skill's name
-        content = skill_md_path.read_text(encoding='utf-8')
-        match = re.match(r'^---\s*\n(.*?)\n---\s*\n', content, re.DOTALL)
-        if not match:
-            continue
-        
-        import yaml
-        try:
-            meta = yaml.safe_load(match.group(1))
-        except yaml.YAMLError:
-            continue
-        
-        skill_name = meta.get('name')  # e.g., 'warren-buffett'
-        if not skill_name:
-            continue
+        skill_name = folder.name  # Use folder name directly
+        skill_md_content = skill_md_path.read_text(encoding='utf-8')
         
         skills[skill_name] = {
             'folder_path': folder,
             'skill_name': skill_name,
-            'description': meta.get('description', ''),
-            'triggers': meta.get('triggers', []),
+            'skill_md_content': skill_md_content,
         }
     
     return skills
@@ -83,7 +64,7 @@ def _get_skills_map() -> Dict[str, Dict]:
 
 
 def get_available_agents() -> List[str]:
-    """Get list of available agent names (from SKILL.md names)."""
+    """Get list of available agent names (folder names)."""
     return sorted(_get_skills_map().keys())
 
 
@@ -92,9 +73,14 @@ def get_agent_info(skill_name: str) -> Dict[str, str]:
     skills = _get_skills_map()
     if skill_name not in skills:
         return {"name": skill_name, "description": ""}
+    
+    content = skills[skill_name].get('skill_md_content', '')
+    # Extract description from frontmatter
+    match = re.search(r'^---\s*\n.*?description:\s*(.+?)\n', content, re.DOTALL)
+    description = match.group(1) if match else ""
     return {
         "name": skill_name,
-        "description": skills[skill_name].get('description', '')[:100]
+        "description": description[:100] if description else skill_name
     }
 
 
@@ -102,17 +88,17 @@ def list_all_agents() -> Dict[str, Dict[str, str]]:
     """List all available agents."""
     skills = _get_skills_map()
     return {
-        name: {"name": info['skill_name'], "description": info.get('description', '')[:100]}
+        name: {"name": info['skill_name'], "description": info.get('description', '')}
         for name, info in skills.items()
     }
 
 
 def create_expert_agent(skill_name: str) -> Agent:
     """
-    Create an expert agent by skill name.
+    Create an expert agent by skill name (folder name).
     
     Args:
-        skill_name: Name from SKILL.md, e.g., 'warren-buffett', 'cathie-wood'
+        skill_name: Folder name, e.g., 'warren_buffett', 'cathie_wood'
     
     Returns:
         Configured Agent instance
@@ -129,50 +115,60 @@ def create_expert_agent(skill_name: str) -> Agent:
         )
     
     skill_info = skills[skill_name]
-    folder_path = skill_info['folder_path']
+    skill_md_content = skill_info['skill_md_content']
     
-    # Use ADK's official skill loading
-    try:
-        skill = load_skill_from_dir(folder_path)
-        skill_toolset = SkillToolset(skills=[skill])
-    except Exception as e:
-        raise RuntimeError(f"Failed to load skill from {folder_path}: {e}")
+    # Extract name from frontmatter for display
+    name_match = re.search(r'^---\s*\n.*?name:\s*(.+?)\n', skill_md_content, re.DOTALL)
+    display_name = name_match.group(1).replace('-', ' ').replace('_', ' ').title() if name_match else skill_name.replace('_', ' ').title()
+    
+    # Extract skill content (after frontmatter)
+    content_match = re.search(r'^---\s*\n.*?\n---\s*\n(.*)$', skill_md_content, re.DOTALL)
+    skill_content = content_match.group(1).strip() if content_match else skill_md_content
     
     model = get_llm_service().model
-    tools: List = stock_tools + news_tools + fundamentals_tools + [skill_toolset]
-    
-    # Extract display name for instruction
-    display_name = skill_name.replace('-', ' ').title()
+    tools: List = stock_tools + news_tools + fundamentals_tools
     
     instruction = f"""You are {display_name}.
 
-The skill_toolset defines your identity, thinking process, and communication style.
-It is NOT optional.
+Your identity, thinking process, and communication style are defined in the skill content below.
+Read it carefully — it is the source of truth for who you are and how you think.
 
-Execution rules:
+## Your Skill Content
 
-- All reasoning MUST be derived from the skill_toolset
-- All outputs MUST reflect the tone and structure of the skill_toolset
-- Any response not aligned with the skill_toolset is invalid
+{skill_content}
 
-Workflow:
+## Execution Rules
 
-1. Identify relevant rules from skill_toolset
-2. MUST use your tools to gather necessary data:
+- You MUST use your identity and philosophy from the skill content above
+- All reasoning MUST be derived from the skill content
+- All outputs MUST reflect the tone, framework, and examples in the skill content
+- Any response not aligned with the skill content is invalid
+
+## Workflow
+
+1. Analyze the user's question
+2. Identify relevant aspects of your philosophy from the skill content
+3. MUST use your tools to gather necessary data:
    - stock_tools: get real-time stock quotes and prices
    - news_tools: get company news and market news
    - fundamentals_tools: get company profile and financial metrics
-3. Apply ONLY the skill_toolset logic to interpret the data
-4. Respond in first person, matching the question's language
+4. Apply ONLY your identity/framework from the skill content
+5. Respond in first person, matching the question's language
+6. Use the Expression DNA patterns (how you speak) from the skill content
 
-Failure condition:
-If you cannot find guidance in the skill_toolset, say you do not have enough conviction to answer."""
-    
-    # Create agent with folder name as agent name identifier
-    agent_name = skill_name.replace('-', '_') + '_agent'
+## Tools Available
+
+- stock_tools: get_stock_quote, search_stocks, get_stock_candles
+- news_tools: get_company_news, get_market_news
+- fundamentals_tools: get_company_profile, get_company_peers, get_company_financials
+
+## Failure Condition
+
+If the question falls outside your circle of competence as defined in the skill content, 
+say so clearly and redirect to what you do know."""
     
     return Agent(
-        name=agent_name,
+        name=f"{skill_name}_agent",
         model=model,
         description=f"{display_name} investment analyst",
         instruction=instruction,

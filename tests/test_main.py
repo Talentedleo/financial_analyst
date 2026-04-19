@@ -198,8 +198,8 @@ class TestSuite:
         """Test skill context generation"""
         try:
             from services import get_skill_context
-            # Use hyphen naming from SKILL.md
-            context = get_skill_context("warren-buffett")
+            # Use underscore naming
+            context = get_skill_context("warren_buffett")
             assert len(context) > 100, "Context too short"
             self.log("Skill Loader Context", True, f"Context length: {len(context)} chars")
             return True
@@ -252,7 +252,6 @@ class TestSuite:
             assert len(bark_tools) == 3, f"Expected 3 bark tools, got {len(bark_tools)}"
             tool_names = [t.name for t in bark_tools]
             self.log("Tools - Bark", True, f"Tools: {', '.join(tool_names)}")
-            # Note: Actual sending requires BARK_API_KEY configured
             return True
         except Exception as e:
             self.log("Tools - Bark", False, str(e))
@@ -264,7 +263,7 @@ class TestSuite:
         """Test Buffett agent initialization via factory"""
         try:
             from agents import create_expert_agent
-            agent = create_expert_agent("warren-buffett")
+            agent = create_expert_agent("warren_buffett")
             assert agent is not None
             assert agent.name == "warren_buffett_agent"
             self.log("Buffett Agent Init", True, f"Tools: {len(agent.tools)}")
@@ -277,7 +276,7 @@ class TestSuite:
         """Test Cathie Wood agent initialization via factory"""
         try:
             from agents import create_expert_agent
-            agent = create_expert_agent("cathie-wood")
+            agent = create_expert_agent("cathie_wood")
             assert agent is not None
             assert agent.name == "cathie_wood_agent"
             self.log("Cathie Wood Agent Init", True, f"Tools: {len(agent.tools)}")
@@ -290,7 +289,7 @@ class TestSuite:
         """Test Greg Abel agent initialization via factory"""
         try:
             from agents import create_expert_agent
-            agent = create_expert_agent("greg-abel")
+            agent = create_expert_agent("greg_abel")
             assert agent is not None
             assert agent.name == "greg_abel_agent"
             self.log("Greg Abel Agent Init", True, f"Tools: {len(agent.tools)}")
@@ -305,7 +304,6 @@ class TestSuite:
             from agents import list_all_agents, get_available_agents
             agents_info = list_all_agents()
             skills = get_available_agents()
-            # All skills should have agent info
             assert len(agents_info) >= len(skills), f"Agent count mismatch"
             self.log("Dynamic Agent Count", True, f"{len(agents_info)} agents for {len(skills)} skills")
             return True
