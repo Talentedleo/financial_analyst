@@ -23,7 +23,7 @@ from pydantic import BaseModel, Field
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
 
-from agents import create_expert_agent, list_all_agents, get_available_agents
+from agents import create_expert_agent, list_all_expert_agents, get_available_celebrities
 from services import get_data_service
 
 
@@ -165,7 +165,7 @@ async def root():
         "name": "Financial Analyst AI Agent",
         "version": "3.0.0",
         "docs": "/docs",
-        "available_agents": get_available_agents()
+        "available_agents": get_available_celebrities()
     }
 
 
@@ -206,7 +206,7 @@ async def analyze(
         agent_name = request.style or "warren-buffett"
         
         # Validate agent exists
-        available = get_available_agents()
+        available = get_available_celebrities()
         if agent_name not in available:
             raise HTTPException(
                 status_code=400,
@@ -366,7 +366,7 @@ async def list_agents(
     _api_key: str = Depends(verify_api_key)
 ):
     """List available expert agents (discovered from skills folders via SKILL.md)"""
-    agents_info = list_all_agents()
+    agents_info = list_all_expert_agents()
     return AgentsListResponse(
         agents=[
             AgentInfo(name=name, description=info.get("description", ""))

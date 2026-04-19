@@ -301,9 +301,9 @@ class TestSuite:
     async def test_dynamic_agent_count(self):
         """Test that all skills have corresponding agents"""
         try:
-            from agents import list_all_agents, get_available_agents
-            agents_info = list_all_agents()
-            skills = get_available_agents()
+            from agents import get_available_celebrities, get_available_celebrities
+            agents_info = get_available_celebrities()
+            skills = get_available_celebrities()
             assert len(agents_info) >= len(skills), f"Agent count mismatch"
             self.log("Dynamic Agent Count", True, f"{len(agents_info)} agents for {len(skills)} skills")
             return True

@@ -1,23 +1,21 @@
 """
-Expert Agents Module - Dynamic factory using ADK Skills
+Expert Agents Module - Dynamic factory by celebrity name
 
 Usage:
-    from agents import create_expert_agent, get_available_agents
-    agent = create_expert_agent("warren-buffett")
+    from agents import create_expert_agent, get_available_celebrities
+    
+    agent = create_expert_agent("warren_buffett")
+    agents = get_available_celebrities()
 """
 
 from .experts.factory import (
     create_expert_agent,
-    create_all_agents,
-    get_available_agents,
-    get_agent_info,
-    list_all_agents,
+    get_available_celebrities,
+    list_all_expert_agents,
 )
 
 __all__ = [
     "create_expert_agent",
-    "create_all_agents",
-    "get_available_agents",
-    "get_agent_info",
-    "list_all_agents",
+    "get_available_celebrities",
+    "list_all_expert_agents",
 ]
