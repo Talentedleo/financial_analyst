@@ -5,7 +5,7 @@ Comprehensive test suite covering:
 - Environment and configuration
 - Services (LLM, Data, Skill Loader)
 - Tools (Stock, News, Fundamentals)
-- Agents (Dynamic Factory)
+- Agents (Dynamic Factory with ADK Skills)
 - API endpoints (smoke test)
 """
 
@@ -198,8 +198,8 @@ class TestSuite:
         """Test skill context generation"""
         try:
             from services import get_skill_context
-            # Use underscore naming (new format)
-            context = get_skill_context("warren_buffett")
+            # Use hyphen naming from SKILL.md
+            context = get_skill_context("warren-buffett")
             assert len(context) > 100, "Context too short"
             self.log("Skill Loader Context", True, f"Context length: {len(context)} chars")
             return True
@@ -258,13 +258,13 @@ class TestSuite:
             self.log("Tools - Bark", False, str(e))
             return False
 
-    # ========== Agent Tests (Dynamic Factory) ==========
+    # ========== Agent Tests (Dynamic Factory with ADK) ==========
 
     async def test_buffett_agent_init(self):
         """Test Buffett agent initialization via factory"""
         try:
             from agents import create_expert_agent
-            agent = create_expert_agent("warren_buffett")
+            agent = create_expert_agent("warren-buffett")
             assert agent is not None
             assert agent.name == "warren_buffett_agent"
             self.log("Buffett Agent Init", True, f"Tools: {len(agent.tools)}")
@@ -277,7 +277,7 @@ class TestSuite:
         """Test Cathie Wood agent initialization via factory"""
         try:
             from agents import create_expert_agent
-            agent = create_expert_agent("cathie_wood")
+            agent = create_expert_agent("cathie-wood")
             assert agent is not None
             assert agent.name == "cathie_wood_agent"
             self.log("Cathie Wood Agent Init", True, f"Tools: {len(agent.tools)}")
@@ -290,7 +290,7 @@ class TestSuite:
         """Test Greg Abel agent initialization via factory"""
         try:
             from agents import create_expert_agent
-            agent = create_expert_agent("greg_abel")
+            agent = create_expert_agent("greg-abel")
             assert agent is not None
             assert agent.name == "greg_abel_agent"
             self.log("Greg Abel Agent Init", True, f"Tools: {len(agent.tools)}")
@@ -302,9 +302,9 @@ class TestSuite:
     async def test_dynamic_agent_count(self):
         """Test that all skills have corresponding agents"""
         try:
-            from agents import list_all_expert_agents, get_available_skills
-            agents_info = list_all_expert_agents()
-            skills = get_available_skills()
+            from agents import list_all_agents, get_available_agents
+            agents_info = list_all_agents()
+            skills = get_available_agents()
             # All skills should have agent info
             assert len(agents_info) >= len(skills), f"Agent count mismatch"
             self.log("Dynamic Agent Count", True, f"{len(agents_info)} agents for {len(skills)} skills")
@@ -381,7 +381,7 @@ class TestSuite:
         print()
 
         # Agents
-        print("🤖 Agent Tests (Dynamic Factory)")
+        print("🤖 Agent Tests (ADK Dynamic Factory)")
         print("-" * 40)
         await self.test_buffett_agent_init()
         await self.test_cathie_wood_agent_init()

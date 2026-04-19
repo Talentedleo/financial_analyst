@@ -23,7 +23,7 @@ from pydantic import BaseModel, Field
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
 
-from agents import create_expert_agent, list_all_expert_agents, get_available_skills
+from agents import create_expert_agent, list_all_agents, get_available_agents
 from services import get_data_service
 
 
@@ -93,7 +93,7 @@ session_manager = SessionManager()
 
 class AnalyzeRequest(BaseModel):
     question: str = Field(..., description="Any stock or financial question")
-    style: Optional[str] = Field(default="warren_buffett")
+    style: Optional[str] = Field(default="warren-buffett")
     user_id: Optional[str] = Field(default="default_user")
     new_session: Optional[bool] = Field(default=False)
 
@@ -144,7 +144,7 @@ ALLOWED_ORIGINS = os.environ.get(
 
 app = FastAPI(
     title="Financial Analyst AI Agent",
-    description="Stock analysis with celebrity investor perspectives (dynamic)",
+    description="Stock analysis with celebrity investor perspectives (ADK Skills)",
     version="3.0.0"
 )
 
@@ -165,7 +165,7 @@ async def root():
         "name": "Financial Analyst AI Agent",
         "version": "3.0.0",
         "docs": "/docs",
-        "available_agents": get_available_skills()
+        "available_agents": get_available_agents()
     }
 
 
@@ -203,10 +203,10 @@ async def analyze(
             session_manager.set_session_id(user_id, session_id)
         
         # Determine which agent to use
-        agent_name = request.style or "warren_buffett"
+        agent_name = request.style or "warren-buffett"
         
         # Validate agent exists
-        available = get_available_skills()
+        available = get_available_agents()
         if agent_name not in available:
             raise HTTPException(
                 status_code=400,
@@ -270,7 +270,7 @@ async def analyze(
             sources=[],
             agents_used=[agent_name],
             timestamp=datetime.now().isoformat(),
-            style=request.style or "warren_buffett",
+            style=request.style or "warren-buffett",
             session_id=session_id
         )
     
@@ -365,11 +365,11 @@ async def search(
 async def list_agents(
     _api_key: str = Depends(verify_api_key)
 ):
-    """List available expert agents (dynamically discovered from skills folder)"""
-    agents_info = list_all_expert_agents()
+    """List available expert agents (discovered from skills folders via SKILL.md)"""
+    agents_info = list_all_agents()
     return AgentsListResponse(
         agents=[
-            AgentInfo(name=name, description=info.get("description", name))
+            AgentInfo(name=name, description=info.get("description", ""))
             for name, info in agents_info.items()
         ]
     )

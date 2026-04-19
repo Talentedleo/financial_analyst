@@ -1,10 +1,11 @@
 """
-Skill Loader Service - Load Celebrity Skills into agents
+Skill Loader Service - Load Celebrity Skills
 
-Handles the SKILL.md format used by celebrity investor skills.
 Each skill folder contains:
-- SKILL.md: Main skill definition with YAML frontmatter and rich markdown content
+- SKILL.md: ADK skill definition with YAML frontmatter (name, description, triggers)
 - references/: Additional reference documents
+
+This loader reads SKILL.md for metadata and can provide context for agents.
 """
 
 import os
@@ -41,75 +42,98 @@ class SkillLoader:
             )
     
     def get_available_skills(self) -> List[str]:
-        """Get list of available skill names (folder names with SKILL.md)"""
+        """Get list of available skill names (from SKILL.md name field)"""
         if not self.skills_path.exists():
             return []
         
         skills = []
-        for d in self.skills_path.iterdir():
-            if d.is_dir() and (d / "SKILL.md").exists():
-                skills.append(d.name)
-        return sorted(skills)
-    
-    def _parse_yaml_frontmatter(self, content: str) -> tuple[Dict, str]:
-        """Parse YAML frontmatter from markdown content.
-        
-        Returns:
-            (frontmatter_dict, remaining_content)
-        """
-        # Match YAML frontmatter between --- markers
-        match = re.match(r'^---\s*\n(.*?)\n---\s*\n*(.*)$', content, re.DOTALL)
-        if match:
+        for folder in self.skills_path.iterdir():
+            if not folder.is_dir():
+                continue
+            skill_md_path = folder / "SKILL.md"
+            if not skill_md_path.exists():
+                continue
+            
+            content = skill_md_path.read_text(encoding='utf-8')
+            match = re.match(r'^---\s*\n(.*?)\n---\s*\n', content, re.DOTALL)
+            if not match:
+                continue
+            
             import yaml
             try:
-                fm = yaml.safe_load(match.group(1))
-                return (fm or {}), match.group(2)
+                meta = yaml.safe_load(match.group(1))
+                name = meta.get('name')
+                if name:
+                    skills.append(name)
             except yaml.YAMLError:
-                pass
-        return {}, content
+                continue
+        
+        return sorted(skills)
     
     def load_skill(self, skill_name: str) -> Dict:
         """
-        Load a celebrity skill by name.
+        Load a celebrity skill by name (from SKILL.md).
         
         Args:
-            skill_name: 'warren_buffett', 'cathie_wood', etc.
+            skill_name: 'warren-buffett', 'cathie-wood', etc.
         
         Returns:
-            Dict with 'name', 'path', 'meta', 'skill_md', 'references'
+            Dict with 'name', 'path', 'meta', 'references'
         """
         if skill_name in self._skills_cache:
             return self._skills_cache[skill_name]
         
-        skill_path = self.skills_path / skill_name
+        # Find the folder containing this skill
+        folder_path = None
+        for folder in self.skills_path.iterdir():
+            if not folder.is_dir():
+                continue
+            skill_md_path = folder / "SKILL.md"
+            if not skill_md_path.exists():
+                continue
+            
+            content = skill_md_path.read_text(encoding='utf-8')
+            match = re.match(r'^---\s*\n(.*?)\n---\s*\n', content, re.DOTALL)
+            if not match:
+                continue
+            
+            import yaml
+            try:
+                meta = yaml.safe_load(match.group(1))
+                if meta.get('name') == skill_name:
+                    folder_path = folder
+                    break
+            except yaml.YAMLError:
+                continue
         
-        if not skill_path.exists():
+        if folder_path is None:
             available = self.get_available_skills()
             raise ValueError(
-                f"Skill '{skill_name}' not found at {skill_path}.\n"
-                f"Available skills: {available}"
+                f"Skill '{skill_name}' not found. Available: {available}"
             )
         
         result = {
             "name": skill_name,
-            "path": str(skill_path),
+            "path": str(folder_path),
             "meta": {},
-            "skill_md": None,
             "references": {}
         }
         
         # Load SKILL.md
-        skill_md_path = skill_path / "SKILL.md"
-        if skill_md_path.exists():
-            content = skill_md_path.read_text(encoding='utf-8')
-            meta, remaining = self._parse_yaml_frontmatter(content)
-            result["meta"] = meta
-            result["skill_md"] = remaining.strip() if remaining else content
-        else:
-            raise ValueError(f"SKILL.md not found for skill '{skill_name}' at {skill_md_path}")
+        skill_md_path = folder_path / "SKILL.md"
+        content = skill_md_path.read_text(encoding='utf-8')
+        match = re.match(r'^---\s*\n(.*?)\n---\s*\n(.*)$', content, re.DOTALL)
+        if match:
+            import yaml
+            try:
+                result["meta"] = yaml.safe_load(match.group(1)) or {}
+                result["content"] = match.group(2).strip()
+            except yaml.YAMLError:
+                result["meta"] = {}
+                result["content"] = content
         
         # Load reference files
-        ref_path = skill_path / "references"
+        ref_path = folder_path / "references"
         if ref_path.exists():
             for ref_file in ref_path.glob("*.md"):
                 result["references"][ref_file.name] = ref_file.read_text(encoding='utf-8')
@@ -132,45 +156,25 @@ class SkillLoader:
         try:
             skill = self.load_skill(skill_name)
             meta = skill.get("meta", {})
-            # Try different field names
-            return meta.get('subtitle') or meta.get('description') or skill_name.replace('_', ' ').title()
+            return meta.get('description', skill_name)
         except Exception:
-            return skill_name.replace('_', ' ').title()
+            return skill_name
     
     def get_skill_context(self, skill_name: str) -> str:
-        """Get full skill content for agent instruction."""
+        """Get skill content for context (meta + content)."""
         skill = self.load_skill(skill_name)
         meta = skill.get("meta", {})
-        skill_md = skill.get("skill_md", "")
+        content = skill.get("content", "")
         
-        # Build context with meta info followed by full SKILL.md content
-        context_parts = []
-        
-        # Title from meta or name
-        name = meta.get('name', skill_name).replace('-', ' ').title()
-        context_parts.append(f"# {name}\n")
-        
-        # Description from meta
+        parts = []
+        if meta.get('name'):
+            parts.append(f"# {meta.get('name').replace('-', ' ').title()}\n")
         if meta.get('description'):
-            context_parts.append(f"{meta.get('description')}\n")
+            parts.append(f"\n{meta.get('description')}\n")
+        if content:
+            parts.append(f"\n---\n\n{content}\n")
         
-        # Full SKILL.md content (which includes Effect Examples, Expression DNA, Mental Models, etc.)
-        if skill_md:
-            context_parts.append(f"\n---\n\n{skill_md}\n")
-        
-        return "\n".join(context_parts)
-    
-    def get_all_skills_context(self) -> str:
-        """Get all skills context combined"""
-        all_context = []
-        for skill_name in self.get_available_skills():
-            try:
-                context = self.get_skill_context(skill_name)
-                all_context.append(context)
-            except Exception as e:
-                print(f"Warning: Could not load skill '{skill_name}': {e}")
-        
-        return "\n\n---\n\n".join(all_context)
+        return "\n".join(parts)
 
 
 # Global singleton
