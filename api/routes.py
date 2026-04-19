@@ -203,7 +203,7 @@ async def analyze(
             session_manager.set_session_id(user_id, session_id)
         
         # Determine which agent to use
-        agent_name = request.style or "warren-buffett"
+        agent_name = request.style or "warren_buffett"
         
         # Validate agent exists
         available = get_available_celebrities()
@@ -270,7 +270,7 @@ async def analyze(
             sources=[],
             agents_used=[agent_name],
             timestamp=datetime.now().isoformat(),
-            style=request.style or "warren-buffett",
+            style=request.style or "warren_buffett",
             session_id=session_id
         )
     
