@@ -15,7 +15,7 @@
 - **Direct Expert Routing**: No coordinator layer, direct call to expert agents
 - **ADK Skills**: Each expert uses Google's official SkillToolset for investment philosophy
 - **Real-Time Data**: Finnhub (free) + Yahoo Finance (premium) for market data
-- **Celebrity Investor Perspectives**: Warren Buffett, Cathie Wood, Greg Abel
+- **Celebrity Investor Perspectives**: 11 investment masters (Buffett, Munger, Wood, Lynch, etc.)
 - **Push Notifications**: Bark integration for iOS notifications
 - **REST API**: FastAPI-powered endpoints with session management
 
@@ -88,19 +88,19 @@ python main.py
 curl -X POST http://localhost:8000/analyze \
   -H "Content-Type: application/json" \
   -H "X-API-Key: sk-1234" \
-  -d '{"question": "NVDA值得购买吗？", "style": "warren_buffett"}'
+  -d '{"question": "Is NVDA a good buy?", "style": "warren_buffett"}'
+
+# Analyze with Charlie Munger
+curl -X POST http://localhost:8000/analyze \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: sk-1234" \
+  -d '{"question": "What about AAPL?", "style": "charlie_munger"}'
 
 # Analyze with Cathie Wood
 curl -X POST http://localhost:8000/analyze \
   -H "Content-Type: application/json" \
   -H "X-API-Key: sk-1234" \
-  -d '{"question": "TSLA值得购买吗？", "style": "cathie_wood"}'
-
-# Analyze with Greg Abel
-curl -X POST http://localhost:8000/analyze \
-  -H "Content-Type: application/json" \
-  -H "X-API-Key: sk-1234" \
-  -d '{"question": "AAPL值得购买吗？", "style": "greg_abel"}'
+  -d '{"question": "Thoughts on TSLA?", "style": "cathie_wood"}'
 ```
 
 ### Expert Agents
@@ -109,7 +109,15 @@ curl -X POST http://localhost:8000/analyze \
 |----------------|--------|-------------|
 | `warren_buffett` | Warren Buffett | Value investing, moat analysis |
 | `cathie_wood` | Cathie Wood | Disruptive innovation, high-growth |
+| `charlie_munger` | Charlie Munger | Multi-disciplinary thinking |
 | `greg_abel` | Greg Abel | Operational excellence, Berkshire |
+| `peter_lynch` | Peter Lynch | Growth investing, know what you own |
+| `benjamin_graham` | Benjamin Graham | Margin of safety, defensive |
+| `phil_fisher` | Phil Fisher | Growth stocks, scuttlebutt method |
+| `michael_burry` | Michael Burry | Contrarian, bubble identification |
+| `bill_ackman` | Bill Ackman | Activist investing, high-conviction |
+| `stanley_druckenmiller` | Stanley Druckenmiller | Macro investing, concentrated bets |
+| `aswath_damodaran` | Aswath Damodaran | Valuation, narrative investing |
 
 ---
 
@@ -123,16 +131,16 @@ User Question
 │   (based on style parameter)        │
 ├─────────────────────────────────────┤
 │  - Read ADK SkillToolset           │
-│  - Gather real-time data            │
-│  - Apply investment framework      │
-│  - First-person response            │
+│  - Gather real-time data           │
+│  - Apply investment framework       │
+│  - First-person response           │
 └─────────────────────────────────────┘
     ↓
 ┌─────────────────────────────────────┐
-│          Data Service                │
+│          Data Service               │
 ├──────────────┬──────────────────────┤
 │   Finnhub   │   Yahoo Finance      │
-│ (Quote/News)│     (Candles)        │
+│ (Quote/News)│     (Candles)       │
 └──────────────┴──────────────────────┘
     ↓
 LiteLlm → MiniMax-M2.7-highspeed
@@ -148,34 +156,40 @@ JSON Response + Bark Notification
 financial_analyst/
 ├── main.py                    # Entry point
 ├── requirements.txt           # Dependencies
-├── .env.example               # Environment template
+├── .env.example              # Environment template
 ├── agents/
 │   ├── __init__.py
 │   └── experts/
 │       ├── __init__.py
-│       ├── warren_buffett_agent.py
-│       ├── cathie_wood_agent.py
-│       └── greg_abel_agent.py
+│       └── factory.py        # Dynamic agent factory
 ├── tools/
 │   ├── __init__.py
-│   ├── stock_tools.py         # Quote, search, candles
-│   ├── news_tools.py          # Company & market news
-│   ├── fundamentals_tools.py  # Profile, peers, financials
-│   └── bark_tools.py          # iOS push notifications
+│   ├── stock_tools.py        # Quote, search, candles
+│   ├── news_tools.py         # Company & market news
+│   ├── fundamentals_tools.py # Profile, peers, financials
+│   └── bark_tools.py         # iOS push notifications
 ├── services/
 │   ├── __init__.py
-│   ├── llm_service.py         # LLM service (MiniMax)
-│   ├── data_service.py        # Finnhub + yfinance
-│   └── skill_loader.py        # Skill utilities
-├── skills/                    # ADK Skills
-│   ├── warren-buffett/
-│   ├── cathie-wood/
-│   └── greg-abel/
+│   ├── llm_service.py        # LLM service (MiniMax)
+│   ├── data_service.py       # Finnhub + yfinance
+│   └── skill_loader.py       # Skill utilities
+├── skills/                    # ADK Skills (11 experts)
+│   ├── warren_buffett/
+│   ├── cathie_wood/
+│   ├── charlie_munger/
+│   ├── greg_abel/
+│   ├── peter_lynch/
+│   ├── benjamin_graham/
+│   ├── phil_fisher/
+│   ├── michael_burry/
+│   ├── bill_ackman/
+│   ├── stanley_druckenmiller/
+│   └── aswath_damodaran/
 ├── api/
 │   ├── __init__.py
-│   └── routes.py              # FastAPI routes
+│   └── routes.py             # FastAPI routes
 └── tests/
-    └── test_main.py           # Test suite (21 tests)
+    └── test_main.py          # Test suite (22 tests)
 ```
 
 ---
@@ -196,7 +210,7 @@ Skills are loaded using Google's official `load_skill_from_dir` and `SkillToolse
 from google.adk.skills import load_skill_from_dir
 from google.adk.tools.skill_toolset import SkillToolset
 
-skill = load_skill_from_dir(Path("skills/warren-buffett"))
+skill = load_skill_from_dir(Path("skills/warren_buffett"))
 skill_toolset = SkillToolset(skills=[skill])
 
 Agent(..., tools=[..., skill_toolset])
@@ -238,7 +252,7 @@ BARK_SERVER_URL=https://api.day.app
 ## Test Results
 
 ```
-Total: 21 | Passed: 21 | Failed: 0 (100.0%)
+Total: 22 | Passed: 22 | Failed: 0 (100.0%)
 ```
 
 ---

@@ -15,7 +15,7 @@
 - **直接专家路由**：无需协调层，直接调用专家代理
 - **ADK Skills**：每位专家使用 Google 官方 SkillToolset 实现投资理念
 - **实时数据**：Finnhub（免费）+ Yahoo Finance（高级）提供市场数据
-- **投资大师视角**：Warren Buffett、Cathie Wood、Greg Abel
+- **投资大师视角**：11 位投资大师（巴菲特、芒格、伍德、林奇等）
 - **推送通知**：集成 Bark 实现 iOS 推送通知
 - **REST API**：基于 FastAPI，支持会话管理
 
@@ -90,17 +90,17 @@ curl -X POST http://localhost:8000/analyze \
   -H "X-API-Key: sk-1234" \
   -d '{"question": "NVDA值得购买吗？", "style": "warren_buffett"}'
 
+# Charlie Munger 分析
+curl -X POST http://localhost:8000/analyze \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: sk-1234" \
+  -d '{"question": "AAPL怎么样？", "style": "charlie_munger"}'
+
 # Cathie Wood 分析
 curl -X POST http://localhost:8000/analyze \
   -H "Content-Type: application/json" \
   -H "X-API-Key: sk-1234" \
-  -d '{"question": "TSLA值得购买吗？", "style": "cathie_wood"}'
-
-# Greg Abel 分析
-curl -X POST http://localhost:8000/analyze \
-  -H "Content-Type: application/json" \
-  -H "X-API-Key: sk-1234" \
-  -d '{"question": "AAPL值得购买吗？", "style": "greg_abel"}'
+  -d '{"question": "TSLA值得买吗？", "style": "cathie_wood"}'
 ```
 
 ### 专家代理
@@ -109,7 +109,15 @@ curl -X POST http://localhost:8000/analyze \
 |------------|------|----------|
 | `warren_buffett` | Warren Buffett | 价值投资、护城河分析 |
 | `cathie_wood` | Cathie Wood | 颠覆性创新、高增长 |
+| `charlie_munger` | Charlie Munger | 多元思维模型 |
 | `greg_abel` | Greg Abel | 运营卓越、伯克希尔视角 |
+| `peter_lynch` | Peter Lynch | 成长投资、知道自己拥有什么 |
+| `benjamin_graham` | Benjamin Graham | 安全边际、防守型投资 |
+| `phil_fisher` | Phil Fisher | 成长股、闲聊法 |
+| `michael_burry` | Michael Burry | 逆向投资、泡沫识别 |
+| `bill_ackman` | Bill Ackman | 激进投资、高置信度 |
+| `stanley_druckenmiller` | Stanley Druckenmiller | 宏观投资、集中押注 |
+| `aswath_damodaran` | Aswath Damodaran | 估值、叙事投资 |
 
 ---
 
@@ -148,35 +156,40 @@ JSON 响应 + Bark 推送通知
 financial_analyst/
 ├── main.py                    # 入口文件
 ├── requirements.txt           # 依赖包
-├── .env.example              # 环境变量模板
+├── .env.example             # 环境变量模板
 ├── agents/
 │   ├── __init__.py
 │   └── experts/
 │       ├── __init__.py
-│       ├── warren_buffett_agent.py
-│       ├── cathie_wood_agent.py
-│       └── greg_abel_agent.py
+│       └── factory.py       # 动态专家代理工厂
 ├── tools/
 │   ├── __init__.py
-│   ├── stock_tools.py         # 行情、搜索、K线
-│   ├── news_tools.py          # 公司和市场新闻
-│   ├── fundamentals_tools.py  # 资料、同行、财务
-│   └── bark_tools.py          # iOS 推送通知
+│   ├── stock_tools.py       # 行情、搜索、K线
+│   ├── news_tools.py        # 公司和市场新闻
+│   ├── fundamentals_tools.py # 资料、同行、财务
+│   └── bark_tools.py        # iOS 推送通知
 ├── services/
 │   ├── __init__.py
-│   ├── llm_service.py        # LLM 服务（MiniMax）
-│   ├── data_service.py         # Finnhub + yfinance
-│   └── skill_loader.py        # Skill 加载工具
-├── skills/                    # ADK Skills
-│   ├── warren-buffett/
-│   ├── cathie-wood/
-│   ├── greg-abel/
-│   └── api-endpoints/         # API 接口文档
+│   ├── llm_service.py      # LLM 服务（MiniMax）
+│   ├── data_service.py      # Finnhub + yfinance
+│   └── skill_loader.py      # Skill 加载工具
+├── skills/                   # ADK Skills（11 位专家）
+│   ├── warren_buffett/
+│   ├── cathie_wood/
+│   ├── charlie_munger/
+│   ├── greg_abel/
+│   ├── peter_lynch/
+│   ├── benjamin_graham/
+│   ├── phil_fisher/
+│   ├── michael_burry/
+│   ├── bill_ackman/
+│   ├── stanley_druckenmiller/
+│   └── aswath_damodaran/
 ├── api/
 │   ├── __init__.py
-│   └── routes.py              # FastAPI 路由
+│   └── routes.py            # FastAPI 路由
 └── tests/
-    └── test_main.py           # 测试套件（21 个测试）
+    └── test_main.py         # 测试套件（22 个测试）
 ```
 
 ---
@@ -197,7 +210,7 @@ financial_analyst/
 from google.adk.skills import load_skill_from_dir
 from google.adk.tools.skill_toolset import SkillToolset
 
-skill = load_skill_from_dir(Path("skills/warren-buffett"))
+skill = load_skill_from_dir(Path("skills/warren_buffett"))
 skill_toolset = SkillToolset(skills=[skill])
 
 Agent(..., tools=[..., skill_toolset])
@@ -239,7 +252,7 @@ BARK_SERVER_URL=https://api.day.app
 ## 测试结果
 
 ```
-Total: 21 | Passed: 21 | Failed: 0 (100.0%)
+Total: 22 | Passed: 22 | Failed: 0 (100.0%)
 ```
 
 ---
