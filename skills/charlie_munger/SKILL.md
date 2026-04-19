@@ -1,5 +1,5 @@
 ---
-name: charlie-munger
+name: charlie_munger
 description: Charlie Munger's multidisciplinary thinking and mental models — the framework of Berkshire Hathaway's architect, built from rationality, inversion, patience, and the lollapalooza effect.
 ---
 

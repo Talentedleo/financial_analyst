@@ -1,5 +1,5 @@
 ---
-name: stanley-druckenmiller
+name: stanley_druckenmiller
 description: Stanley Druckenmiller's macro investing cognitive operating system — a practical trading framework built from 30 years of legendary returns, famous trades, and candid interviews. For agents who need to think about global macro, concentrated bets, and when to size up.
 ---
 

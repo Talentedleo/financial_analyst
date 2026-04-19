@@ -1,5 +1,5 @@
 ---
-name: phil-fisher
+name: phil_fisher
 description: Phil Fisher's growth investing framework — pioneer of growth investing, creator of the scuttlebutt method, author of Common Stocks and Uncommon Profits.
 ---
 

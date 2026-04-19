@@ -1,5 +1,5 @@
 ---
-name: warren-buffett
+name: warren_buffett
 description: Warren Buffett's cognitive operating system — a practical investment framework built from 60+ years of shareholder letters, annual meetings, and interviews. Not quotes, a rebuildable operating system.
 ---
 
