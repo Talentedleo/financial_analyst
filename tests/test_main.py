@@ -5,7 +5,7 @@ Comprehensive test suite covering:
 - Environment and configuration
 - Services (LLM, Data, Skill Loader)
 - Tools (Stock, News, Fundamentals)
-- Agents (Plan, Experts)
+- Agents (Dynamic Factory)
 - API endpoints (smoke test)
 """
 
@@ -198,7 +198,8 @@ class TestSuite:
         """Test skill context generation"""
         try:
             from services import get_skill_context
-            context = get_skill_context("warren-buffett")
+            # Use underscore naming (new format)
+            context = get_skill_context("warren_buffett")
             assert len(context) > 100, "Context too short"
             self.log("Skill Loader Context", True, f"Context length: {len(context)} chars")
             return True
@@ -257,15 +258,15 @@ class TestSuite:
             self.log("Tools - Bark", False, str(e))
             return False
 
-    # ========== Agent Tests ==========
+    # ========== Agent Tests (Dynamic Factory) ==========
 
     async def test_buffett_agent_init(self):
-        """Test Buffett agent initialization"""
+        """Test Buffett agent initialization via factory"""
         try:
-            from agents.experts import create_buffett_agent
-            agent = create_buffett_agent()
+            from agents import create_expert_agent
+            agent = create_expert_agent("warren_buffett")
             assert agent is not None
-            assert agent.name == "buffett_agent"
+            assert agent.name == "warren_buffett_agent"
             self.log("Buffett Agent Init", True, f"Tools: {len(agent.tools)}")
             return True
         except Exception as e:
@@ -273,10 +274,10 @@ class TestSuite:
             return False
 
     async def test_cathie_wood_agent_init(self):
-        """Test Cathie Wood agent initialization"""
+        """Test Cathie Wood agent initialization via factory"""
         try:
-            from agents.experts import create_cathie_wood_agent
-            agent = create_cathie_wood_agent()
+            from agents import create_expert_agent
+            agent = create_expert_agent("cathie_wood")
             assert agent is not None
             assert agent.name == "cathie_wood_agent"
             self.log("Cathie Wood Agent Init", True, f"Tools: {len(agent.tools)}")
@@ -286,16 +287,30 @@ class TestSuite:
             return False
 
     async def test_greg_abel_agent_init(self):
-        """Test Greg Abel agent initialization"""
+        """Test Greg Abel agent initialization via factory"""
         try:
-            from agents.experts import create_greg_abel_agent
-            agent = create_greg_abel_agent()
+            from agents import create_expert_agent
+            agent = create_expert_agent("greg_abel")
             assert agent is not None
             assert agent.name == "greg_abel_agent"
             self.log("Greg Abel Agent Init", True, f"Tools: {len(agent.tools)}")
             return True
         except Exception as e:
             self.log("Greg Abel Agent Init", False, str(e))
+            return False
+
+    async def test_dynamic_agent_count(self):
+        """Test that all skills have corresponding agents"""
+        try:
+            from agents import list_all_expert_agents, get_available_skills
+            agents_info = list_all_expert_agents()
+            skills = get_available_skills()
+            # All skills should have agent info
+            assert len(agents_info) >= len(skills), f"Agent count mismatch"
+            self.log("Dynamic Agent Count", True, f"{len(agents_info)} agents for {len(skills)} skills")
+            return True
+        except Exception as e:
+            self.log("Dynamic Agent Count", False, str(e))
             return False
 
     # ========== API Tests ==========
@@ -366,11 +381,12 @@ class TestSuite:
         print()
 
         # Agents
-        print("🤖 Agent Tests")
+        print("🤖 Agent Tests (Dynamic Factory)")
         print("-" * 40)
         await self.test_buffett_agent_init()
         await self.test_cathie_wood_agent_init()
         await self.test_greg_abel_agent_init()
+        await self.test_dynamic_agent_count()
         print()
 
         # API
