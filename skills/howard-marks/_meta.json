@@ -1,0 +1,58 @@
+{
+  "name": "howard-marks",
+  "version": "1.0.0",
+  "description": "Howard Marks's investment philosophy and decision-making framework — cycles, risk control, and second-level thinking from the Oaktree Capital co-founder",
+  "author": "Leo Li",
+  "tags": [
+    "investing",
+    "howard-marks",
+    "oaktree-capital",
+    "value-investing",
+    "risk-management",
+    "market-cycles",
+    "distressed-debt",
+    "second-level-thinking",
+    "contrarian-investing",
+    "credit-investing"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/Talentedleo/celebrity_skills",
+  "issues": "https://github.com/Talentedleo/celebrity_skills/issues",
+  "minimumOpenClawVersion": "1.0.0",
+  "skillSpecVersion": "1.0.0",
+  "triggers": [
+    "Howard Marks",
+    "Oaktree Capital",
+    "second-level thinking",
+    "market cycle",
+    "the most important thing",
+    "mastering the market cycle",
+    "Marks memo",
+    "risk control investing",
+    "contrarian investing",
+    "credit cycle",
+    "distressed debt",
+    "pendulum theory",
+    "Marks investment philosophy"
+  ],
+  "sources": [
+    {
+      "name": "Oaktree Memos from Howard Marks",
+      "url": "https://www.oaktreecapital.com/insights/howard-marks-memos"
+    },
+    {
+      "name": "The Most Important Thing",
+      "url": "https://www.amazon.com/Most-Important-Thing-Thoughtful-Investor/dp/0231153684"
+    },
+    {
+      "name": "Mastering the Market Cycle",
+      "url": "https://www.amazon.com/Mastering-Market-Cycle-Getting-Odds/dp/1328479257"
+    },
+    {
+      "name": "Oaktree Investment Philosophy",
+      "url": "https://www.oaktreecapital.com/about/investment-philosophy"
+    }
+  ],
+  "lastUpdated": "2026-05-07",
+  "language": "en"
+}

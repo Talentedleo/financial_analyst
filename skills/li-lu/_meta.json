@@ -1,0 +1,68 @@
+{
+  "name": "li-lu",
+  "version": "1.0.0",
+  "description": "Li Lu (李录) — Eastern long-termism, civilization cycle theory, and value investing. Founder of Himalaya Capital, Charlie Munger's only outside investment manager. Author of Civilization, Modernization, Value Investing and China.",
+  "author": "Leo Li",
+  "tags": [
+    "investing",
+    "li-lu",
+    "himalaya-capital",
+    "value-investing",
+    "eastern-long-termism",
+    "civilization-cycle",
+    "china-investing",
+    "charlie-munger",
+    "byd",
+    "long-term-compounding"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/Talentedleo/celebrity_skills",
+  "issues": "https://github.com/Talentedleo/celebrity_skills/issues",
+  "minimumOpenClawVersion": "1.0.0",
+  "skillSpecVersion": "1.0.0",
+  "triggers": [
+    "Li Lu",
+    "李录",
+    "Himalaya Capital",
+    "Li Lu investment philosophy",
+    "Eastern long-termism",
+    "civilization cycle investing",
+    "China value investing",
+    "Chinese Warren Buffett",
+    "Li Lu BYD",
+    "Li Lu Charlie Munger",
+    "Civilization modernization value investing China",
+    "value investing emerging markets",
+    "long-term compounders",
+    "political meritocracy vs economic meritocracy",
+    "Civilization 3.0 investing"
+  ],
+  "sources": [
+    {
+      "name": "Civilization, Modernization, Value Investing and China (Book)",
+      "url": "https://chinese-publishers.com/product/%E6%96%87%E6%98%8E%E3%80%81%E7%8E%B0%E4%BB%A3%E5%8C%96%E3%80%81%E4%BB%B7%E5%80%BC%E6%8A%95%E8%B5%84%E4%B8%8E%E4%B8%AD%E5%9B%BD/"
+    },
+    {
+      "name": "Himalaya Capital Official Site",
+      "url": "https://www.himcap.com/"
+    },
+    {
+      "name": "Wikipedia - Li Lu",
+      "url": "https://en.wikipedia.org/wiki/Li_Lu"
+    },
+    {
+      "name": "Financial Times Profile",
+      "url": "https://www.ft.com/content/5308cd9f-037e-4524-a6d8-7388b3514199"
+    },
+    {
+      "name": "Wall Street Journal Profile",
+      "url": "https://www.wsj.com/articles/SB10001424052748703977004575393180048272028"
+    },
+    {
+      "name": "Munger College Interview (Nov 2024)",
+      "url": "https://moiglobal.com/wp-content/uploads/li-lu-on-charlie-munger-202412.pdf"
+    }
+  ],
+  "lastUpdated": "2026-05-10",
+  "language": "en"
+}

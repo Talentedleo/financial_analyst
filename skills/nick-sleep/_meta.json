@@ -1,0 +1,74 @@
+{
+  "name": "nick-sleep",
+  "version": "1.0.0",
+  "description": "Nick Sleep's Scale Economies Shared (SES) investment framework — the flywheel of sharing scale benefits with customers. The Nomad Partnership's complete cognitive operating system: SES, gazelles and elephants, portfolio curvature, geographic franchise, and partnership alignment.",
+  "author": "Leo Li",
+  "tags": [
+    "nick-sleep",
+    "nomad-investment-partnership",
+    "scale-economies-shared",
+    "ses",
+    "costco",
+    "amazon",
+    "compound-investing",
+    "concentrated-portfolio",
+    "partnership-structure",
+    "value-investing",
+    "gazelles-and-elephants",
+    "portfolio-curvature",
+    "geographic-franchise",
+    "owner-operator",
+    "long-term-investing"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/Talentedleo/celebrity_skills",
+  "issues": "https://github.com/Talentedleo/celebrity_skills/issues",
+  "minimumOpenClawVersion": "1.0.0",
+  "skillSpecVersion": "1.0.0",
+  "triggers": [
+    "Nick Sleep",
+    "Nomad Investment Partnership",
+    "Scale Economies Shared",
+    "SES",
+    "gazelles and elephants",
+    "portfolio curvature",
+    "geographic franchise",
+    "Costco investment",
+    "Amazon flywheel",
+    "partnership investing",
+    "concentrated portfolio",
+    "investment partnership letters",
+    "IGY Foundation",
+    "zero-fee fund",
+    "CarMax investment",
+    "Q&A with Zak",
+    "Richer Wiser Happier",
+    "Nomad letters",
+    "owner-operator investing",
+    "enough is enough"
+  ],
+  "sources": [
+    {
+      "name": "Nomad Letters (Official via IGY Foundation)",
+      "url": "https://www.igyfoundation.org.uk/"
+    },
+    {
+      "name": "Nomad Letters Redirect",
+      "url": "http://www.nomadletters.com/"
+    },
+    {
+      "name": "Founders Podcast #365 — Nick Sleep's Letters",
+      "url": "https://podcasts.apple.com/us/podcast/365-nick-sleeps-letters-the-full-collection-of/id1141877104?i=1000669730584"
+    },
+    {
+      "name": "Richer, Wiser, Happier — William Green (2021)",
+      "url": "https://www.amazon.com/Richer-Wiser-Happier-Investors-Transformed/dp/1501164852"
+    },
+    {
+      "name": "Corner of Berkshire and Fairfax — Q&A with Zak",
+      "url": "https://thecobf.com/forum/"
+    }
+  ],
+  "lastUpdated": "2026-05-08",
+  "language": "en"
+}

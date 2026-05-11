@@ -1,0 +1,70 @@
+{
+  "name": "jim-simons",
+  "version": "1.0.0",
+  "description": "Jim Simons' cognitive operating system — systematic framework for signal detection in chaos, mathematical investment philosophy, and Renaissance Technologies' model-driven approach",
+  "author": "Leo Li",
+  "tags": [
+    "investing",
+    "jim-simons",
+    "renaissance-technologies",
+    "medallion-fund",
+    "quantitative-trading",
+    "data-science",
+    "signal-detection",
+    "systematic-investing",
+    "machine-learning",
+    "mathematics",
+    "philanthropy",
+    "simons-foundation",
+    "chern-simons",
+    "codebreaker-mindset"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/Talentedleo/celebrity_skills",
+  "issues": "https://github.com/Talentedleo/celebrity_skills/issues",
+  "minimumOpenClawVersion": "1.0.0",
+  "skillSpecVersion": "1.0.0",
+  "triggers": [
+    "Jim Simons",
+    "Renaissance Technologies",
+    "Medallion Fund",
+    "quantitative trading",
+    "systematic investing",
+    "signal detection",
+    "mathematical trading",
+    "Renaissance quant",
+    "Simons Foundation",
+    "Chern-Simons",
+    "Medallion strategy",
+    "Quant King",
+    "data-driven investing",
+    "algorithmic trading",
+    "RenTech",
+    "statistical arbitrage",
+    "pattern recognition trading"
+  ],
+  "sources": [
+    {
+      "name": "Wikipedia — Jim Simons",
+      "url": "https://en.wikipedia.org/wiki/Jim_Simons"
+    },
+    {
+      "name": "Simons Foundation",
+      "url": "https://www.simonsfoundation.org"
+    },
+    {
+      "name": "The Man Who Solved the Market (Gregory Zuckerman)",
+      "url": "https://www.amazon.com/Man-Who-Solved-Market-Revolution/dp/073521798X"
+    },
+    {
+      "name": "Daniel Scrivner — Renaissance Business Breakdown",
+      "url": "https://www.danielscrivner.com/renaissance-technologies-business-breakdown/"
+    },
+    {
+      "name": "TED Interview (2015)",
+      "url": "https://www.ted.com/talks/jim_simons_the_mathematician_who_cracked_wall_street"
+    }
+  ],
+  "lastUpdated": "2026-04-25",
+  "language": "en"
+}

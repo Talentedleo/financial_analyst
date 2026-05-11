@@ -1,0 +1,67 @@
+{
+  "name": "nick-train",
+  "version": "1.0.0",
+  "description": "Nick Train — Brand equity long-term compounding. Co-founder of Lindsell Train, manager of Finsbury Growth & Income Trust. 'Eternal franchises,' permanent equity, concentrated UK-listed global brands portfolio.",
+  "author": "Leo Li",
+  "tags": [
+    "investing",
+    "nick-train",
+    "lindsell-train",
+    "finsbury-growth-income",
+    "brand-equity",
+    "permanent-equity",
+    "eternal-franchises",
+    "uk-value-investing",
+    "concentrated-investing",
+    "long-term-compounding",
+    "consumer-brands",
+    "digital-winners",
+    "investment-trusts"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/Talentedleo/celebrity_skills",
+  "issues": "https://github.com/Talentedleo/celebrity_skills/issues",
+  "minimumOpenClawVersion": "1.0.0",
+  "skillSpecVersion": "1.0.0",
+  "triggers": [
+    "Nick Train",
+    "Lindsell Train",
+    "Finsbury Growth",
+    "FGT",
+    "Lindsell Train Investment Trust",
+    "LTIT",
+    "brand equity investing",
+    "eternal franchises",
+    "permanent equity",
+    "forever holding period",
+    "UK investment trusts",
+    "Diageo investing",
+    "Rightmove investor",
+    "quality growth UK",
+    "concentrated portfolio UK"
+  ],
+  "sources": [
+    {
+      "name": "Lindsell Train — Investment Insights",
+      "url": "https://www.lindselltrain.com/insights-events/investment-insights/"
+    },
+    {
+      "name": "Finsbury Growth & Income Trust",
+      "url": "https://www.finsburygt.com/"
+    },
+    {
+      "name": "Behind the Balance Sheet #51 (Sep 2025)",
+      "url": "https://behindthebalancesheet.com/podcasts-singles/51-the-franchise-fan/"
+    },
+    {
+      "name": "AIC — Train raises stake (Jul 2025)",
+      "url": "https://www.theaic.co.uk/aic/news/industry-news/nick-train-raises-stake-in-finsbury-growth-as-discount-widens"
+    },
+    {
+      "name": "Morningstar — Survival Vote (Jan 2026)",
+      "url": "https://global.morningstar.com/en-gb/trusts/nick-train-faces-survival-vote-after-5-years-underperformance"
+    }
+  ],
+  "lastUpdated": "2026-05-11",
+  "language": "en"
+}

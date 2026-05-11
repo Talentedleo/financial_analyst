@@ -1,0 +1,58 @@
+{
+  "name": "joel-greenblatt",
+  "version": "1.0.0",
+  "description": "Joel Greenblatt's systematic value investing philosophy — the Magic Formula, special situations, and margin of safety from the Gotham Capital founder",
+  "author": "Leo Li",
+  "tags": [
+    "investing",
+    "joel-greenblatt",
+    "gotham-capital",
+    "value-investing",
+    "magic-formula",
+    "quantitative-investing",
+    "special-situations",
+    "spinoff-investing",
+    "margin-of-safety",
+    "systematic-investing"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/Talentedleo/celebrity_skills",
+  "issues": "https://github.com/Talentedleo/celebrity_skills/issues",
+  "minimumOpenClawVersion": "1.0.0",
+  "skillSpecVersion": "1.0.0",
+  "triggers": [
+    "Joel Greenblatt",
+    "Gotham Capital",
+    "magic formula",
+    "the little book that beats the market",
+    "stock market genius",
+    "special situations investing",
+    "spinoff investing",
+    "Greenblatt value investing",
+    "earnings yield",
+    "return on capital",
+    "systematic value",
+    "you can be a stock market genius",
+    "Greenblatt margin of safety"
+  ],
+  "sources": [
+    {
+      "name": "The Little Book That Still Beats the Market",
+      "url": "https://www.amazon.com/Little-Book-Still-Beats-Market/dp/0470624159"
+    },
+    {
+      "name": "You Can Be a Stock Market Genius",
+      "url": "https://www.amazon.com/You-Can-Stock-Market-Genius/dp/0684832135"
+    },
+    {
+      "name": "Common Sense",
+      "url": "https://www.amazon.com/Common-Sense-Investors-Equality-Opportunity/dp/023119786X"
+    },
+    {
+      "name": "Gotham Asset Management",
+      "url": "https://www.gothamfunds.com"
+    }
+  ],
+  "lastUpdated": "2026-05-07",
+  "language": "en"
+}

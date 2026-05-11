@@ -1,0 +1,100 @@
+{
+  "name": "ed-thorp",
+  "version": "1.0.0",
+  "description": "Edward O. Thorp's probability-driven decision framework — card counting, Kelly criterion, market-neutral hedging, and quantitative edge-seeking. The complete cognitive operating system of the godfather of quantitative finance.",
+  "author": "Leo Li",
+  "tags": [
+    "edward-thorp",
+    "kelly-criterion",
+    "quantitative-finance",
+    "card-counting",
+    "probability-theory",
+    "hedge-fund",
+    "market-neutral",
+    "options-pricing",
+    "statistical-arbitrage",
+    "blackjack",
+    "advantage-gambling",
+    "portfolio-management",
+    "edge-seeking"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/Talentedleo/celebrity_skills",
+  "issues": "https://github.com/Talentedleo/celebrity_skills/issues",
+  "minimumOpenClawVersion": "1.0.0",
+  "skillSpecVersion": "1.0.0",
+  "triggers": [
+    "Edward Thorp",
+    "Ed Thorp",
+    "Kelly criterion",
+    "Kelly formula",
+    "card counting",
+    "Beat the Dealer",
+    "Beat the Market",
+    "A Man for All Markets",
+    "quantitative finance",
+    "market neutral",
+    "statistical arbitrage",
+    "Princeton Newport Partners",
+    "warrant hedging",
+    "options pricing",
+    "Fortune's Formula",
+    "probability edge",
+    "optimal bet sizing",
+    "position sizing",
+    "Thorp count",
+    "blackjack strategy"
+  ],
+  "sources": [
+    {
+      "name": "Edward O. Thorp — Official Website",
+      "url": "https://www.edwardothorp.com/"
+    },
+    {
+      "name": "Beat the Dealer (1962)",
+      "url": "https://www.edwardothorp.com/books/beat-the-dealer/"
+    },
+    {
+      "name": "Beat the Market (1967)",
+      "url": "https://www.edwardothorp.com/books/beat-the-market/"
+    },
+    {
+      "name": "A Man for All Markets (2017)",
+      "url": "https://www.edwardothorp.com/books/a-man-for-all-markets/"
+    },
+    {
+      "name": "The Mathematics of Gambling (1984)",
+      "url": "https://www.edwardothorp.com/"
+    },
+    {
+      "name": "Wikipedia — Edward O. Thorp",
+      "url": "https://en.wikipedia.org/wiki/Edward_O._Thorp"
+    },
+    {
+      "name": "Wikipedia — Princeton Newport Partners",
+      "url": "https://en.wikipedia.org/wiki/Princeton_Newport_Partners"
+    },
+    {
+      "name": "Wikipedia — Kelly Criterion",
+      "url": "https://en.wikipedia.org/wiki/Kelly_criterion"
+    },
+    {
+      "name": "Fortune's Formula — William Poundstone",
+      "url": "https://www.amazon.com/Fortunes-Formula-Scientific-Betting-Casinos/dp/0809046377"
+    },
+    {
+      "name": "The Quants — Scott Patterson",
+      "url": "https://www.amazon.com/Quants-Breed-Whizzes-Conquered-Destroyed/dp/0307453375"
+    },
+    {
+      "name": "NPR Planet Money — Episode 749",
+      "url": "https://www.npr.org/transcripts/510810752"
+    },
+    {
+      "name": "The Investor's Podcast — TIP128",
+      "url": "https://www.theinvestorspodcast.com/episodes/edward-thorp-a-man-for-all-markets/"
+    }
+  ],
+  "lastUpdated": "2026-05-08",
+  "language": "en"
+}

@@ -1,0 +1,70 @@
+{
+  "name": "cliff-asness",
+  "version": "1.0.0",
+  "description": "Cliff Asness's quantitative investment framework — systematic factor-based investing built from academic research, multi-factor strategies, and decades of market experience at AQR Capital Management",
+  "author": "Leo Li",
+  "tags": [
+    "investing",
+    "cliff-asness",
+    "aqr-capital",
+    "factor-investing",
+    "quantitative-finance",
+    "systematic-investing",
+    "value-investing",
+    "momentum",
+    "quality-factor",
+    "multi-factor",
+    "risk-parity",
+    "portfolio-management",
+    "efficient-markets"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/Talentedleo/celebrity_skills",
+  "issues": "https://github.com/Talentedleo/celebrity_skills/issues",
+  "minimumOpenClawVersion": "1.0.0",
+  "skillSpecVersion": "1.0.0",
+  "triggers": [
+    "Cliff Asness",
+    "AQR Capital",
+    "AQR",
+    "factor investing",
+    "multi-factor investing",
+    "value factor",
+    "momentum factor",
+    "quality factor",
+    "systematic investing",
+    "quant investing",
+    "factor diversification",
+    "value and momentum",
+    "Cliff Asness strategy",
+    "factor-based investing"
+  ],
+  "sources": [
+    {
+      "name": "AQR Research",
+      "url": "https://www.aqr.com/Insights/Research"
+    },
+    {
+      "name": "Portfolio Management Research",
+      "url": "https://www.pm-research.com/clifford-asness"
+    },
+    {
+      "name": "Hoover Institution Interview",
+      "url": "https://www.hoover.org/research/cliff-asness-factor-investing-and-history-financial-economics"
+    },
+    {
+      "name": "Bloomberg - Money Stuff Podcast",
+      "url": "https://www.bloomberg.com/news/audio/2025-06-20/money-stuff-the-podcast-cliff-asness"
+    },
+    {
+      "name": "Wikipedia - Cliff Asness",
+      "url": "https://en.wikipedia.org/wiki/Cliff_Asness"
+    },
+    {
+      "name": "Wikipedia - AQR Capital Management",
+      "url": "https://en.wikipedia.org/wiki/AQR_Capital_Management"
+    }
+  ],
+  "lastUpdated": "2026-05-09",
+  "language": "en"
+}

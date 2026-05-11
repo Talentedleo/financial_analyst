@@ -1,0 +1,74 @@
+{
+  "name": "john-templeton",
+  "version": "1.0.0",
+  "description": "Sir John Templeton — Global contrarian investing pioneer. Points of Maximum Pessimism, 16 Rules for Investment Success, Templeton Growth Fund, Templeton Prize. Bargain hunting across global markets.",
+  "author": "Leo Li",
+  "tags": [
+    "investing",
+    "john-templeton",
+    "sir-john-templeton",
+    "templeton-growth-fund",
+    "contrarian-investing",
+    "global-investing",
+    "bargain-hunting",
+    "maximum-pessimism",
+    "points-of-maximum-pessimism",
+    "franklin-templeton",
+    "templeton-prize",
+    "value-investing",
+    "global-diversification",
+    "emerging-markets-investing"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/Talentedleo/celebrity_skills",
+  "issues": "https://github.com/Talentedleo/celebrity_skills/issues",
+  "minimumOpenClawVersion": "1.0.0",
+  "skillSpecVersion": "1.0.0",
+  "triggers": [
+    "John Templeton",
+    "Sir John Templeton",
+    "Templeton Growth Fund",
+    "points of maximum pessimism",
+    "maximum pessimism investing",
+    "bargain hunting stocks",
+    "Templeton 16 rules",
+    "Templeton investment philosophy",
+    "contrarian value investing",
+    "global value investing",
+    "Templeton Prize",
+    "Franklin Templeton value",
+    "this time it's different",
+    "global bargain hunting",
+    "Templeton screen",
+    "emerging markets value",
+    "Templeton Foundation"
+  ],
+  "sources": [
+    {
+      "name": "Wikipedia — John Templeton",
+      "url": "https://en.wikipedia.org/wiki/John_Templeton"
+    },
+    {
+      "name": "Business Insider — Templeton Screen",
+      "url": "https://www.businessinsider.com/john-templeton-screen-bargain-hunting-across-the-globe-2011-8"
+    },
+    {
+      "name": "Value Investing Academy",
+      "url": "https://valueinvestingacademy.com/sir-john-templeton-a-legacy-of-contrarian-investing-and-value-principles/"
+    },
+    {
+      "name": "Grokipedia — John Templeton",
+      "url": "https://grokipedia.com/page/John_Templeton"
+    },
+    {
+      "name": "Forbes — Templeton Bargains",
+      "url": "https://www.forbes.com/sites/investor/2020/06/12/legendary-stock-screen-4-john-templeton-bargains-volatile-market/"
+    },
+    {
+      "name": "Franklin Templeton — 16 Rules",
+      "url": "https://www.franklintempleton.com"
+    }
+  ],
+  "lastUpdated": "2026-05-11",
+  "language": "en"
+}

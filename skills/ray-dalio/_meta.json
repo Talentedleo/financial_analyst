@@ -1,0 +1,67 @@
+{
+  "name": "ray-dalio",
+  "version": "1.0.0",
+  "description": "Ray Dalio's investment philosophy, decision-making framework, and Big Cycle world view — the Bridgewater founder's complete cognitive operating system",
+  "author": "Leo Li",
+  "tags": [
+    "investing",
+    "ray-dalio",
+    "bridgewater-associates",
+    "macro-investing",
+    "principles",
+    "risk-parity",
+    "big-cycle",
+    "debt-crisis",
+    "world-order",
+    "radical-transparency",
+    "idea-meritocracy",
+    "capital-allocation",
+    "economic-cycles"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/Talentedleo/celebrity_skills",
+  "issues": "https://github.com/Talentedleo/celebrity_skills/issues",
+  "minimumOpenClawVersion": "1.0.0",
+  "skillSpecVersion": "1.0.0",
+  "triggers": [
+    "Ray Dalio",
+    "Bridgewater Associates",
+    "Dalio investing",
+    "principles investing",
+    "big cycle",
+    "changing world order",
+    "debt crisis",
+    "risk parity",
+    "all weather portfolio",
+    "radical transparency",
+    "idea meritocracy",
+    "how countries go broke",
+    "big debt cycle",
+    "macro investing",
+    "capital war"
+  ],
+  "sources": [
+    {
+      "name": "Principles.com",
+      "url": "https://www.principles.com/"
+    },
+    {
+      "name": "Economic Principles",
+      "url": "https://www.economicprinciples.org/"
+    },
+    {
+      "name": "Ray Dalio Substack — Principled Perspectives",
+      "url": "https://raydalio.substack.com/"
+    },
+    {
+      "name": "CNBC Ray Dalio Archive",
+      "url": "https://www.cnbc.com/ray-dalio/"
+    },
+    {
+      "name": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Ray_Dalio"
+    }
+  ],
+  "lastUpdated": "2026-04-24",
+  "language": "en"
+}

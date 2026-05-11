@@ -1,0 +1,67 @@
+{
+  "name": "jean-marie-eveillard",
+  "version": "1.0.0",
+  "description": "Jean-Marie Eveillard — Extreme risk aversion and global value investing. Manager of First Eagle Global Fund (1979–2009). Morningstar Lifetime Achievement Award. Pioneer of gold as permanent portfolio insurance.",
+  "author": "Leo Li",
+  "tags": [
+    "investing",
+    "jean-marie-eveillard",
+    "first-eagle",
+    "sogen",
+    "global-value-investing",
+    "capital-preservation",
+    "gold-investing",
+    "extreme-risk-aversion",
+    "margin-of-safety",
+    "drawdown-avoidance",
+    "go-anywhere-investing",
+    "value-investing",
+    "hec-paris",
+    "morningstar-award"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/Talentedleo/celebrity_skills",
+  "issues": "https://github.com/Talentedleo/celebrity_skills/issues",
+  "minimumOpenClawVersion": "1.0.0",
+  "skillSpecVersion": "1.0.0",
+  "triggers": [
+    "Jean-Marie Eveillard",
+    "Eveillard",
+    "First Eagle Global Fund",
+    "SoGen International Fund",
+    "First Eagle Investment Management",
+    "capital preservation investing",
+    "gold portfolio insurance",
+    "extreme risk aversion",
+    "go-anywhere value investing",
+    "margin of safety global value",
+    "Eveillard gold",
+    "avoid permanent capital loss",
+    "Morningstar Lifetime Achievement Award",
+    "First Eagle value"
+  ],
+  "sources": [
+    {
+      "name": "Grokipedia — Jean-Marie Eveillard",
+      "url": "https://grokipedia.com/page/jean_marie_eveillard"
+    },
+    {
+      "name": "Notable People Project",
+      "url": "https://notablepeopleproject.org/jean_marie_eveillard"
+    },
+    {
+      "name": "MarketWatch Profile",
+      "url": "https://www.marketwatch.com/story/eveillard-sits-on-top-of-international-funds"
+    },
+    {
+      "name": "First Eagle Investment Management",
+      "url": "https://www.firsteagle.com"
+    },
+    {
+      "name": "Columbia Business School",
+      "url": "https://www8.gsb.columbia.edu"
+    }
+  ],
+  "lastUpdated": "2026-05-11",
+  "language": "en"
+}
