@@ -1,0 +1,71 @@
+{
+  "name": "chuck-akre",
+  "version": "1.0.0",
+  "description": "Chuck Akre — Three-Legged Stool framework for identifying compounding machines. Founder of Akre Capital Management. Concentrated long-term compounding at ~14% CAGR over 30+ years.",
+  "author": "Leo Li",
+  "tags": [
+    "investing",
+    "chuck-akre",
+    "three-legged-stool",
+    "compounding",
+    "akre-capital",
+    "concentrated-investing",
+    "long-term-compounding",
+    "quality-investing",
+    "high-roic",
+    "reinvestment-runway",
+    "management-quality",
+    "akre-focus-fund",
+    "compounding-machines"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/Talentedleo/celebrity_skills",
+  "issues": "https://github.com/Talentedleo/celebrity_skills/issues",
+  "minimumOpenClawVersion": "1.0.0",
+  "skillSpecVersion": "1.0.0",
+  "triggers": [
+    "Chuck Akre",
+    "Charles Akre",
+    "three-legged stool",
+    "compounding machine",
+    "compounding investor",
+    "Akre Capital",
+    "Akre Focus Fund",
+    "AKRIX",
+    "reinvestment runway",
+    "high ROIC investing",
+    "quality compounding",
+    "concentrated long-term investing",
+    "how to find compounders",
+    "Akre portfolio",
+    "Akre investment philosophy"
+  ],
+  "sources": [
+    {
+      "name": "Akre Capital — Our Investment Philosophy",
+      "url": "https://www.akrecapital.com/investment-approach/our-investment-philosophy/"
+    },
+    {
+      "name": "Latticework/MOI Global Interview",
+      "url": "https://www.latticework.com/p/chuck-akre-on-winning-big-by-investing"
+    },
+    {
+      "name": "The Acquirer's Multiple (Jan 2026)",
+      "url": "https://acquirersmultiple.com/2026/01/chuck-akre-quality-compounding-through-trim-discipline/"
+    },
+    {
+      "name": "Investment Masters Class",
+      "url": "http://mastersinvest.com/newblog/2018/8/3/chucks-3-legged-stool"
+    },
+    {
+      "name": "StableBread — Three-Legged Stool",
+      "url": "https://stablebread.com/three-legged-stool/"
+    },
+    {
+      "name": "Akre Focus Fund Documents",
+      "url": "https://www.akrefund.com/documents-and-forms/"
+    }
+  ],
+  "lastUpdated": "2026-05-11",
+  "language": "en"
+}

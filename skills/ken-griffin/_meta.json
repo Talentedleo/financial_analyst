@@ -1,0 +1,71 @@
+{
+  "name": "ken-griffin",
+  "version": "1.0.0",
+  "description": "Ken Griffin's cognitive operating system — platform-building, competition-driven framework for multi-strategy investment empires. Built from Citadel's founding, multi-manager innovation, and crisis management playbook.",
+  "author": "Leo Li",
+  "tags": [
+    "investing",
+    "ken-griffin",
+    "citadel",
+    "citadel-securities",
+    "multi-strategy",
+    "hedge-fund",
+    "market-making",
+    "quantitative-trading",
+    "risk-management",
+    "platform-building",
+    "pod-shop",
+    "multi-manager",
+    "alternative-investments"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/Talentedleo/celebrity_skills",
+  "issues": "https://github.com/Talentedleo/celebrity_skills/issues",
+  "minimumOpenClawVersion": "1.0.0",
+  "skillSpecVersion": "1.0.0",
+  "triggers": [
+    "Ken Griffin",
+    "Citadel",
+    "Citadel Securities",
+    "multi-strategy hedge fund",
+    "multi-manager fund",
+    "pod shop",
+    "market maker",
+    "payment for order flow",
+    "GameStop short squeeze",
+    "Citadel Wellington Fund",
+    "convertible arbitrage",
+    "hedge fund platform",
+    "Ken Griffin trading",
+    "Citadel strategy",
+    "Griffin Catalyst"
+  ],
+  "sources": [
+    {
+      "name": "Wikipedia — Kenneth C. Griffin",
+      "url": "https://en.wikipedia.org/wiki/Kenneth_C._Griffin"
+    },
+    {
+      "name": "Citadel Official",
+      "url": "https://www.citadel.com"
+    },
+    {
+      "name": "DayTrading.com — Citadel Strategies Deep Dive",
+      "url": "https://www.daytrading.com/citadel-ken-griffin-strategies"
+    },
+    {
+      "name": "Quartr — Citadel Business Breakdown",
+      "url": "https://quartr.com/insights/company-research/citadel-relentless-optimization-at-global-scale"
+    },
+    {
+      "name": "Young & Calculated — Full Citadel Story",
+      "url": "https://youngandcalculated.substack.com/p/citadel-the-full-story-behind-the"
+    },
+    {
+      "name": "NYT DealBook — 2010 Year-End Letter",
+      "url": "https://archive.nytimes.com/dealbook.nytimes.com/2010/12/27/citadel-founder-offers-thanks-apology-on-anniversary/"
+    }
+  ],
+  "lastUpdated": "2026-04-25",
+  "language": "en"
+}

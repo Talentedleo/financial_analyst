@@ -1,0 +1,79 @@
+{
+  "name": "pat-dorsey",
+  "version": "1.0.0",
+  "description": "Pat Dorsey, CFA — Systematic moat analysis framework. Former Morningstar Director of Stock Analysis, creator of Morningstar's Economic Moat Rating system, author of The Little Book That Builds Wealth, founder of Dorsey Asset Management.",
+  "author": "Leo Li",
+  "tags": [
+    "investing",
+    "pat-dorsey",
+    "economic-moat",
+    "competitive-advantage",
+    "morningstar",
+    "value-investing",
+    "moat-analysis",
+    "quality-investing",
+    "wide-moat",
+    "narrow-moat",
+    "intangible-assets",
+    "switching-costs",
+    "network-effects",
+    "cost-advantages",
+    "scale-advantages",
+    "dorsey-asset-management"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/Talentedleo/celebrity_skills",
+  "issues": "https://github.com/Talentedleo/celebrity_skills/issues",
+  "minimumOpenClawVersion": "1.0.0",
+  "skillSpecVersion": "1.0.0",
+  "triggers": [
+    "Pat Dorsey",
+    "economic moat",
+    "moat analysis",
+    "Morningstar moat rating",
+    "competitive advantage analysis",
+    "wide moat investing",
+    "narrow moat",
+    "moat identification",
+    "moat erosion",
+    "mistaken moats",
+    "switching costs investing",
+    "network effects investing",
+    "intangible assets moat",
+    "cost advantage moat",
+    "scale advantage moat",
+    "The Little Book That Builds Wealth",
+    "Dorsey Asset Management",
+    "five sources of economic moats",
+    "quality investing framework",
+    "structure vs management investing"
+  ],
+  "sources": [
+    {
+      "name": "The Little Book That Builds Wealth (Book)",
+      "url": "https://www.wiley.com/en-us/The+Little+Book+That+Builds+Wealth%3A+The+Knockout+Formula+for+Finding+Great+Investments-p-9780470226511"
+    },
+    {
+      "name": "Talks at Google (YouTube)",
+      "url": "https://www.youtube.com/watch?v=YFS5JBgz1Xc"
+    },
+    {
+      "name": "Quartr Profile",
+      "url": "https://quartr.com/insights/investment-strategy/pat-dorsey-economic-moats-and-beyond"
+    },
+    {
+      "name": "ValueSense Book Review",
+      "url": "https://blog.valuesense.io/the-little-book-that-builds-wealth/"
+    },
+    {
+      "name": "StockCircle Portfolio Tracker",
+      "url": "https://stockcircle.com/portfolio/pat-dorsey"
+    },
+    {
+      "name": "Goodreads Author Page",
+      "url": "https://www.goodreads.com/book/show/13526868-the-little-book-that-builds-wealth"
+    }
+  ],
+  "lastUpdated": "2026-05-11",
+  "language": "en"
+}

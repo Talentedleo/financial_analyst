@@ -1,0 +1,52 @@
+{
+  "name": "seth-klarman",
+  "version": "1.0.0",
+  "description": "Seth Klarman's risk-averse value investing philosophy — extreme margin of safety, catalysts, distressed investing, and absolute returns from the Baupost Group founder",
+  "author": "Leo Li",
+  "tags": [
+    "investing",
+    "seth-klarman",
+    "baupost-group",
+    "value-investing",
+    "margin-of-safety",
+    "risk-aversion",
+    "distressed-investing",
+    "deep-value",
+    "catalyst-investing",
+    "absolute-returns"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/Talentedleo/celebrity_skills",
+  "issues": "https://github.com/Talentedleo/celebrity_skills/issues",
+  "minimumOpenClawVersion": "1.0.0",
+  "skillSpecVersion": "1.0.0",
+  "triggers": [
+    "Seth Klarman",
+    "Baupost Group",
+    "margin of safety",
+    "value investing",
+    "risk-averse investing",
+    "distressed securities",
+    "Klarman investing",
+    "safe investing",
+    "absolute returns",
+    "catalyst investing",
+    "downside protection"
+  ],
+  "sources": [
+    {
+      "name": "Margin of Safety",
+      "url": "https://www.amazon.com/Margin-Safety-Risk-Averse-Strategies-Thoughtful/dp/0887305105"
+    },
+    {
+      "name": "The Most Important Thing Illuminated",
+      "url": "https://www.amazon.com/Most-Important-Thing-Illuminated-Uncommon/dp/0231153692"
+    },
+    {
+      "name": "Greenbackd — Klarman Series",
+      "url": "https://greenbackd.com/2009/03/19/seth-klarman-on-catalysts/"
+    }
+  ],
+  "lastUpdated": "2026-05-07",
+  "language": "en"
+}

@@ -1,0 +1,67 @@
+{
+  "name": "peter-thiel",
+  "version": "1.0.0",
+  "description": "Peter Thiel's contrarian technology investing framework — monopoly-first, first-principles approach to building and investing in companies that go from zero to one",
+  "author": "Leo Li",
+  "tags": [
+    "investing",
+    "peter-thiel",
+    "venture-capital",
+    "technology",
+    "startup",
+    "monopoly",
+    "contrarian",
+    "paypal",
+    "palantir",
+    "founders-fund",
+    "zero-to-one",
+    "innovation",
+    "silicon-valley"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/Talentedleo/celebrity_skills",
+  "issues": "https://github.com/Talentedleo/celebrity_skills/issues",
+  "minimumOpenClawVersion": "1.0.0",
+  "skillSpecVersion": "1.0.0",
+  "triggers": [
+    "Peter Thiel",
+    "Thiel",
+    "Zero to One",
+    "contrarian investing",
+    "monopoly theory",
+    "startup philosophy",
+    "technology investing",
+    "venture capital strategy",
+    "PayPal Mafia",
+    "Palantir",
+    "Founders Fund",
+    "stagnation thesis",
+    "last mover advantage",
+    "competition is for losers",
+    "Thiel Fellowship"
+  ],
+  "sources": [
+    {
+      "name": "Zero to One: Notes on Startups, or How to Build the Future",
+      "url": "https://www.amazon.com/Zero-One-Notes-Startups-Future/dp/0804139296"
+    },
+    {
+      "name": "CS183 Lecture Notes (Stanford, 2012)",
+      "url": "https://blakemasters.com/peter-thiels-cs183-startup"
+    },
+    {
+      "name": "NYT — Interesting Times with Ross Douthat (Jun 2025)",
+      "url": "https://www.nytimes.com/2025/07/11/podcasts/interesting-times-a-mind-bending-conversation-with-peter-thiel.html"
+    },
+    {
+      "name": "Wikipedia — Peter Thiel",
+      "url": "https://en.wikipedia.org/wiki/Peter_Thiel"
+    },
+    {
+      "name": "Farnam Street — Zero to One Summary",
+      "url": "https://fs.blog/peter-thiel-zero-to-one/"
+    }
+  ],
+  "lastUpdated": "2026-05-09",
+  "language": "en"
+}

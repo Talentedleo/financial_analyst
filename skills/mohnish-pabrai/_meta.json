@@ -1,0 +1,57 @@
+{
+  "name": "mohnish-pabrai",
+  "version": "1.0.0",
+  "description": "Mohnish Pabrai's value investing framework — low-risk, high-conviction approach built on cloning proven investors, formal checklists, and asymmetric risk-reward analysis (Dhandho method)",
+  "author": "Leo Li",
+  "tags": [
+    "investing",
+    "mohnish-pabrai",
+    "value-investing",
+    "dhandho",
+    "cloning",
+    "checklist",
+    "pabrai-investment-funds",
+    "concentrated-portfolio",
+    "buffett-clone",
+    "margin-of-safety"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/Talentedleo/celebrity_skills",
+  "issues": "https://github.com/Talentedleo/celebrity_skills/issues",
+  "minimumOpenClawVersion": "1.0.0",
+  "skillSpecVersion": "1.0.0",
+  "triggers": [
+    "Mohnish Pabrai",
+    "Pabrai",
+    "Dhandho Investor",
+    "value investing checklist",
+    "cloning strategy",
+    "Pabrai Investment Funds",
+    "Heads I win tails I don't lose",
+    "few bets big bets",
+    "investment checklist",
+    "circle of competence",
+    "margin of safety",
+    "concentrated portfolio"
+  ],
+  "sources": [
+    {
+      "name": "The Dhandho Investor (book)",
+      "url": "https://geni.us/The-Dhandho-Investor"
+    },
+    {
+      "name": "Pabrai Investment Funds",
+      "url": "https://www.pabraiinvestmentfunds.com"
+    },
+    {
+      "name": "Chai with Pabrai Podcast",
+      "url": "https://www.chaiwithpabrai.com"
+    },
+    {
+      "name": "Smallcase Profile",
+      "url": "https://www.smallcase.com/star-investors/mohnish-pabrai-portfolio/"
+    }
+  ],
+  "lastUpdated": "2026-05-09",
+  "language": "en"
+}

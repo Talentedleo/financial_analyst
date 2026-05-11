@@ -1,0 +1,65 @@
+{
+  "name": "george-soros",
+  "version": "1.0.0",
+  "description": "George Soros' cognitive operating system — reflexive, philosophy-driven framework for identifying boom-bust cycles in financial markets. Built from reflexivity theory, macro investing, and open society philanthropy.",
+  "author": "Leo Li",
+  "tags": [
+    "investing",
+    "george-soros",
+    "reflexivity",
+    "quantum-fund",
+    "macro-investing",
+    "open-society",
+    "global-macro",
+    "philanthropy",
+    "boom-bust",
+    "fallibility",
+    "soros-fund-management",
+    "black-wednesday",
+    "currency-trading"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/Talentedleo/celebrity_skills",
+  "issues": "https://github.com/Talentedleo/celebrity_skills/issues",
+  "minimumOpenClawVersion": "1.0.0",
+  "skillSpecVersion": "1.0.0",
+  "triggers": [
+    "George Soros",
+    "reflexivity",
+    "Soros Fund Management",
+    "Quantum Fund",
+    "The Man Who Broke the Bank of England",
+    "Black Wednesday",
+    "open society",
+    "macro investing",
+    "boom-bust cycles",
+    "Soros reflexivity theory",
+    "soros investment philosophy",
+    "global macro strategy",
+    "currency speculation"
+  ],
+  "sources": [
+    {
+      "name": "Wikipedia — George Soros",
+      "url": "https://en.wikipedia.org/wiki/George_Soros"
+    },
+    {
+      "name": "The Alchemy of Finance",
+      "url": "https://www.amazon.com/Alchemy-Finance-George-Soros/dp/0471445495"
+    },
+    {
+      "name": "Project Syndicate — George Soros Columns",
+      "url": "https://www.project-syndicate.org/columnist/george-soros"
+    },
+    {
+      "name": "Open Society Foundations",
+      "url": "https://www.opensocietyfoundations.org"
+    },
+    {
+      "name": "George Soros Official",
+      "url": "https://www.georgesoros.com"
+    }
+  ],
+  "lastUpdated": "2026-04-28",
+  "language": "en"
+}

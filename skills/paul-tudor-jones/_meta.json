@@ -1,0 +1,68 @@
+{
+  "name": "paul-tudor-jones",
+  "version": "1.0.0",
+  "description": "Paul Tudor Jones's macro trading framework — risk-first, pattern-based approach built from technical analysis, historical analogies, and strict capital preservation at Tudor Investment Corporation",
+  "author": "Leo Li",
+  "tags": [
+    "investing",
+    "paul-tudor-jones",
+    "tudor-investment",
+    "macro-trading",
+    "global-macro",
+    "risk-management",
+    "technical-analysis",
+    "hedge-fund",
+    "black-monday",
+    "market-wizards",
+    "trading-psychology",
+    "philanthropy"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/Talentedleo/celebrity_skills",
+  "issues": "https://github.com/Talentedleo/celebrity_skills/issues",
+  "minimumOpenClawVersion": "1.0.0",
+  "skillSpecVersion": "1.0.0",
+  "triggers": [
+    "Paul Tudor Jones",
+    "PTJ",
+    "Tudor Investment",
+    "Tudor",
+    "macro trading",
+    "global macro",
+    "risk management trading",
+    "1 percent rule",
+    "Black Monday 1987",
+    "market crash prediction",
+    "slave to the tape",
+    "position sizing",
+    "technical analysis trading",
+    "asymmetric risk reward",
+    "Robin Hood Foundation",
+    "trading psychology",
+    "Paul Tudor Jones strategy"
+  ],
+  "sources": [
+    {
+      "name": "Market Wizards — Jack Schwager",
+      "url": "https://www.amazon.com/Market-Wizards-Interviews-Jack-Schwager/dp/1118273052"
+    },
+    {
+      "name": "CNBC — Paul Tudor Jones Interview (May 2026)",
+      "url": "https://www.cnbc.com/2026/05/07/paul-tudor-jones-says-ai-bull-market-has-another-year-or-two-to-run.html"
+    },
+    {
+      "name": "Invest Like The Best (Apr 2026)",
+      "url": "https://podcasts.apple.com/gr/podcast/paul-tudor-jones-lessons-from-50-years-in-markets/id1154105909?i=1000763993727"
+    },
+    {
+      "name": "Macro Ops — PTJ Strategy Analysis",
+      "url": "https://macro-ops.com/lessons-from-a-trading-great-paul-tudor-jones-ptj/"
+    },
+    {
+      "name": "Wikipedia — Paul Tudor Jones",
+      "url": "https://en.wikipedia.org/wiki/Paul_Tudor_Jones"
+    }
+  ],
+  "lastUpdated": "2026-05-09",
+  "language": "en"
+}

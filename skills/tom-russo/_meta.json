@@ -1,0 +1,67 @@
+{
+  "name": "tom-russo",
+  "version": "1.0.0",
+  "description": "Tom Russo — Global consumer brands long-term investing. Capacity to Suffer and Capacity to Reinvest framework. Managing Member of Gardner Russo & Quinn LLC. Graham & Dodd Prize winner.",
+  "author": "Leo Li",
+  "tags": [
+    "investing",
+    "tom-russo",
+    "thomas-russo",
+    "gardner-russo",
+    "consumer-brands",
+    "global-value-investing",
+    "capacity-to-suffer",
+    "capacity-to-reinvest",
+    "long-term-compounding",
+    "brand-power",
+    "family-controlled-companies",
+    "graham-dodd-prize",
+    "weetabix",
+    "global-consumer-franchises"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/Talentedleo/celebrity_skills",
+  "issues": "https://github.com/Talentedleo/celebrity_skills/issues",
+  "minimumOpenClawVersion": "1.0.0",
+  "skillSpecVersion": "1.0.0",
+  "triggers": [
+    "Tom Russo",
+    "Thomas Russo",
+    "Gardner Russo",
+    "Gardner Russo & Quinn",
+    "capacity to suffer",
+    "capacity to reinvest",
+    "global consumer brands",
+    "global value investing",
+    "weetabix investment",
+    "consumer brand investing",
+    "Semper Vic",
+    "family-controlled companies",
+    "low turnover investing",
+    "Graham Dodd Prize"
+  ],
+  "sources": [
+    {
+      "name": "Ivey Business School — Ben Graham Centre",
+      "url": "https://www.ivey.uwo.ca/bengrahaminvesting/resources/interviews-notes/thomas-russo/"
+    },
+    {
+      "name": "Latticework 2025 — MOI Global",
+      "url": "https://www.latticework.com/p/latticework-2025-tom-russo-on-finding"
+    },
+    {
+      "name": "The Acquirer's Multiple (Apr 2026)",
+      "url": "https://acquirersmultiple.com/2026/04/tom-russos-investing-style-global-brands-quality-compounders-long-term-value/"
+    },
+    {
+      "name": "WealthTrack Interview",
+      "url": "https://wealthtrack.com/russo-great-value-investor/"
+    },
+    {
+      "name": "StockCircle Portfolio",
+      "url": "https://stockcircle.com/portfolio/tom-russo"
+    }
+  ],
+  "lastUpdated": "2026-05-11",
+  "language": "en"
+}

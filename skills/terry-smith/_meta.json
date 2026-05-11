@@ -1,0 +1,85 @@
+{
+  "name": "terry-smith",
+  "version": "1.0.0",
+  "description": "Terry Smith's high-ROCE quality compounding framework — the Investing for Growth operating system: buy good companies, don't overpay, do nothing",
+  "author": "Leo Li",
+  "tags": [
+    "terry-smith",
+    "fundsmith",
+    "investing-for-growth",
+    "high-roce",
+    "quality-investing",
+    "compounding",
+    "uk-buffett",
+    "accounting-for-growth",
+    "active-management",
+    "cash-flow-analysis",
+    "pricing-power",
+    "low-turnover",
+    "fee-transparency",
+    "ten-golden-rules"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/Talentedleo/celebrity_skills",
+  "issues": "https://github.com/Talentedleo/celebrity_skills/issues",
+  "minimumOpenClawVersion": "1.0.0",
+  "skillSpecVersion": "1.0.0",
+  "triggers": [
+    "Terry Smith",
+    "Fundsmith",
+    "Investing for Growth",
+    "high ROCE",
+    "buy good companies don't overpay do nothing",
+    "quality investing",
+    "Accounting for Growth",
+    "UK Buffett",
+    "Fundsmith AGM",
+    "Fundsmith Equity Fund",
+    "Smith investing",
+    "ten golden rules of investment",
+    "cash conversion ratio",
+    "ROCE investing",
+    "pricing power stocks",
+    "compounding investing",
+    "active fund management",
+    "how to pick quality stocks",
+    "no performance fee fund",
+    "British value investor"
+  ],
+  "sources": [
+    {
+      "name": "Fundsmith Official Website",
+      "url": "https://www.fundsmith.co.uk/"
+    },
+    {
+      "name": "Accounting for Growth",
+      "url": "https://www.amazon.com/Accounting-Growth-Terry-Smith/dp/0712656601"
+    },
+    {
+      "name": "Investing for Growth (2nd Edition)",
+      "url": "https://www.amazon.co.uk/Investing-Growth-Second-buying-companies/dp/1804093734"
+    },
+    {
+      "name": "Financial Times - Terry Smith Columns",
+      "url": "https://www.ft.com/"
+    },
+    {
+      "name": "Fundsmith Shareholder Letters",
+      "url": "https://www.fundsmith.co.uk/documents"
+    },
+    {
+      "name": "Wikipedia - Terry Smith",
+      "url": "https://en.wikipedia.org/wiki/Terry_Smith_(businessman)"
+    },
+    {
+      "name": "Steady Compounding - 2025 AGM Transcript",
+      "url": "https://steadycompounding.com/"
+    },
+    {
+      "name": "Behind the Balance Sheet - The Pugilist",
+      "url": "https://behindthebalancesheet.substack.com/"
+    }
+  ],
+  "lastUpdated": "2026-05-08",
+  "language": "en"
+}
